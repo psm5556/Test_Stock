@@ -264,14 +264,21 @@ class StockAnalyzer:
                       annotation_text="공포")
         
         # 현재값 포인트 추가
-        if self.fear_greed_current and self.fear_greed_history is not None and not self.fear_greed_history.empty:
-            fig.add_trace(go.Scatter(
-                x=[self.fear_greed_history['Date'].iloc[-1]],
-                y=[self.fear_greed_current],
-                mode='markers',
-                marker=dict(color='red', size=10),
-                name=f'현재: {self.fear_greed_current:.1f}'
-            ))
+        if (self.fear_greed_current and 
+            self.fear_greed_history is not None and 
+            hasattr(self.fear_greed_history, 'empty') and 
+            not self.fear_greed_history.empty):
+            try:
+                last_date = self.fear_greed_history['Date'].iloc[-1]
+                fig.add_trace(go.Scatter(
+                    x=[last_date],
+                    y=[self.fear_greed_current],
+                    mode='markers',
+                    marker=dict(color='red', size=10),
+                    name=f'현재: {self.fear_greed_current:.1f}'
+                ))
+            except Exception as e:
+                print(f"[WARNING] 현재값 포인트 추가 실패: {e}")
         
         period_label = self.period_labels.get(period, period)
         
@@ -285,7 +292,24 @@ class StockAnalyzer:
             paper_bgcolor='white',
             xaxis=dict(gridcolor='lightgray'),
             yaxis=dict(range=[0, 100], gridcolor='lightgray'),
-            margin=dict(t=40, b=40, l=50, r=50)
+            margin=dict(t=40, b=40, l=50, r=50),
+            # 모바일 터치 제스처 설정
+            dragmode='pan',
+            modebar=dict(
+                orientation='v',
+                bgcolor='rgba(255,255,255,0.8)',
+                color='black',
+                activecolor='red'
+            )
+        )
+        
+        # 모바일 터치 제스처 설정
+        fig.update_layout(
+            newshape=dict(
+                fillcolor="rgba(0,0,0,0)",
+                opacity=0,
+                line=dict(width=0)
+            )
         )
         
         return fig
@@ -670,7 +694,7 @@ class StockAnalyzer:
                     fillcolor="lightgreen",
                     opacity=0.5,
                     layer="below",
-                    line=dict(color="green", width=2),
+                    line=dict(width=0),  # 테두리 제거
                 )
                 
                 # 텍스트 주석 추가
@@ -703,7 +727,7 @@ class StockAnalyzer:
                         fillcolor="yellow",
                         opacity=0.6,
                         layer="below",
-                        line=dict(color="orange", width=2),
+                        line=dict(width=0),  # 테두리 제거
                     )
                     
                     # 지지 횟수 표시
@@ -741,7 +765,23 @@ class StockAnalyzer:
                     automargin=True
                 ),
                 margin=dict(t=35, b=35, l=35, r=35),
-                dragmode='zoom'
+                # 모바일 터치 제스처 설정
+                dragmode='pan',
+                modebar=dict(
+                    orientation='v',
+                    bgcolor='rgba(255,255,255,0.8)',
+                    color='black',
+                    activecolor='red'
+                )
+            )
+            
+            # 모바일 터치 제스처 설정
+            fig.update_layout(
+                newshape=dict(
+                    fillcolor="rgba(0,0,0,0)",
+                    opacity=0,
+                    line=dict(width=0)
+                )
             )
             
             return fig
@@ -802,77 +842,72 @@ def main():
     if 'analysis_results' not in st.session_state:
         st.session_state.analysis_results = []
     
-    # 메인 컨텐츠 영역을 두 개 컬럼으로 분할
-    col1, col2 = st.columns([1, 1])
+    # 공포 탐욕 지수 (전체 너비)
+    st.subheader("😨 공포 탐욕 지수")
     
-    # 좌측: 공포 탐욕 지수
-    with col1:
-        st.subheader("😨 공포 탐욕 지수")
-        
-        if analyze_button or 'fear_greed_current' in st.session_state:
-            try:
-                if analyze_button:
-                    with st.spinner("공포 탐욕 지수 로딩 중..."):
-                        fear_greed = analyzer.get_fear_greed_index(period)
-                        st.session_state.fear_greed_current = fear_greed
-                        st.session_state.fear_greed_label = analyzer.fear_greed_label
-                        st.session_state.fear_greed_chart = analyzer.get_fear_greed_chart()
+    if analyze_button or 'fear_greed_current' in st.session_state:
+        try:
+            if analyze_button:
+                with st.spinner("공포 탐욕 지수 로딩 중..."):
+                    fear_greed = analyzer.get_fear_greed_index(period or '6mo')
+                    st.session_state.fear_greed_current = fear_greed
+                    st.session_state.fear_greed_label = analyzer.fear_greed_label
+                    st.session_state.fear_greed_chart = analyzer.get_fear_greed_chart()
+            
+            # 현재 지수 표시
+            fear_greed = st.session_state.get('fear_greed_current', 50.0)
+            fear_greed_label = st.session_state.get('fear_greed_label', 'Neutral')
+            
+            # 감정 상태 및 색상 결정
+            if fear_greed >= 75:
+                color = 'red'
+                emotion = '극도의 탐욕'
+            elif fear_greed >= 55:
+                color = 'orange'
+                emotion = '탐욕'
+            elif fear_greed >= 45:
+                color = 'gray'
+                emotion = '중립'
+            elif fear_greed >= 25:
+                color = 'blue'
+                emotion = '공포'
+            else:
+                color = 'darkblue'
+                emotion = '극도의 공포'
+            
+            # 지수 표시
+            st.markdown(f"""
+            <div style="text-align: center; padding: 20px; border: 2px solid {color}; border-radius: 10px; margin: 10px 0;">
+                <h1 style="color: {color}; margin: 0;">{fear_greed:.1f}</h1>
+                <h3 style="color: {color}; margin: 0;">{emotion}</h3>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # 차트 표시
+            if 'fear_greed_chart' in st.session_state:
+                st.plotly_chart(st.session_state.fear_greed_chart, use_container_width=True)
                 
-                # 현재 지수 표시
-                fear_greed = st.session_state.get('fear_greed_current', 50.0)
-                fear_greed_label = st.session_state.get('fear_greed_label', 'Neutral')
-                
-                # 감정 상태 및 색상 결정
-                if fear_greed >= 75:
-                    color = 'red'
-                    emotion = '극도의 탐욕'
-                elif fear_greed >= 55:
-                    color = 'orange'
-                    emotion = '탐욕'
-                elif fear_greed >= 45:
-                    color = 'gray'
-                    emotion = '중립'
-                elif fear_greed >= 25:
-                    color = 'blue'
-                    emotion = '공포'
-                else:
-                    color = 'darkblue'
-                    emotion = '극도의 공포'
-                
-                # 지수 표시
-                st.markdown(f"""
-                <div style="text-align: center; padding: 20px; border: 2px solid {color}; border-radius: 10px; margin: 10px 0;">
-                    <h1 style="color: {color}; margin: 0;">{fear_greed:.1f}</h1>
-                    <h3 style="color: {color}; margin: 0;">{emotion}</h3>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                # 차트 표시
-                if 'fear_greed_chart' in st.session_state:
-                    st.plotly_chart(st.session_state.fear_greed_chart, use_container_width=True)
-                    
-            except Exception as e:
-                st.error(f"공포 탐욕 지수 로딩 실패: {e}")
-                st.markdown("""
-                <div style="text-align: center; padding: 20px; border: 2px solid gray; border-radius: 10px; margin: 10px 0;">
-                    <h1 style="color: gray; margin: 0;">50.0</h1>
-                    <h3 style="color: gray; margin: 0;">중립 (오류)</h3>
-                </div>
-                """, unsafe_allow_html=True)
+        except Exception as e:
+            st.error(f"공포 탐욕 지수 로딩 실패: {e}")
+            st.markdown("""
+            <div style="text-align: center; padding: 20px; border: 2px solid gray; border-radius: 10px; margin: 10px 0;">
+                <h1 style="color: gray; margin: 0;">50.0</h1>
+                <h3 style="color: gray; margin: 0;">중립 (오류)</h3>
+            </div>
+            """, unsafe_allow_html=True)
     
-    # 우측: 빈 공간 (나중에 추가 정보 표시 가능)
-    with col2:
-        st.subheader("📊 분석 정보")
-        if analyze_button:
-            st.info("분석이 시작되었습니다. 잠시만 기다려주세요...")
-        else:
-            st.info("왼쪽에서 분석 설정을 선택하고 '분석 시작' 버튼을 클릭하세요.")
+    # 분석 정보 (전체 너비)
+    st.subheader("📊 분석 정보")
+    if analyze_button:
+        st.info("분석이 시작되었습니다. 잠시만 기다려주세요...")
+    else:
+        st.info("왼쪽에서 분석 설정을 선택하고 '분석 시작' 버튼을 클릭하세요.")
     
     # 분석 실행
     if analyze_button:
         with st.spinner(f"{market} 시장 분석 중... 잠시만 기다려주세요."):
             try:
-                results = analyzer.get_recommendations(market, period)
+                results = analyzer.get_recommendations(market or 'SP500', period or '6mo')
                 st.session_state.analysis_results = results
                 st.session_state.current_market = market
                 st.session_state.current_period = period
@@ -908,15 +943,12 @@ def main():
         selected_indices = st.dataframe(
             df_results[['Symbol', 'Company', 'Price', 'GC', 'MA', '125', 'Trend', 'Score']],
             use_container_width=True,
-            hide_index=True,
-            on_select="rerun",
-            selection_mode="single-row"
+            hide_index=True
         )
         
-        # 선택된 종목의 차트 표시
-        if selected_indices['selection']['rows']:
-            selected_idx = selected_indices['selection']['rows'][0]
-            selected_result = st.session_state.analysis_results[selected_idx]
+        # 선택된 종목의 차트 표시 (임시로 첫 번째 종목 표시)
+        if st.session_state.analysis_results:
+            selected_result = st.session_state.analysis_results[0]
             
             st.subheader(f"📊 {selected_result['company_name']} ({selected_result['symbol']}) 차트")
             
