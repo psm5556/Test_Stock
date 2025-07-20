@@ -264,21 +264,14 @@ class StockAnalyzer:
                       annotation_text="공포")
         
         # 현재값 포인트 추가
-        if (self.fear_greed_current and 
-            self.fear_greed_history is not None and 
-            hasattr(self.fear_greed_history, 'iloc') and 
-            not self.fear_greed_history.empty):
-            try:
-                last_date = self.fear_greed_history['Date'].iloc[-1]
-                fig.add_trace(go.Scatter(
-                    x=[last_date],
-                    y=[self.fear_greed_current],
-                    mode='markers',
-                    marker=dict(color='red', size=10),
-                    name=f'현재: {self.fear_greed_current:.1f}'
-                ))
-            except Exception as e:
-                print(f"[WARNING] 현재값 포인트 추가 실패: {e}")
+        if self.fear_greed_current and self.fear_greed_history is not None and not self.fear_greed_history.empty:
+            fig.add_trace(go.Scatter(
+                x=[self.fear_greed_history['Date'].iloc[-1]],
+                y=[self.fear_greed_current],
+                mode='markers',
+                marker=dict(color='red', size=10),
+                name=f'현재: {self.fear_greed_current:.1f}'
+            ))
         
         period_label = self.period_labels.get(period, period)
         
@@ -337,7 +330,7 @@ class StockAnalyzer:
         return False, None
     
     def check_above_ma_lines(self, df):
-        """현재 가격이 20일선, 60일선 위에 있고 125일선은 아래에 있는지 확인"""
+        """현재 가격이 20일선, 60일선 위에 있고 125일선 아래에 있는지 확인"""
         if len(df) < 1:
             return False
         
@@ -346,7 +339,7 @@ class StockAnalyzer:
         ma60 = df['MA60'].iloc[-1]
         ma125 = df['MA125'].iloc[-1]
         
-        # 20일, 60일선 위에 있으면서 125일선은 아래에 있어야 함
+        # 수정된 조건: 현재가가 20일선, 60일선 위에 있고, 125일선 아래에 있어야 함
         return current_price > ma20 and current_price > ma60 and current_price < ma125
     
     def check_ma125_support(self, df):
@@ -667,37 +660,42 @@ class StockAnalyzer:
                     hovertemplate='%{text}<extra></extra>'
                 ))
             
-            # 20,60일선 위 영역 표시 (수정된 조건: 20일, 60일 지지하면서 125일선은 아래에 있을 때만)
+            # MA 조건 확인: 현재가가 20일선, 60일선 위에 있고 125일선 아래에 있을 때만 표시
             if analysis['above_ma_lines']:
                 current_price = df['Close'].iloc[-1]
                 ma20 = df['MA20'].iloc[-1]
                 ma60 = df['MA60'].iloc[-1]
+                ma125 = df['MA125'].iloc[-1]
                 
-                recent_date = df.index[-1]
-                fig.add_shape(
-                    type="rect",
-                    x0=recent_date - timedelta(days=7),
-                    y0=max(ma20, ma60),
-                    x1=recent_date,
-                    y1=current_price * 1.02,
-                    fillcolor="lightgreen",
-                    opacity=0.5,
-                    layer="below",
-                    line=dict(width=0),  # 테두리 제거
-                )
-                
-                # 텍스트 주석 추가
-                fig.add_annotation(
-                    x=recent_date,
-                    y=current_price * 1.03,
-                    text="현재가 20,60일선 위",
-                    showarrow=True,
-                    arrowhead=2,
-                    arrowsize=1,
-                    arrowwidth=2,
-                    arrowcolor="green",
-                    font=dict(size=10, color="green")
-                )
+                # 조건 재확인: 현재가 > 20일선, 60일선 이면서 125일선 < 현재가
+                if current_price > ma20 and current_price > ma60 and current_price < ma125:
+                    recent_date = df.index[-1]
+                    
+                    # 하이라이트 박스 (테두리 없음)
+                    fig.add_shape(
+                        type="rect",
+                        x0=recent_date - timedelta(days=7),
+                        y0=max(ma20, ma60),
+                        x1=recent_date,
+                        y1=current_price * 1.02,
+                        fillcolor="lightgreen",
+                        opacity=0.5,
+                        layer="below",
+                        line=dict(width=0)  # 테두리 제거
+                    )
+                    
+                    # 텍스트 주석 추가
+                    fig.add_annotation(
+                        x=recent_date,
+                        y=current_price * 1.03,
+                        text="현재가 20,60일선 위",
+                        showarrow=True,
+                        arrowhead=2,
+                        arrowsize=1,
+                        arrowwidth=2,
+                        arrowcolor="green",
+                        font=dict(size=10, color="green")
+                    )
             
             # 125일선 지지 영역 표시
             if analysis['ma125_support']:
@@ -706,7 +704,7 @@ class StockAnalyzer:
                     ma125_price = df.loc[date, 'MA125']
                     close_price = df.loc[date, 'Close']
                     
-                    # 지지 영역 표시 (테두리 제거)
+                    # 지지 영역 표시 (테두리 없음)
                     fig.add_shape(
                         type="rect",
                         x0=date - timedelta(days=1),
@@ -716,7 +714,7 @@ class StockAnalyzer:
                         fillcolor="yellow",
                         opacity=0.6,
                         layer="below",
-                        line=dict(width=0),  # 테두리 제거
+                        line=dict(width=0)  # 테두리 제거
                     )
                     
                     # 지지 횟수 표시
@@ -737,8 +735,8 @@ class StockAnalyzer:
                 yaxis_title="가격",
                 height=600,
                 showlegend=True,
-                plot_bgcolor='white',  # 차트 바탕화면 하얀색 고정
-                paper_bgcolor='white',  # 차트 외부 바탕화면 하얀색 고정
+                plot_bgcolor='white',
+                paper_bgcolor='white',
                 xaxis=dict(
                     gridcolor='lightgray',
                     rangeslider=dict(visible=False)
@@ -815,16 +813,14 @@ def main():
     if 'analysis_results' not in st.session_state:
         st.session_state.analysis_results = []
     
-    # 공포 탐욕 지수 (전체 너비)
+    # 공포 탐욕 지수 (full width)
     st.subheader("😨 공포 탐욕 지수")
     
     if analyze_button or 'fear_greed_current' in st.session_state:
         try:
             if analyze_button:
                 with st.spinner("공포 탐욕 지수 로딩 중..."):
-                    # period가 None이면 기본값 사용
-                    period_to_use = period if period is not None else '6mo'
-                    fear_greed = analyzer.get_fear_greed_index(period_to_use)
+                    fear_greed = analyzer.get_fear_greed_index(period)
                     st.session_state.fear_greed_current = fear_greed
                     st.session_state.fear_greed_label = analyzer.fear_greed_label
                     st.session_state.fear_greed_chart = analyzer.get_fear_greed_chart()
@@ -850,18 +846,23 @@ def main():
                 color = 'darkblue'
                 emotion = '극도의 공포'
             
-            # 지수 표시
-            st.markdown(f"""
-            <div style="text-align: center; padding: 20px; border: 2px solid {color}; border-radius: 10px; margin: 10px 0;">
-                <h1 style="color: {color}; margin: 0;">{fear_greed:.1f}</h1>
-                <h3 style="color: {color}; margin: 0;">{emotion}</h3>
-            </div>
-            """, unsafe_allow_html=True)
+            # 지수와 차트를 나란히 배치
+            col1, col2 = st.columns([1, 3])
             
-            # 차트 표시
-            if 'fear_greed_chart' in st.session_state:
-                st.plotly_chart(st.session_state.fear_greed_chart, use_container_width=True)
-                
+            with col1:
+                # 지수 표시
+                st.markdown(f"""
+                <div style="text-align: center; padding: 20px; border: 2px solid {color}; border-radius: 10px; margin: 10px 0;">
+                    <h1 style="color: {color}; margin: 0;">{fear_greed:.1f}</h1>
+                    <h3 style="color: {color}; margin: 0;">{emotion}</h3>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            with col2:
+                # 차트 표시
+                if 'fear_greed_chart' in st.session_state:
+                    st.plotly_chart(st.session_state.fear_greed_chart, use_container_width=True)
+                    
         except Exception as e:
             st.error(f"공포 탐욕 지수 로딩 실패: {e}")
             st.markdown("""
@@ -870,11 +871,6 @@ def main():
                 <h3 style="color: gray; margin: 0;">중립 (오류)</h3>
             </div>
             """, unsafe_allow_html=True)
-    
-    # 분석 정보
-    st.subheader("📊 분석 정보")
-    if analyze_button:
-        st.info("분석이 시작되었습니다. 잠시만 기다려주세요...")
     else:
         st.info("왼쪽에서 분석 설정을 선택하고 '분석 시작' 버튼을 클릭하세요.")
     
@@ -882,13 +878,10 @@ def main():
     if analyze_button:
         with st.spinner(f"{market} 시장 분석 중... 잠시만 기다려주세요."):
             try:
-                # market과 period가 None이면 기본값 사용
-                market_to_use = market if market is not None else 'SP500'
-                period_to_use = period if period is not None else '6mo'
-                results = analyzer.get_recommendations(market_to_use, period_to_use)
+                results = analyzer.get_recommendations(market, period)
                 st.session_state.analysis_results = results
-                st.session_state.current_market = market_to_use
-                st.session_state.current_period = period_to_use
+                st.session_state.current_market = market
+                st.session_state.current_period = period
                 
                 st.success(f"✅ 분석 완료! 총 {len(results)}개 종목 분석")
                 
@@ -917,8 +910,8 @@ def main():
         
         df_results = pd.DataFrame(results_data)
         
-        # 데이터프레임 표시
-        st.dataframe(
+        # 데이터프레임 표시 (클릭 가능)
+        selected_indices = st.dataframe(
             df_results[['Symbol', 'Company', 'Price', 'GC', 'MA', '125', 'Trend', 'Score']],
             use_container_width=True,
             hide_index=True,
@@ -926,56 +919,39 @@ def main():
             selection_mode="single-row"
         )
         
-        # 종목 선택을 위한 selectbox 추가
-        if len(st.session_state.analysis_results) > 0:
-            st.subheader("📊 종목 차트 보기")
+        # 선택된 종목의 차트 표시
+        if selected_indices['selection']['rows']:
+            selected_idx = selected_indices['selection']['rows'][0]
+            selected_result = st.session_state.analysis_results[selected_idx]
             
-            # 종목 선택 드롭다운
-            selected_symbol = st.selectbox(
-                "차트를 볼 종목을 선택하세요:",
-                options=[f"{result['symbol']} - {result['company_name']}" for result in st.session_state.analysis_results],
-                format_func=lambda x: x
-            )
+            st.subheader(f"📊 {selected_result['company_name']} ({selected_result['symbol']}) 차트")
             
-            if selected_symbol:
-                # 선택된 종목 찾기
-                selected_symbol_only = selected_symbol.split(" - ")[0]
-                selected_result = None
+            # 차트 생성 및 표시
+            chart = analyzer.create_stock_chart(selected_result)
+            if chart:
+                st.plotly_chart(chart, use_container_width=True)
+            else:
+                st.error("차트를 생성할 수 없습니다.")
                 
-                for result in st.session_state.analysis_results:
-                    if result['symbol'] == selected_symbol_only:
-                        selected_result = result
-                        break
+            # 분석 세부 정보 표시
+            col1, col2, col3, col4 = st.columns(4)
+            
+            with col1:
+                st.metric("골든크로스", "✅" if selected_result['golden_cross'] else "❌")
+            with col2:
+                st.metric("이평선 위", "✅" if selected_result['above_ma_lines'] else "❌")
+            with col3:
+                st.metric("125일선 지지", "✅" if selected_result['ma125_support'] else "❌")
+            with col4:
+                st.metric("추세 안정", "✅" if selected_result['trend_stable'] else "❌")
                 
-                if selected_result:
-                    st.subheader(f"📊 {selected_result['company_name']} ({selected_result['symbol']}) 차트")
-                    
-                    # 차트 생성 및 표시
-                    chart = analyzer.create_stock_chart(selected_result)
-                    if chart:
-                        st.plotly_chart(chart, use_container_width=True)
-                    else:
-                        st.error("차트를 생성할 수 없습니다.")
-                        
-                    # 분석 세부 정보 표시
-                    col1, col2, col3, col4 = st.columns(4)
-                    
-                    with col1:
-                        st.metric("골든크로스", "✅" if selected_result['golden_cross'] else "❌")
-                    with col2:
-                        st.metric("이평선 위", "✅" if selected_result['above_ma_lines'] else "❌")
-                    with col3:
-                        st.metric("125일선 지지", "✅" if selected_result['ma125_support'] else "❌")
-                    with col4:
-                        st.metric("추세 안정", "✅" if selected_result['trend_stable'] else "❌")
-                        
-                    # 종합 점수 표시
-                    score_color = "green" if selected_result['score'] >= 75 else "orange" if selected_result['score'] >= 50 else "red"
-                    st.markdown(f"""
-                    <div style="text-align: center; padding: 15px; border: 2px solid {score_color}; border-radius: 10px; margin: 10px 0;">
-                        <h2 style="color: {score_color}; margin: 0;">종합 점수: {selected_result['score']}점</h2>
-                    </div>
-                    """, unsafe_allow_html=True)
+            # 종합 점수 표시
+            score_color = "green" if selected_result['score'] >= 75 else "orange" if selected_result['score'] >= 50 else "red"
+            st.markdown(f"""
+            <div style="text-align: center; padding: 15px; border: 2px solid {score_color}; border-radius: 10px; margin: 10px 0;">
+                <h2 style="color: {score_color}; margin: 0;">종합 점수: {selected_result['score']}점</h2>
+            </div>
+            """, unsafe_allow_html=True)
     
     # 사이드바에 사용법 설명
     st.sidebar.markdown("---")
