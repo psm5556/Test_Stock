@@ -81,7 +81,7 @@ class StockAnalyzer:
             print(f"[WARNING] 미국 {market_type} 조회 실패: {e}")
             return None
 
-    def get_top_companies_by_market_cap(self, market='SP500', limit=50):  # limit 줄임
+    def get_top_companies_by_market_cap(self, market='SP500', limit=200):  # limit 증가
         """시가총액 기준 상위 기업 가져오기 (최적화 버전)"""
         print(f"[DEBUG] 시가총액 상위 {limit}개 기업 조회 시작: market={market}")
         
@@ -506,8 +506,8 @@ class StockAnalyzer:
                 print(f"[ERROR] {symbol} 분석 중 오류: {str(e)}")
                 return None
         
-        # 워커 수를 줄이고 타임아웃 설정
-        with ThreadPoolExecutor(max_workers=2) as executor:  # 워커 수 줄임
+        # 워커 수를 늘리고 타임아웃 설정
+        with ThreadPoolExecutor(max_workers=5) as executor:  # 워커 수 증가
             # 모든 분석 작업을 제출
             future_to_symbol = {executor.submit(analyze_single_stock, symbol): symbol for symbol in symbols.keys()}
             
@@ -777,8 +777,8 @@ def main():
         "시장 선택",
         options=['SP500', 'NASDAQ', 'KOSPI', 'KOSDAQ'],
         format_func=lambda x: {
-            'SP500': 'S&P 500 (미국 대형주 50)',
-            'NASDAQ': 'NASDAQ (미국 기술주 50)',
+            'SP500': 'S&P 500 (미국 대형주 200개)',
+            'NASDAQ': 'NASDAQ (미국 기술주 200개)',
             'KOSPI': 'KOSPI (한국 대형주 50)',
             'KOSDAQ': 'KOSDAQ (한국 기술주 50)'
         }[x]
