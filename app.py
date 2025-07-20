@@ -330,15 +330,17 @@ class StockAnalyzer:
         return False, None
     
     def check_above_ma_lines(self, df):
-        """현재 가격이 20일선, 60일선 위에 있는지 확인"""
+        """현재 가격이 20일선, 60일선 위에 있고 125일선은 아래에 있는지 확인"""
         if len(df) < 1:
             return False
         
         current_price = df['Close'].iloc[-1]
         ma20 = df['MA20'].iloc[-1]
         ma60 = df['MA60'].iloc[-1]
+        ma125 = df['MA125'].iloc[-1]
         
-        return current_price > ma20 and current_price > ma60
+        # 20일, 60일선 위에 있으면서 125일선은 아래에 있어야 함
+        return current_price > ma20 and current_price > ma60 and current_price < ma125
     
     def check_ma125_support(self, df):
         """125일선 위에서 2개 이상 캔들이 지지하는지 확인"""
@@ -663,35 +665,32 @@ class StockAnalyzer:
                 current_price = df['Close'].iloc[-1]
                 ma20 = df['MA20'].iloc[-1]
                 ma60 = df['MA60'].iloc[-1]
-                ma125 = df['MA125'].iloc[-1]
                 
-                # 20일, 60일선 위에 있으면서 125일선은 아래에 있을 때만 표시
-                if current_price > ma20 and current_price > ma60 and current_price < ma125:
-                    recent_date = df.index[-1]
-                    fig.add_shape(
-                        type="rect",
-                        x0=recent_date - timedelta(days=7),
-                        y0=max(ma20, ma60),
-                        x1=recent_date,
-                        y1=current_price * 1.02,
-                        fillcolor="lightgreen",
-                        opacity=0.5,
-                        layer="below",
-                        line=dict(width=0),  # 테두리 제거
-                    )
-                    
-                    # 텍스트 주석 추가
-                    fig.add_annotation(
-                        x=recent_date,
-                        y=current_price * 1.03,
-                        text="현재가 20,60일선 위",
-                        showarrow=True,
-                        arrowhead=2,
-                        arrowsize=1,
-                        arrowwidth=2,
-                        arrowcolor="green",
-                        font=dict(size=10, color="green")
-                    )
+                recent_date = df.index[-1]
+                fig.add_shape(
+                    type="rect",
+                    x0=recent_date - timedelta(days=7),
+                    y0=max(ma20, ma60),
+                    x1=recent_date,
+                    y1=current_price * 1.02,
+                    fillcolor="lightgreen",
+                    opacity=0.5,
+                    layer="below",
+                    line=dict(width=0),  # 테두리 제거
+                )
+                
+                # 텍스트 주석 추가
+                fig.add_annotation(
+                    x=recent_date,
+                    y=current_price * 1.03,
+                    text="현재가 20,60일선 위",
+                    showarrow=True,
+                    arrowhead=2,
+                    arrowsize=1,
+                    arrowwidth=2,
+                    arrowcolor="green",
+                    font=dict(size=10, color="green")
+                )
             
             # 125일선 지지 영역 표시
             if analysis['ma125_support']:
@@ -906,48 +905,63 @@ def main():
         
         df_results = pd.DataFrame(results_data)
         
-        # 데이터프레임 표시 (클릭 가능)
-        selected_indices = st.dataframe(
+        # 데이터프레임 표시
+        st.dataframe(
             df_results[['Symbol', 'Company', 'Price', 'GC', 'MA', '125', 'Trend', 'Score']],
             use_container_width=True,
-            hide_index=True,
-            on_select="rerun",
-            selection_mode="single-row"
+            hide_index=True
         )
         
-        # 선택된 종목의 차트 표시
-        if selected_indices['selection']['rows']:
-            selected_idx = selected_indices['selection']['rows'][0]
-            selected_result = st.session_state.analysis_results[selected_idx]
+        # 종목 선택을 위한 selectbox 추가
+        if len(st.session_state.analysis_results) > 0:
+            st.subheader("📊 종목 차트 보기")
             
-            st.subheader(f"📊 {selected_result['company_name']} ({selected_result['symbol']}) 차트")
+            # 종목 선택 드롭다운
+            selected_symbol = st.selectbox(
+                "차트를 볼 종목을 선택하세요:",
+                options=[f"{result['symbol']} - {result['company_name']}" for result in st.session_state.analysis_results],
+                format_func=lambda x: x
+            )
             
-            # 차트 생성 및 표시
-            chart = analyzer.create_stock_chart(selected_result)
-            if chart:
-                st.plotly_chart(chart, use_container_width=True)
-            else:
-                st.error("차트를 생성할 수 없습니다.")
+            if selected_symbol:
+                # 선택된 종목 찾기
+                selected_symbol_only = selected_symbol.split(" - ")[0]
+                selected_result = None
                 
-            # 분석 세부 정보 표시
-            col1, col2, col3, col4 = st.columns(4)
-            
-            with col1:
-                st.metric("골든크로스", "✅" if selected_result['golden_cross'] else "❌")
-            with col2:
-                st.metric("이평선 위", "✅" if selected_result['above_ma_lines'] else "❌")
-            with col3:
-                st.metric("125일선 지지", "✅" if selected_result['ma125_support'] else "❌")
-            with col4:
-                st.metric("추세 안정", "✅" if selected_result['trend_stable'] else "❌")
+                for result in st.session_state.analysis_results:
+                    if result['symbol'] == selected_symbol_only:
+                        selected_result = result
+                        break
                 
-            # 종합 점수 표시
-            score_color = "green" if selected_result['score'] >= 75 else "orange" if selected_result['score'] >= 50 else "red"
-            st.markdown(f"""
-            <div style="text-align: center; padding: 15px; border: 2px solid {score_color}; border-radius: 10px; margin: 10px 0;">
-                <h2 style="color: {score_color}; margin: 0;">종합 점수: {selected_result['score']}점</h2>
-            </div>
-            """, unsafe_allow_html=True)
+                if selected_result:
+                    st.subheader(f"📊 {selected_result['company_name']} ({selected_result['symbol']}) 차트")
+                    
+                    # 차트 생성 및 표시
+                    chart = analyzer.create_stock_chart(selected_result)
+                    if chart:
+                        st.plotly_chart(chart, use_container_width=True)
+                    else:
+                        st.error("차트를 생성할 수 없습니다.")
+                        
+                    # 분석 세부 정보 표시
+                    col1, col2, col3, col4 = st.columns(4)
+                    
+                    with col1:
+                        st.metric("골든크로스", "✅" if selected_result['golden_cross'] else "❌")
+                    with col2:
+                        st.metric("이평선 위", "✅" if selected_result['above_ma_lines'] else "❌")
+                    with col3:
+                        st.metric("125일선 지지", "✅" if selected_result['ma125_support'] else "❌")
+                    with col4:
+                        st.metric("추세 안정", "✅" if selected_result['trend_stable'] else "❌")
+                        
+                    # 종합 점수 표시
+                    score_color = "green" if selected_result['score'] >= 75 else "orange" if selected_result['score'] >= 50 else "red"
+                    st.markdown(f"""
+                    <div style="text-align: center; padding: 15px; border: 2px solid {score_color}; border-radius: 10px; margin: 10px 0;">
+                        <h2 style="color: {score_color}; margin: 0;">종합 점수: {selected_result['score']}점</h2>
+                    </div>
+                    """, unsafe_allow_html=True)
     
     # 사이드바에 사용법 설명
     st.sidebar.markdown("---")
