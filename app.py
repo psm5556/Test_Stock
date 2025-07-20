@@ -719,7 +719,7 @@ class StockAnalyzer:
                     fig.add_annotation(
                         x=date,
                         y=ma125_price * 0.98,
-                        text=f"지지 {i+1}",
+                        text=f"지지 {i+1}번째째",
                         showarrow=False,
                         font=dict(size=8, color="orange"),
                         bgcolor="yellow",
