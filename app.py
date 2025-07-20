@@ -1,442 +1,4 @@
-def _analyze_stocks_parallel(self, symbols, period):
-        """병렬 처리로 주식 분석 수행"""
-        results = []
-        total_symbols = len(symbols)
-        
-        def analyze_single_stock(symbol):
-            try:
-                analysis = self.analyze_stock(symbol, period, symbols)
-                return analysis
-            except Exception as e:
-                print(f"[ERROR] {symbol} 분석 중 오류: {str(e)}")
-                return None
-        
-        # 대용량 처리를 위해 워커 수와 타임아웃 조정
-        max_workers = min(4, total_symbols // 10 + 1)  # 동적 워커 수 조정
-        timeout_total = max(600, total_symbols * 2)  # 총 타임아웃 (최소 10분)
-        timeout_single = min(60, timeout_total // total_symbols)  # 개별 타임아웃
-        
-        print(f"[DEBUG] 병렬 처리 설정: 워커={max_workers}, 총타임아웃={timeout_total}초, 개별타임아웃={timeout_single}초")
-        
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            # 모든 분석 작업을 제출
-            future_to_symbol = {executor.submit(analyze_single_stock, symbol): symbol for symbol in symbols.keys()}
-            
-            # 완료된 작업부터 결과 수집
-            completed_count = 0
-            for future in as_completed(future_to_symbol, timeout=timeout_total):
-                symbol = future_to_symbol[future]
-                try:
-                    analysis = future.result(timeout=timeout_single)
-                    if analysis:
-                        results.append(analysis)
-                    
-                    completed_count += 1
-                    
-                    # 진행률 표시 (10% 단위)
-                    if completed_count % max(1, total_symbols // 10) == 0:
-                        progress = completed_count / total_symbols * 100
-                        print(f"[DEBUG] 분석 진행률: {completed_count}/{total_symbols} ({progress:.1f}%)")
-                        
-                except Exception as e:
-                    print(f"[ERROR] {symbol} 결과 처리 중 오류: {str(e)}")
-        
-        return results
-
-    def _get_us_company_names(self):import streamlit as st
-import plotly.graph_objs as go
-import pandas as pd
-import numpy as np
-import yfinance as yf
-import requests
-from datetime import datetime, timedelta
-from fear_and_greed import get
-import warnings
-import json
-import time
-import re
-from concurrent.futures import ThreadPoolExecutor, as_completed
-warnings.filterwarnings('ignore')
-
-class StockAnalyzer:
-    """주식 기술적 분석을 위한 클래스"""
-    
-    def __init__(self):
-        """초기화"""
-        self.fear_greed_current = None
-        self.fear_greed_label = None
-        self.fear_greed_history = None
-        self.current_period = '6mo'  # 기본값
-        
-        # 기간별 라벨 매핑
-        self.period_labels = {
-            '1mo': '1개월',
-            '3mo': '3개월', 
-            '6mo': '6개월',
-            '1y': '1년',
-            '2y': '2년',
-            '5y': '5년'
-        }
-        
-        # 기간별 일수 매핑
-        self.period_days = {
-            '1mo': 30,
-            '3mo': 90,
-            '6mo': 180,
-            '1y': 365,
-            '2y': 730,
-            '5y': 1825
-        }
-        
-    def _get_us_market_cap_from_yahoo(self, market_type='SP500', limit=None):
-        """미국 시가총액 상위 종목 가져오기 (하드코딩)"""
-        try:
-            print(f"[DEBUG] 미국 {market_type} 시가총액 종목 조회 시도")
-            
-            if market_type == 'SP500':
-                # S&P 500 전체 기업 리스트 (500개 전체)
-                sp500_symbols = [
-                    # 대형주 (상위 100개)
-                    'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'BRK-B', 'LLY', 'AVGO', 'UNH',
-                    'JPM', 'XOM', 'V', 'PG', 'JNJ', 'MA', 'HD', 'CVX', 'ABBV', 'PFE',
-                    'BAC', 'KO', 'COST', 'TMO', 'WMT', 'CSCO', 'DIS', 'ABT', 'DHR', 'MRK',
-                    'ADBE', 'CRM', 'NFLX', 'INTC', 'AMD', 'QCOM', 'IBM', 'GE', 'BA', 'CAT',
-                    'HON', 'RTX', 'GS', 'MS', 'VZ', 'CMCSA', 'NKE', 'ORCL', 'PEP', 'TXN',
-                    'PM', 'T', 'AMGN', 'COP', 'UNP', 'NEE', 'LOW', 'TMUS', 'AMAT', 'ISRG',
-                    'BKNG', 'VRTX', 'ADP', 'SBUX', 'GILD', 'ADI', 'LRCX', 'MDLZ', 'REGN',
-                    'PYPL', 'KLAC', 'MRVL', 'ORLY', 'CDNS', 'SNPS', 'NXPI', 'WDAY', 'ABNB', 'FTNT',
-                    'DDOG', 'TEAM', 'ZM', 'CRWD', 'ZS', 'OKTA', 'DOCU', 'NOW', 'PANW', 'MU',
-                    'ANET', 'LULU', 'ODFL', 'EXC', 'CTAS', 'ROST', 'TJX', 'MCD', 'YUM', 'CMG',
-                    
-                    # 중형주 (101-200위)
-                    'FAST', 'PAYX', 'VRSK', 'CHTR', 'EA', 'PCAR', 'MCHP', 'KDP', 'TTWO', 'CTSH',
-                    'DXCM', 'MNST', 'MAR', 'AZO', 'CPRT', 'NTES', 'EBAY', 'IDXX', 'SGEN', 'SPLK',
-                    'VRSN', 'SWKS', 'CDW', 'INCY', 'ALGN', 'EXPE', 'TROW', 'FISV', 'CTXS', 'CERN',
-                    'XLNX', 'ADSK', 'BMRN', 'MRNA', 'BIIB', 'ILMN', 'AMGN', 'CSX', 'WBA', 'DLTR',
-                    'TSCO', 'FOX', 'FOXA', 'NDAQ', 'ULTA', 'LRCX', 'ANSS', 'ALXN', 'MXIM', 'CTAS',
-                    'JBHT', 'SIRI', 'PCLN', 'CHRW', 'HOLX', 'NTAP', 'VRTX', 'MELI', 'JD', 'ROKU',
-                    'NFLX', 'GILD', 'CELG', 'WLTW', 'HAS', 'MAT', 'EXPD', 'COST', 'SBAC', 'AMAT',
-                    'MSCI', 'INFO', 'TER', 'SIVB', 'NCLH', 'AAL', 'WYNN', 'LVS', 'MGM', 'CZR',
-                    'PENN', 'BYD', 'SAVE', 'JBLU', 'ALK', 'LUV', 'UAL', 'DAL', 'CCL', 'RCL',
-                    'EXPE', 'TRIP', 'BKNG', 'PCLN', 'EXPD', 'CHRW', 'UPS', 'FDX', 'ODFL', 'JBHT',
-                    
-                    # 중소형주 (201-300위)
-                    'POOL', 'TECH', 'SMCI', 'MKTX', 'ENPH', 'MPWR', 'FSLR', 'SEDG', 'RUN', 'SPWR',
-                    'CSIQ', 'JKS', 'SOL', 'NOVA', 'OLED', 'RGEN', 'LGND', 'ALNY', 'RARE', 'FOLD',
-                    'SRPT', 'BLUE', 'SAGE', 'ARWR', 'EDIT', 'CRSP', 'NTLA', 'BEAM', 'VERV', 'PRTG',
-                    'VCEL', 'CAPR', 'ALEC', 'AMRS', 'GMAB', 'KRTX', 'MRTX', 'CVAC', 'BPMC', 'GLPG',
-                    'GTHX', 'IMMU', 'SRNE', 'INO', 'NVAX', 'BNTX', 'MRNA', 'PFE', 'JNJ', 'ABT',
-                    'TMO', 'DHR', 'A', 'SYK', 'BSX', 'MDT', 'ISRG', 'HOLX', 'VAR', 'DXCM',
-                    'ALGN', 'EW', 'TDOC', 'VEEV', 'RMD', 'PODD', 'TNDM', 'OMCL', 'LIVN', 'NEOG',
-                    'NVCR', 'IOVA', 'ZLAB', 'AKCA', 'MIRM', 'PRTA', 'PACB', 'NVTA', 'CDNA', 'FATE',
-                    'RGNX', 'DNLI', 'ARCT', 'RDUS', 'TGTX', 'CPRX', 'CTIC', 'ADPT', 'MRSN', 'CBPO',
-                    'RVMD', 'SWTX', 'YMAB', 'IBRX', 'PRAX', 'PTCT', 'CDMO', 'MDGL', 'HOOK', 'PRME',
-                    
-                    # 소형주 (301-400위)
-                    'KYMR', 'KRYS', 'ETNB', 'VKTX', 'CGEM', 'SERA', 'XENE', 'VTRS', 'VKTX', 'CGEM',
-                    'LYEL', 'GLUE', 'PCRX', 'TPTX', 'VCEL', 'CAPR', 'ALEC', 'AMRS', 'GMAB', 'KRTX',
-                    'MRTX', 'CVAC', 'BPMC', 'GLPG', 'GTHX', 'IMMU', 'SRNE', 'INO', 'NVAX', 'BNTX',
-                    'MRNA', 'PFE', 'JNJ', 'ABT', 'TMO', 'DHR', 'A', 'SYK', 'BSX', 'MDT',
-                    'ISRG', 'HOLX', 'VAR', 'DXCM', 'ALGN', 'EW', 'TDOC', 'VEEV', 'RMD', 'PODD',
-                    'TNDM', 'OMCL', 'LIVN', 'NEOG', 'NVCR', 'IOVA', 'ZLAB', 'AKCA', 'MIRM', 'PRTA',
-                    'PACB', 'NVTA', 'CDNA', 'FATE', 'RGNX', 'DNLI', 'ARCT', 'RDUS', 'TGTX', 'CPRX',
-                    'CTIC', 'ADPT', 'MRSN', 'CBPO', 'RVMD', 'SWTX', 'YMAB', 'IBRX', 'PRAX', 'PTCT',
-                    'CDMO', 'MDGL', 'HOOK', 'PRME', 'KYMR', 'KRYS', 'ETNB', 'VKTX', 'CGEM', 'SERA',
-                    'XENE', 'VTRS', 'VKTX', 'CGEM', 'LYEL', 'GLUE', 'PCRX', 'TPTX', 'VCEL', 'CAPR',
-                    
-                    # 나머지 소형주 (401-500위)
-                    'MMM', 'AOS', 'APD', 'AKAM', 'ALB', 'ARE', 'ALGN', 'ALLE', 'LNT', 'ALL',
-                    'GOOGL', 'GOOG', 'MO', 'AMZN', 'AMCR', 'AMD', 'AEE', 'AAL', 'AEP', 'AXP',
-                    'AIG', 'AMT', 'AWK', 'AMP', 'ABC', 'AME', 'AMGN', 'APH', 'ADI', 'ANSS',
-                    'ANTM', 'AON', 'APA', 'AAPL', 'AMAT', 'APTV', 'ADM', 'ANET', 'AJG', 'AIZ',
-                    'T', 'ATO', 'ADSK', 'ADP', 'AZO', 'AVB', 'AVY', 'BKR', 'BLL', 'BAC',
-                    'BBWI', 'BAX', 'BDX', 'BRK-B', 'BBY', 'BIO', 'BIIB', 'BLK', 'BK', 'BA',
-                    'BKNG', 'BWA', 'BXP', 'BSX', 'BMY', 'AVGO', 'BR', 'BRO', 'BF-B', 'CHRW',
-                    'CDNS', 'CZR', 'CPT', 'CPB', 'COF', 'CAH', 'KMX', 'CCL', 'CARR', 'CTLT',
-                    'CAT', 'CBOE', 'CBRE', 'CDW', 'CE', 'CNC', 'CNP', 'CDAY', 'CERN', 'CF',
-                    'CRL', 'SCHW', 'CHTR', 'CVX', 'CMG', 'CB', 'CHD', 'CI', 'CINF', 'CTAS'
-                ]
-                
-                if limit:
-                    return sp500_symbols[:limit]
-                return sp500_symbols
-                
-            elif market_type == 'NASDAQ':
-                # NASDAQ 100 + 주요 기술주 전체 (약 200개)
-                nasdaq_symbols = [
-                    # NASDAQ 100 핵심 기업들
-                    'AAPL', 'MSFT', 'GOOGL', 'GOOG', 'AMZN', 'NVDA', 'META', 'TSLA', 'AVGO', 'ADBE',
-                    'CRM', 'NFLX', 'INTC', 'AMD', 'QCOM', 'TMUS', 'AMAT', 'ISRG', 'BKNG', 'VRTX',
-                    'ADP', 'SBUX', 'GILD', 'ADI', 'LRCX', 'MDLZ', 'REGN', 'PYPL', 'KLAC', 'MRVL',
-                    'ORLY', 'CDNS', 'SNPS', 'NXPI', 'WDAY', 'ABNB', 'FTNT', 'DDOG', 'TEAM', 'ZM',
-                    'CRWD', 'ZS', 'OKTA', 'DOCU', 'NOW', 'PANW', 'MU', 'ANET', 'LULU', 'ODFL',
-                    
-                    # 추가 NASDAQ 주요 기업들
-                    'FAST', 'PAYX', 'VRSK', 'CHTR', 'EA', 'PCAR', 'MCHP', 'KDP', 'TTWO', 'CTSH',
-                    'DXCM', 'MNST', 'MAR', 'AZO', 'CPRT', 'NTES', 'EBAY', 'IDXX', 'SGEN', 'SPLK',
-                    'VRSN', 'SWKS', 'CDW', 'INCY', 'ALGN', 'EXPE', 'TROW', 'FISV', 'CTXS', 'CERN',
-                    'XLNX', 'ADSK', 'BMRN', 'MRNA', 'BIIB', 'ILMN', 'CSX', 'WBA', 'DLTR', 'TSCO',
-                    'FOX', 'FOXA', 'NDAQ', 'ULTA', 'ANSS', 'ALXN', 'MXIM', 'JBHT', 'SIRI', 'CHRW',
-                    
-                    # 바이오/헬스케어
-                    'HOLX', 'NTAP', 'MELI', 'JD', 'ROKU', 'CELG', 'WLTW', 'HAS', 'MAT', 'EXPD',
-                    'SBAC', 'MSCI', 'INFO', 'TER', 'SIVB', 'NCLH', 'AAL', 'WYNN', 'LVS', 'MGM',
-                    'CZR', 'PENN', 'BYD', 'SAVE', 'JBLU', 'ALK', 'LUV', 'UAL', 'DAL', 'CCL',
-                    'RCL', 'TRIP', 'UPS', 'FDX', 'POOL', 'TECH', 'SMCI', 'MKTX', 'ENPH', 'MPWR',
-                    
-                    # 신재생에너지 & 클린텍
-                    'FSLR', 'SEDG', 'RUN', 'SPWR', 'CSIQ', 'JKS', 'SOL', 'NOVA', 'OLED', 'RGEN',
-                    'LGND', 'ALNY', 'RARE', 'FOLD', 'SRPT', 'BLUE', 'SAGE', 'ARWR', 'EDIT', 'CRSP',
-                    'NTLA', 'BEAM', 'VERV', 'PRTG', 'VCEL', 'CAPR', 'ALEC', 'AMRS', 'GMAB', 'KRTX',
-                    
-                    # 소프트웨어 & 클라우드
-                    'SNOW', 'PLTR', 'U', 'NET', 'ESTC', 'MDB', 'CFLT', 'GTLB', 'BILL', 'ZI',
-                    'SMAR', 'PCTY', 'TENB', 'SUMO', 'AI', 'PATH', 'DOCN', 'FROG', 'BIGC', 'COUP',
-                    'VEEV', 'CRM', 'ORCL', 'SAP', 'ADBE', 'INTU', 'CTXS', 'VMW', 'SPLK', 'RNG'
-                ]
-                
-                if limit:
-                    return nasdaq_symbols[:limit]
-                return nasdaq_symbols
-            
-            return None
-            
-        except Exception as e:
-            print(f"[WARNING] 미국 {market_type} 조회 실패: {e}")
-            return None
-
-    def get_top_companies_by_market_cap(self, market='SP500', limit=None):
-        """시가총액 기준 상위 기업 가져오기 (전체 또는 제한)"""
-        print(f"[DEBUG] 시가총액 기업 조회 시작: market={market}, limit={limit}")
-        
-        try:
-            companies = {}
-            
-            if market in ['SP500', 'NASDAQ']:
-                # 미국 종목은 하드코딩된 회사명 사용 (API 호출 최소화)
-                us_symbols = self._get_us_market_cap_from_yahoo(market, limit)
-                if us_symbols:
-                    # 하드코딩된 회사명 매핑 사용
-                    company_names = self._get_us_company_names()
-                    for symbol in us_symbols:
-                        companies[symbol] = company_names.get(symbol, symbol)
-        
-            elif market in ['KOSPI', 'KOSDAQ']:
-                # 한국 종목은 병렬 처리로 회사명 가져오기
-                korea_symbols = self._get_korea_market_cap_from_naver(market, limit or 50)
-                if korea_symbols:
-                    # 병렬 처리로 회사명 가져오기
-                    companies = self._get_korea_company_names_parallel(korea_symbols)
-            
-            print(f"[DEBUG] 최종 종목 수: {len(companies)}개")
-            return companies
-            
-        except Exception as e:
-            print(f"[ERROR] 시가총액 조회 중 오류: {e}")
-            return {}
-    
-    def _get_korea_market_cap_from_naver(self, market_type='KOSPI', limit=50):
-        """네이버 금융에서 한국 시가총액 순위 가져오기"""
-        try:
-            print(f"[DEBUG] 네이버 금융에서 {market_type} 시가총액 순위 조회 시도")
-            
-            all_codes = []
-            page = 1
-            
-            # KOSPI와 KOSDAQ URL 구분
-            if market_type == 'KOSPI':
-                base_url = "https://finance.naver.com/sise/sise_market_sum.nhn"
-            elif market_type == 'KOSDAQ':
-                base_url = "https://finance.naver.com/sise/sise_market_sum.nhn?sosok=1"
-            else:
-                base_url = "https://finance.naver.com/sise/sise_market_sum.nhn"
-            
-            while len(all_codes) < limit and page <= 2:  # 페이지 수 줄임
-                url = f"{base_url}?&page={page}"
-                
-                headers = {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-                }
-                
-                response = requests.get(url, headers=headers, timeout=10)
-                response.raise_for_status()
-                
-                # 정규표현식으로 직접 종목코드 추출
-                pattern = r'/item/main\.naver\?code=(\d{6})'
-                matches = re.findall(pattern, response.text)
-                
-                # 중복 제거하면서 추가
-                all_codes.extend(matches)
-                all_codes = list(dict.fromkeys(all_codes))  # 순서 유지하면서 중복 제거
-                page += 1
-            
-            # limit 개수만큼 선택하고 .KS 붙이기
-            symbols = [f"{code}.KS" for code in all_codes[:limit]]
-            
-            print(f"[DEBUG] 네이버에서 {len(symbols)}개 {market_type} 종목 추출 성공")
-            return symbols
-            
-        except Exception as e:
-            print(f"[WARNING] 네이버 금융 {market_type} 조회 실패: {e}")
-            return None
-        
-    def get_period_days(self, period):
-        """기간을 일수로 변환"""
-        return self.period_days.get(period, 180)
-    
-    def _get_extended_period_for_ma(self, period):
-        """125일 이동평균선을 위한 확장된 기간 계산"""
-        extended_periods = {
-            '1mo': '1y',    # 1개월 표시 → 1년 데이터 가져오기
-            '3mo': '1y',    # 3개월 표시 → 1년 데이터 가져오기  
-            '6mo': '2y',    # 6개월 표시 → 2년 데이터 가져오기
-            '1y': '3y',     # 1년 표시 → 3년 데이터 가져오기
-            '2y': '5y',     # 2년 표시 → 5년 데이터 가져오기
-            '5y': 'max'     # 5년 표시 → 최대 데이터 가져오기
-        }
-        return extended_periods.get(period, '2y')
-        
-    def get_fear_greed_index(self, period='6mo'):
-        """CNN Fear & Greed Index 가져오기"""
-        try:
-            self.current_period = period  # 현재 기간 저장
-            
-            # 현재 공포 & 탐욕 지수
-            fear_greed_data = get()
-            self.fear_greed_current = fear_greed_data.value
-            self.fear_greed_label = fear_greed_data.description
-            
-            print(f"[DEBUG] 공포탐욕지수 수신 성공: {self.fear_greed_current}")
-            
-        except Exception as e:
-            print(f"Fear & Greed Index 가져오기 실패: {e}")
-            self.fear_greed_current = 50.0
-            self.fear_greed_label = "Neutral"
-        
-        try:
-            # CNN에서 실제 과거 데이터 가져오기
-            self.fear_greed_history = self._get_real_fear_greed_history(period)
-            if self.fear_greed_history is not None:
-                print(f"[DEBUG] 공포탐욕지수 히스토리 생성 완료: {len(self.fear_greed_history)}개 데이터")
-            else:
-                print("[WARNING] CNN 히스토리 데이터 가져오기 실패")
-                
-        except Exception as e:
-            print(f"공포탐욕지수 히스토리 생성 실패: {e}")
-            self.fear_greed_history = None
-                
-        return self.fear_greed_current
-    
-    def _get_real_fear_greed_history(self, period='6mo'):
-        """실제 CNN Fear & Greed Index 과거 데이터 가져오기"""
-        try:
-            # CNN Fear & Greed Index API 엔드포인트
-            days = self.get_period_days(period)
-            url = f"https://production.dataviz.cnn.io/index/fearandgreed/graphdata?start=0&end={days}"
-            
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-            }
-            
-            response = requests.get(url, headers=headers, timeout=10)
-            response.raise_for_status()
-            
-            data = response.json()
-            
-            if 'fear_and_greed_historical' in data:
-                scores = data['fear_and_greed_historical']
-                
-                # 데이터프레임으로 변환
-                df = pd.DataFrame(scores['data'])
-                df['x'] = pd.to_datetime(df['x'], unit='ms')
-                df = df.rename(columns={'x': 'Date', 'y': 'Value'})
-                df = df[['Date', 'Value']]
-                
-                return df
-                
-        except Exception as e:
-            print(f"[WARNING] CNN API 데이터 가져오기 실패: {e}")
-            return None
-    
-    def get_fear_greed_chart(self):
-        """공포 & 탐욕 지수 차트 생성"""
-        period = getattr(self, 'current_period', '6mo')  # 현재 설정된 기간 사용
-        
-        if self.fear_greed_history is None:
-            return go.Figure()
-        
-        fig = go.Figure()
-        
-        # 공포 & 탐욕 지수 라인
-        fig.add_trace(go.Scatter(
-            x=self.fear_greed_history['Date'],
-            y=self.fear_greed_history['Value'],
-            mode='lines',
-            name='Fear & Greed Index',
-            line=dict(color='purple', width=2),
-            fill='tonexty'
-        ))
-        
-        # 구간별 색상 영역 추가
-        fig.add_hline(y=75, line=dict(color="red", width=1, dash="dash"), 
-                      annotation_text="극도의 탐욕")
-        fig.add_hline(y=55, line=dict(color="orange", width=1, dash="dash"), 
-                      annotation_text="탐욕")
-        fig.add_hline(y=45, line=dict(color="gray", width=1, dash="dash"), 
-                      annotation_text="중립")
-        fig.add_hline(y=25, line=dict(color="blue", width=1, dash="dash"), 
-                      annotation_text="공포")
-        
-        # 현재값 포인트 추가
-        if self.fear_greed_current and self.fear_greed_history is not None and not self.fear_greed_history.empty:
-            fig.add_trace(go.Scatter(
-                x=[self.fear_greed_history['Date'].iloc[-1]],
-                y=[self.fear_greed_current],
-                mode='markers',
-                marker=dict(color='red', size=10),
-                name=f'현재: {self.fear_greed_current:.1f}'
-            ))
-        
-        period_label = self.period_labels.get(period, period)
-        
-        fig.update_layout(
-            title=f"공포 & 탐욕 지수 ({period_label})",
-            xaxis_title="날짜",
-            yaxis_title="지수",
-            height=300,
-            showlegend=True,
-            plot_bgcolor='white',
-            paper_bgcolor='white',
-            xaxis=dict(gridcolor='lightgray'),
-            yaxis=dict(range=[0, 100], gridcolor='lightgray'),
-            margin=dict(t=40, b=40, l=50, r=50)
-        )
-        
-        return fig
-    
-    def calculate_moving_averages(self, df):
-        """이동평균선 계산"""
-        df['MA20'] = df['Close'].rolling(window=20).mean()
-        df['MA60'] = df['Close'].rolling(window=60).mean()
-        df['MA125'] = df['Close'].rolling(window=125).mean()
-        return df
-    
-    def check_golden_cross(self, df):
-        """골든크로스 확인 - 최근 10일 내에 발생했는지 확인"""
-        if len(df) < 10:
-            return False, None
-        
-        # 최근 10일간의 데이터 확인
-        recent_data = df.tail(10)
-        
-        for i in range(1, len(recent_data)):
-            current_20 = recent_data['MA20'].iloc[i]
-            current_60 = recent_data['MA60'].iloc[i]
-            current_125 = recent_data['MA125'].iloc[i]
-            prev_20 = recent_data['MA20'].iloc[i-1]
-            prev_60 = recent_data['MA60'].iloc[i-1]
-            
-            # 골든크로스 조건:
+# 골든크로스 조건:
             # 1. 이전에는 20일선이 60일선 아래
             # 2. 현재는 20일선이 60일선 위
             # 3. 두 이동평균선이 모두 125일선 아래에 있어야 함
@@ -699,7 +261,8 @@ class StockAnalyzer:
             'ANET': 'Arista Networks Inc.', 'LULU': 'Lululemon Athletica Inc.', 'ODFL': 'Old Dominion Freight Line Inc.',
             'EXC': 'Exelon Corp.', 'CTAS': 'Cintas Corp.', 'ROST': 'Ross Stores Inc.',
             'TJX': 'TJX Companies Inc.', 'MCD': 'McDonald\'s Corp.', 'YUM': 'Yum! Brands Inc.',
-            'CMG': 'Chipotle Mexican Grill Inc.'
+            'CMG': 'Chipotle Mexican Grill Inc.', 'FAST': 'Fastenal Co.', 'PAYX': 'Paychex Inc.',
+            'VRSK': 'Verisk Analytics Inc.', 'CHTR': 'Charter Communications Inc.', 'EA': 'Electronic Arts Inc.'
         }
 
     def _get_korea_company_names_parallel(self, symbols):
@@ -1172,4 +735,395 @@ def main():
         st.sidebar.markdown(f"- 저점수 (50점 미만): {low_score}개")
 
 if __name__ == '__main__':
-    main()
+    main()import streamlit as st
+import plotly.graph_objs as go
+import pandas as pd
+import numpy as np
+import yfinance as yf
+import requests
+from datetime import datetime, timedelta
+from fear_and_greed import get
+import warnings
+import json
+import time
+import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
+warnings.filterwarnings('ignore')
+
+class StockAnalyzer:
+    """주식 기술적 분석을 위한 클래스"""
+    
+    def __init__(self):
+        """초기화"""
+        self.fear_greed_current = None
+        self.fear_greed_label = None
+        self.fear_greed_history = None
+        self.current_period = '6mo'  # 기본값
+        
+        # 기간별 라벨 매핑
+        self.period_labels = {
+            '1mo': '1개월',
+            '3mo': '3개월', 
+            '6mo': '6개월',
+            '1y': '1년',
+            '2y': '2년',
+            '5y': '5년'
+        }
+        
+        # 기간별 일수 매핑
+        self.period_days = {
+            '1mo': 30,
+            '3mo': 90,
+            '6mo': 180,
+            '1y': 365,
+            '2y': 730,
+            '5y': 1825
+        }
+        
+    def _get_us_market_cap_from_yahoo(self, market_type='SP500', limit=None):
+        """미국 시가총액 상위 종목 가져오기 (하드코딩)"""
+        try:
+            print(f"[DEBUG] 미국 {market_type} 시가총액 종목 조회 시도")
+            
+            if market_type == 'SP500':
+                # S&P 500 전체 기업 리스트 (500개 전체)
+                sp500_symbols = [
+                    # 대형주 (상위 100개)
+                    'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'BRK-B', 'LLY', 'AVGO', 'UNH',
+                    'JPM', 'XOM', 'V', 'PG', 'JNJ', 'MA', 'HD', 'CVX', 'ABBV', 'PFE',
+                    'BAC', 'KO', 'COST', 'TMO', 'WMT', 'CSCO', 'DIS', 'ABT', 'DHR', 'MRK',
+                    'ADBE', 'CRM', 'NFLX', 'INTC', 'AMD', 'QCOM', 'IBM', 'GE', 'BA', 'CAT',
+                    'HON', 'RTX', 'GS', 'MS', 'VZ', 'CMCSA', 'NKE', 'ORCL', 'PEP', 'TXN',
+                    'PM', 'T', 'AMGN', 'COP', 'UNP', 'NEE', 'LOW', 'TMUS', 'AMAT', 'ISRG',
+                    'BKNG', 'VRTX', 'ADP', 'SBUX', 'GILD', 'ADI', 'LRCX', 'MDLZ', 'REGN',
+                    'PYPL', 'KLAC', 'MRVL', 'ORLY', 'CDNS', 'SNPS', 'NXPI', 'WDAY', 'ABNB', 'FTNT',
+                    'DDOG', 'TEAM', 'ZM', 'CRWD', 'ZS', 'OKTA', 'DOCU', 'NOW', 'PANW', 'MU',
+                    'ANET', 'LULU', 'ODFL', 'EXC', 'CTAS', 'ROST', 'TJX', 'MCD', 'YUM', 'CMG',
+                    
+                    # 중형주 (101-200위)
+                    'FAST', 'PAYX', 'VRSK', 'CHTR', 'EA', 'PCAR', 'MCHP', 'KDP', 'TTWO', 'CTSH',
+                    'DXCM', 'MNST', 'MAR', 'AZO', 'CPRT', 'NTES', 'EBAY', 'IDXX', 'SGEN', 'SPLK',
+                    'VRSN', 'SWKS', 'CDW', 'INCY', 'ALGN', 'EXPE', 'TROW', 'FISV', 'CTXS', 'CERN',
+                    'XLNX', 'ADSK', 'BMRN', 'MRNA', 'BIIB', 'ILMN', 'CSX', 'WBA', 'DLTR', 'TSCO',
+                    'FOX', 'FOXA', 'NDAQ', 'ULTA', 'ANSS', 'ALXN', 'MXIM', 'JBHT', 'SIRI', 'CHRW',
+                    'HOLX', 'NTAP', 'MELI', 'JD', 'ROKU', 'CELG', 'WLTW', 'HAS', 'MAT', 'EXPD',
+                    'SBAC', 'MSCI', 'INFO', 'TER', 'SIVB', 'NCLH', 'AAL', 'WYNN', 'LVS', 'MGM',
+                    'CZR', 'PENN', 'BYD', 'SAVE', 'JBLU', 'ALK', 'LUV', 'UAL', 'DAL', 'CCL',
+                    'RCL', 'TRIP', 'UPS', 'FDX', 'POOL', 'TECH', 'SMCI', 'MKTX', 'ENPH', 'MPWR',
+                    
+                    # 중소형주 (201-300위)
+                    'FSLR', 'SEDG', 'RUN', 'SPWR', 'CSIQ', 'JKS', 'SOL', 'NOVA', 'OLED', 'RGEN',
+                    'LGND', 'ALNY', 'RARE', 'FOLD', 'SRPT', 'BLUE', 'SAGE', 'ARWR', 'EDIT', 'CRSP',
+                    'NTLA', 'BEAM', 'VERV', 'PRTG', 'VCEL', 'CAPR', 'ALEC', 'AMRS', 'GMAB', 'KRTX',
+                    'MRTX', 'CVAC', 'BPMC', 'GLPG', 'GTHX', 'IMMU', 'SRNE', 'INO', 'NVAX', 'BNTX',
+                    'A', 'SYK', 'BSX', 'MDT', 'HOLX', 'VAR', 'ALGN', 'EW', 'TDOC', 'VEEV',
+                    'RMD', 'PODD', 'TNDM', 'OMCL', 'LIVN', 'NEOG', 'NVCR', 'IOVA', 'ZLAB', 'AKCA',
+                    'MIRM', 'PRTA', 'PACB', 'NVTA', 'CDNA', 'FATE', 'RGNX', 'DNLI', 'ARCT', 'RDUS',
+                    'TGTX', 'CPRX', 'CTIC', 'ADPT', 'MRSN', 'CBPO', 'RVMD', 'SWTX', 'YMAB', 'IBRX',
+                    'PRAX', 'PTCT', 'CDMO', 'MDGL', 'HOOK', 'PRME', 'KYMR', 'KRYS', 'ETNB', 'VKTX',
+                    'CGEM', 'SERA', 'XENE', 'VTRS', 'LYEL', 'GLUE', 'PCRX', 'TPTX', 'MMM', 'AOS',
+                    
+                    # 소형주 (301-400위)
+                    'APD', 'AKAM', 'ALB', 'ARE', 'ALLE', 'LNT', 'ALL', 'MO', 'AMCR', 'AEE',
+                    'AEP', 'AXP', 'AIG', 'AMT', 'AWK', 'AMP', 'ABC', 'AME', 'APH', 'ANTM',
+                    'AON', 'APA', 'APTV', 'ADM', 'AJG', 'AIZ', 'ATO', 'AZO', 'AVB', 'AVY',
+                    'BKR', 'BLL', 'BBWI', 'BAX', 'BDX', 'BBY', 'BIO', 'BIIB', 'BLK', 'BK',
+                    'BKNG', 'BWA', 'BXP', 'BSX', 'BMY', 'BR', 'BRO', 'BF-B', 'CDNS', 'CPT',
+                    'CPB', 'COF', 'CAH', 'KMX', 'CARR', 'CTLT', 'CBOE', 'CBRE', 'CDW', 'CE',
+                    'CNC', 'CNP', 'CDAY', 'CF', 'CRL', 'SCHW', 'CHD', 'CI', 'CINF', 'CTAS',
+                    'CTVA', 'GLW', 'CTSH', 'CME', 'CMS', 'KO', 'CTSH', 'CL', 'CMCSA', 'CMA',
+                    'CAG', 'COP', 'ED', 'STZ', 'COO', 'CPRT', 'GLW', 'CTVA', 'COST', 'CTRA',
+                    'CCI', 'CSX', 'CMI', 'CVS', 'DHI', 'DHR', 'DRI', 'DVA', 'DE', 'DAL',
+                    
+                    # 나머지 소형주 (401-500위)
+                    'XRAY', 'DVN', 'DXCM', 'FANG', 'DLR', 'DFS', 'DISCA', 'DISCK', 'DISH', 'DG',
+                    'DLTR', 'D', 'DPZ', 'DOV', 'DOW', 'DTE', 'DUK', 'DRE', 'DD', 'DXC',
+                    'EMN', 'ETN', 'EBAY', 'ECL', 'EIX', 'EW', 'EA', 'EMR', 'ENPH', 'ETR',
+                    'EOG', 'EFX', 'EQIX', 'EQR', 'ESS', 'EL', 'ETSY', 'EVRG', 'ES', 'RE',
+                    'EXC', 'EXPE', 'EXPD', 'EXR', 'XOM', 'FFIV', 'FB', 'FAST', 'FRT', 'FDX',
+                    'FIS', 'FITB', 'FE', 'FRC', 'FISV', 'FLT', 'FLIR', 'FLS', 'FMC', 'F',
+                    'FTNT', 'FTV', 'FBHS', 'FOXA', 'FOX', 'BEN', 'FCX', 'GPS', 'GRMN', 'IT',
+                    'GNRC', 'GD', 'GE', 'GIS', 'GM', 'GPC', 'GILD', 'GL', 'GPN', 'GS'
+                ]
+                
+                if limit:
+                    return sp500_symbols[:limit]
+                return sp500_symbols
+                
+            elif market_type == 'NASDAQ':
+                # NASDAQ 100 + 주요 기술주 전체 (약 200개)
+                nasdaq_symbols = [
+                    # NASDAQ 100 핵심 기업들
+                    'AAPL', 'MSFT', 'GOOGL', 'GOOG', 'AMZN', 'NVDA', 'META', 'TSLA', 'AVGO', 'ADBE',
+                    'CRM', 'NFLX', 'INTC', 'AMD', 'QCOM', 'TMUS', 'AMAT', 'ISRG', 'BKNG', 'VRTX',
+                    'ADP', 'SBUX', 'GILD', 'ADI', 'LRCX', 'MDLZ', 'REGN', 'PYPL', 'KLAC', 'MRVL',
+                    'ORLY', 'CDNS', 'SNPS', 'NXPI', 'WDAY', 'ABNB', 'FTNT', 'DDOG', 'TEAM', 'ZM',
+                    'CRWD', 'ZS', 'OKTA', 'DOCU', 'NOW', 'PANW', 'MU', 'ANET', 'LULU', 'ODFL',
+                    
+                    # 추가 NASDAQ 주요 기업들
+                    'FAST', 'PAYX', 'VRSK', 'CHTR', 'EA', 'PCAR', 'MCHP', 'KDP', 'TTWO', 'CTSH',
+                    'DXCM', 'MNST', 'MAR', 'AZO', 'CPRT', 'NTES', 'EBAY', 'IDXX', 'SGEN', 'SPLK',
+                    'VRSN', 'SWKS', 'CDW', 'INCY', 'ALGN', 'EXPE', 'TROW', 'FISV', 'CTXS', 'CERN',
+                    'XLNX', 'ADSK', 'BMRN', 'MRNA', 'BIIB', 'ILMN', 'CSX', 'WBA', 'DLTR', 'TSCO',
+                    'FOX', 'FOXA', 'NDAQ', 'ULTA', 'ANSS', 'ALXN', 'MXIM', 'JBHT', 'SIRI', 'CHRW',
+                    
+                    # 바이오/헬스케어
+                    'HOLX', 'NTAP', 'MELI', 'JD', 'ROKU', 'CELG', 'WLTW', 'HAS', 'MAT', 'EXPD',
+                    'SBAC', 'MSCI', 'INFO', 'TER', 'SIVB', 'NCLH', 'AAL', 'WYNN', 'LVS', 'MGM',
+                    'CZR', 'PENN', 'BYD', 'SAVE', 'JBLU', 'ALK', 'LUV', 'UAL', 'DAL', 'CCL',
+                    'RCL', 'TRIP', 'UPS', 'FDX', 'POOL', 'TECH', 'SMCI', 'MKTX', 'ENPH', 'MPWR',
+                    
+                    # 신재생에너지 & 클린텍
+                    'FSLR', 'SEDG', 'RUN', 'SPWR', 'CSIQ', 'JKS', 'SOL', 'NOVA', 'OLED', 'RGEN',
+                    'LGND', 'ALNY', 'RARE', 'FOLD', 'SRPT', 'BLUE', 'SAGE', 'ARWR', 'EDIT', 'CRSP',
+                    'NTLA', 'BEAM', 'VERV', 'PRTG', 'VCEL', 'CAPR', 'ALEC', 'AMRS', 'GMAB', 'KRTX',
+                    
+                    # 소프트웨어 & 클라우드
+                    'SNOW', 'PLTR', 'U', 'NET', 'ESTC', 'MDB', 'CFLT', 'GTLB', 'BILL', 'ZI',
+                    'SMAR', 'PCTY', 'TENB', 'SUMO', 'AI', 'PATH', 'DOCN', 'FROG', 'BIGC', 'COUP',
+                    'VEEV', 'ORCL', 'SAP', 'INTU', 'VMW', 'RNG'
+                ]
+                
+                if limit:
+                    return nasdaq_symbols[:limit]
+                return nasdaq_symbols
+            
+            return None
+            
+        except Exception as e:
+            print(f"[WARNING] 미국 {market_type} 조회 실패: {e}")
+            return None
+
+    def get_top_companies_by_market_cap(self, market='SP500', limit=None):
+        """시가총액 기준 상위 기업 가져오기 (전체 또는 제한)"""
+        print(f"[DEBUG] 시가총액 기업 조회 시작: market={market}, limit={limit}")
+        
+        try:
+            companies = {}
+            
+            if market in ['SP500', 'NASDAQ']:
+                # 미국 종목은 하드코딩된 회사명 사용 (API 호출 최소화)
+                us_symbols = self._get_us_market_cap_from_yahoo(market, limit)
+                if us_symbols:
+                    # 하드코딩된 회사명 매핑 사용
+                    company_names = self._get_us_company_names()
+                    for symbol in us_symbols:
+                        companies[symbol] = company_names.get(symbol, symbol)
+        
+            elif market in ['KOSPI', 'KOSDAQ']:
+                # 한국 종목은 병렬 처리로 회사명 가져오기
+                korea_symbols = self._get_korea_market_cap_from_naver(market, limit or 50)
+                if korea_symbols:
+                    # 병렬 처리로 회사명 가져오기
+                    companies = self._get_korea_company_names_parallel(korea_symbols)
+            
+            print(f"[DEBUG] 최종 종목 수: {len(companies)}개")
+            return companies
+            
+        except Exception as e:
+            print(f"[ERROR] 시가총액 조회 중 오류: {e}")
+            return {}
+    
+    def _get_korea_market_cap_from_naver(self, market_type='KOSPI', limit=50):
+        """네이버 금융에서 한국 시가총액 순위 가져오기"""
+        try:
+            print(f"[DEBUG] 네이버 금융에서 {market_type} 시가총액 순위 조회 시도")
+            
+            all_codes = []
+            page = 1
+            
+            # KOSPI와 KOSDAQ URL 구분
+            if market_type == 'KOSPI':
+                base_url = "https://finance.naver.com/sise/sise_market_sum.nhn"
+            elif market_type == 'KOSDAQ':
+                base_url = "https://finance.naver.com/sise/sise_market_sum.nhn?sosok=1"
+            else:
+                base_url = "https://finance.naver.com/sise/sise_market_sum.nhn"
+            
+            while len(all_codes) < limit and page <= 2:  # 페이지 수 줄임
+                url = f"{base_url}?&page={page}"
+                
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                }
+                
+                response = requests.get(url, headers=headers, timeout=10)
+                response.raise_for_status()
+                
+                # 정규표현식으로 직접 종목코드 추출
+                pattern = r'/item/main\.naver\?code=(\d{6})'
+                matches = re.findall(pattern, response.text)
+                
+                # 중복 제거하면서 추가
+                all_codes.extend(matches)
+                all_codes = list(dict.fromkeys(all_codes))  # 순서 유지하면서 중복 제거
+                page += 1
+            
+            # limit 개수만큼 선택하고 .KS 붙이기
+            symbols = [f"{code}.KS" for code in all_codes[:limit]]
+            
+            print(f"[DEBUG] 네이버에서 {len(symbols)}개 {market_type} 종목 추출 성공")
+            return symbols
+            
+        except Exception as e:
+            print(f"[WARNING] 네이버 금융 {market_type} 조회 실패: {e}")
+            return None
+        
+    def get_period_days(self, period):
+        """기간을 일수로 변환"""
+        return self.period_days.get(period, 180)
+    
+    def _get_extended_period_for_ma(self, period):
+        """125일 이동평균선을 위한 확장된 기간 계산"""
+        extended_periods = {
+            '1mo': '1y',    # 1개월 표시 → 1년 데이터 가져오기
+            '3mo': '1y',    # 3개월 표시 → 1년 데이터 가져오기  
+            '6mo': '2y',    # 6개월 표시 → 2년 데이터 가져오기
+            '1y': '3y',     # 1년 표시 → 3년 데이터 가져오기
+            '2y': '5y',     # 2년 표시 → 5년 데이터 가져오기
+            '5y': 'max'     # 5년 표시 → 최대 데이터 가져오기
+        }
+        return extended_periods.get(period, '2y')
+        
+    def get_fear_greed_index(self, period='6mo'):
+        """CNN Fear & Greed Index 가져오기"""
+        try:
+            self.current_period = period  # 현재 기간 저장
+            
+            # 현재 공포 & 탐욕 지수
+            fear_greed_data = get()
+            self.fear_greed_current = fear_greed_data.value
+            self.fear_greed_label = fear_greed_data.description
+            
+            print(f"[DEBUG] 공포탐욕지수 수신 성공: {self.fear_greed_current}")
+            
+        except Exception as e:
+            print(f"Fear & Greed Index 가져오기 실패: {e}")
+            self.fear_greed_current = 50.0
+            self.fear_greed_label = "Neutral"
+        
+        try:
+            # CNN에서 실제 과거 데이터 가져오기
+            self.fear_greed_history = self._get_real_fear_greed_history(period)
+            if self.fear_greed_history is not None:
+                print(f"[DEBUG] 공포탐욕지수 히스토리 생성 완료: {len(self.fear_greed_history)}개 데이터")
+            else:
+                print("[WARNING] CNN 히스토리 데이터 가져오기 실패")
+                
+        except Exception as e:
+            print(f"공포탐욕지수 히스토리 생성 실패: {e}")
+            self.fear_greed_history = None
+                
+        return self.fear_greed_current
+    
+    def _get_real_fear_greed_history(self, period='6mo'):
+        """실제 CNN Fear & Greed Index 과거 데이터 가져오기"""
+        try:
+            # CNN Fear & Greed Index API 엔드포인트
+            days = self.get_period_days(period)
+            url = f"https://production.dataviz.cnn.io/index/fearandgreed/graphdata?start=0&end={days}"
+            
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
+            
+            response = requests.get(url, headers=headers, timeout=10)
+            response.raise_for_status()
+            
+            data = response.json()
+            
+            if 'fear_and_greed_historical' in data:
+                scores = data['fear_and_greed_historical']
+                
+                # 데이터프레임으로 변환
+                df = pd.DataFrame(scores['data'])
+                df['x'] = pd.to_datetime(df['x'], unit='ms')
+                df = df.rename(columns={'x': 'Date', 'y': 'Value'})
+                df = df[['Date', 'Value']]
+                
+                return df
+                
+        except Exception as e:
+            print(f"[WARNING] CNN API 데이터 가져오기 실패: {e}")
+            return None
+    
+    def get_fear_greed_chart(self):
+        """공포 & 탐욕 지수 차트 생성"""
+        period = getattr(self, 'current_period', '6mo')  # 현재 설정된 기간 사용
+        
+        if self.fear_greed_history is None:
+            return go.Figure()
+        
+        fig = go.Figure()
+        
+        # 공포 & 탐욕 지수 라인
+        fig.add_trace(go.Scatter(
+            x=self.fear_greed_history['Date'],
+            y=self.fear_greed_history['Value'],
+            mode='lines',
+            name='Fear & Greed Index',
+            line=dict(color='purple', width=2),
+            fill='tonexty'
+        ))
+        
+        # 구간별 색상 영역 추가
+        fig.add_hline(y=75, line=dict(color="red", width=1, dash="dash"), 
+                      annotation_text="극도의 탐욕")
+        fig.add_hline(y=55, line=dict(color="orange", width=1, dash="dash"), 
+                      annotation_text="탐욕")
+        fig.add_hline(y=45, line=dict(color="gray", width=1, dash="dash"), 
+                      annotation_text="중립")
+        fig.add_hline(y=25, line=dict(color="blue", width=1, dash="dash"), 
+                      annotation_text="공포")
+        
+        # 현재값 포인트 추가
+        if self.fear_greed_current and self.fear_greed_history is not None and not self.fear_greed_history.empty:
+            fig.add_trace(go.Scatter(
+                x=[self.fear_greed_history['Date'].iloc[-1]],
+                y=[self.fear_greed_current],
+                mode='markers',
+                marker=dict(color='red', size=10),
+                name=f'현재: {self.fear_greed_current:.1f}'
+            ))
+        
+        period_label = self.period_labels.get(period, period)
+        
+        fig.update_layout(
+            title=f"공포 & 탐욕 지수 ({period_label})",
+            xaxis_title="날짜",
+            yaxis_title="지수",
+            height=300,
+            showlegend=True,
+            plot_bgcolor='white',
+            paper_bgcolor='white',
+            xaxis=dict(gridcolor='lightgray'),
+            yaxis=dict(range=[0, 100], gridcolor='lightgray'),
+            margin=dict(t=40, b=40, l=50, r=50)
+        )
+        
+        return fig
+    
+    def calculate_moving_averages(self, df):
+        """이동평균선 계산"""
+        df['MA20'] = df['Close'].rolling(window=20).mean()
+        df['MA60'] = df['Close'].rolling(window=60).mean()
+        df['MA125'] = df['Close'].rolling(window=125).mean()
+        return df
+    
+    def check_golden_cross(self, df):
+        """골든크로스 확인 - 최근 10일 내에 발생했는지 확인"""
+        if len(df) < 10:
+            return False, None
+        
+        # 최근 10일간의 데이터 확인
+        recent_data = df.tail(10)
+        
+        for i in range(1, len(recent_data)):
+            current_20 = recent_data['MA20'].iloc[i]
+            current_60 = recent_data['MA60'].iloc[i]
+            current_125 = recent_data['MA125'].iloc[i]
+            prev_20 = recent_data['MA20'].iloc[i-1]
+            prev_60 = recent_data['MA60'].iloc[i-1]
+            
+            # 골든크로스 조건:
+            # 1. 이전에는 20일선
