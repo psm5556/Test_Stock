@@ -264,14 +264,21 @@ class StockAnalyzer:
                       annotation_text="공포")
         
         # 현재값 포인트 추가
-        if self.fear_greed_current and self.fear_greed_history is not None and not self.fear_greed_history.empty:
-            fig.add_trace(go.Scatter(
-                x=[self.fear_greed_history['Date'].iloc[-1]],
-                y=[self.fear_greed_current],
-                mode='markers',
-                marker=dict(color='red', size=10),
-                name=f'현재: {self.fear_greed_current:.1f}'
-            ))
+        if (self.fear_greed_current and 
+            self.fear_greed_history is not None and 
+            hasattr(self.fear_greed_history, 'iloc') and 
+            not self.fear_greed_history.empty):
+            try:
+                last_date = self.fear_greed_history['Date'].iloc[-1]
+                fig.add_trace(go.Scatter(
+                    x=[last_date],
+                    y=[self.fear_greed_current],
+                    mode='markers',
+                    marker=dict(color='red', size=10),
+                    name=f'현재: {self.fear_greed_current:.1f}'
+                ))
+            except Exception as e:
+                print(f"[WARNING] 현재값 포인트 추가 실패: {e}")
         
         period_label = self.period_labels.get(period, period)
         
@@ -815,7 +822,9 @@ def main():
         try:
             if analyze_button:
                 with st.spinner("공포 탐욕 지수 로딩 중..."):
-                    fear_greed = analyzer.get_fear_greed_index(period)
+                    # period가 None이면 기본값 사용
+                    period_to_use = period if period is not None else '6mo'
+                    fear_greed = analyzer.get_fear_greed_index(period_to_use)
                     st.session_state.fear_greed_current = fear_greed
                     st.session_state.fear_greed_label = analyzer.fear_greed_label
                     st.session_state.fear_greed_chart = analyzer.get_fear_greed_chart()
@@ -873,10 +882,13 @@ def main():
     if analyze_button:
         with st.spinner(f"{market} 시장 분석 중... 잠시만 기다려주세요."):
             try:
-                results = analyzer.get_recommendations(market, period)
+                # market과 period가 None이면 기본값 사용
+                market_to_use = market if market is not None else 'SP500'
+                period_to_use = period if period is not None else '6mo'
+                results = analyzer.get_recommendations(market_to_use, period_to_use)
                 st.session_state.analysis_results = results
-                st.session_state.current_market = market
-                st.session_state.current_period = period
+                st.session_state.current_market = market_to_use
+                st.session_state.current_period = period_to_use
                 
                 st.success(f"✅ 분석 완료! 총 {len(results)}개 종목 분석")
                 
@@ -909,7 +921,9 @@ def main():
         st.dataframe(
             df_results[['Symbol', 'Company', 'Price', 'GC', 'MA', '125', 'Trend', 'Score']],
             use_container_width=True,
-            hide_index=True
+            hide_index=True,
+            on_select="rerun",
+            selection_mode="single-row"
         )
         
         # 종목 선택을 위한 selectbox 추가
