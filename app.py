@@ -330,17 +330,16 @@ class StockAnalyzer:
         return False, None
     
     def check_above_ma_lines(self, df):
-        """현재 가격이 20일선, 60일선 위에 있고 125일선 아래에 있는지 확인"""
+        """현재 가격이 20일선, 60일선 위에 있는지 확인"""
         if len(df) < 1:
             return False
         
         current_price = df['Close'].iloc[-1]
         ma20 = df['MA20'].iloc[-1]
         ma60 = df['MA60'].iloc[-1]
-        ma125 = df['MA125'].iloc[-1]
         
-        # 수정된 조건: 현재가가 20일선, 60일선 위에 있고, 125일선 아래에 있어야 함
-        return current_price > ma20 and current_price > ma60 and current_price < ma125
+        # 현재가가 20일선, 60일선 위에 있는지 확인
+        return current_price > ma20 and current_price > ma60
     
     def check_ma125_support(self, df):
         """125일선 위에서 2개 이상 캔들이 지지하는지 확인"""
@@ -660,15 +659,14 @@ class StockAnalyzer:
                     hovertemplate='%{text}<extra></extra>'
                 ))
             
-            # MA 조건 확인: 현재가가 20일선, 60일선 위에 있고 125일선 아래에 있을 때만 표시
+            # MA 조건 확인: 현재가가 20일선, 60일선 위에 있을 때만 표시
             if analysis['above_ma_lines']:
                 current_price = df['Close'].iloc[-1]
                 ma20 = df['MA20'].iloc[-1]
                 ma60 = df['MA60'].iloc[-1]
-                ma125 = df['MA125'].iloc[-1]
                 
-                # 조건 재확인: 현재가 > 20일선, 60일선 이면서 125일선 < 현재가
-                if current_price > ma20 and current_price > ma60 and current_price < ma125:
+                # 조건 재확인: 현재가 > 20일선, 60일선
+                if current_price > ma20 and current_price > ma60:
                     recent_date = df.index[-1]
                     
                     # 하이라이트 박스 (테두리 없음)
