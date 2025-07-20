@@ -1,51 +1,4 @@
-def _analyze_stocks_parallel(self, symbols, period):
-        """병렬 처리로 주식 분석 수행"""
-        results = []
-        total_symbols = len(symbols)
-        
-        def analyze_single_stock(symbol):
-            try:
-                analysis = self.analyze_stock(symbol, period, symbols)
-                return analysis
-            except Exception as e:
-                print(f"[ERROR] {symbol} 분석 중 오류: {str(e)}")
-                return None
-        
-        # 대용량 처리를 위해 워커 수와 타임아웃 조정
-        max_workers = min(4, total_symbols // 10 + 1)  # 동적 워커 수 조정
-        timeout_total = max(600, total_symbols * 2)  # 총 타임아웃 (최소 10분)
-        timeout_single = min(60, timeout_total // total_symbols)  # 개별 타임아웃
-        
-        print(f"[DEBUG] 병렬 처리 설정: 워커={max_workers}, 총타임아웃={timeout_total}초, 개별타임아웃={timeout_single}초")
-        
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            # 모든 분석 작업을 제출
-            future_to_symbol = {executor.submit(analyze_single_stock, symbol): symbol for symbol in symbols.keys()}
-            
-            # 완료된 작업부터 결과 수집
-            completed_count = 0
-            for future in as_completed(future_to_symbol, timeout=timeout_total):
-                symbol = future_to_symbol[future]
-                try:
-                    analysis = future.result(timeout=timeout_single)
-                    if analysis:
-                        results.append(analysis)
-                    
-                    completed_count += 1
-                    
-                    # 진행률 표시 (10% 단위)
-                    if completed_count % max(1, total_symbols // 10) == 0:
-                        progress = completed_count / total_symbols * 100
-                        print(f"[DEBUG] 분석 진행률: {completed_count}/{total_symbols} ({progress:.1f}%)")
-                        
-                except Exception as e:
-                    print(f"[ERROR] {symbol} 결과 처리 중 오류: {str(e)}")
-        
-        return results
-
-    def _get_us_company_names(self):
-        """미국 기업명 하드코딩 (API 호출 최소화)"""
-        return {import streamlit as st
+import streamlit as st
 import plotly.graph_objs as go
 import pandas as pd
 import numpy as np
@@ -90,15 +43,14 @@ class StockAnalyzer:
             '5y': 1825
         }
         
-    def _get_us_market_cap_from_yahoo(self, market_type='SP500', limit=None):
+    def _get_us_market_cap_from_yahoo(self, market_type='SP500', limit=200):
         """미국 시가총액 상위 종목 가져오기 (하드코딩)"""
         try:
-            print(f"[DEBUG] 미국 {market_type} 시가총액 종목 조회 시도")
+            print(f"[DEBUG] 미국 {market_type} 시가총액 상위 종목 조회 시도")
             
             if market_type == 'SP500':
-                # S&P 500 전체 기업 리스트 (500개 전체)
+                # S&P 500 상위 200개 기업 (시가총액 순) - 대형주 중심
                 sp500_symbols = [
-                    # 대형주 (상위 100개)
                     'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'BRK-B', 'LLY', 'AVGO', 'UNH',
                     'JPM', 'XOM', 'V', 'PG', 'JNJ', 'MA', 'HD', 'CVX', 'ABBV', 'PFE',
                     'BAC', 'KO', 'COST', 'TMO', 'WMT', 'CSCO', 'DIS', 'ABT', 'DHR', 'MRK',
@@ -108,98 +60,20 @@ class StockAnalyzer:
                     'BKNG', 'VRTX', 'ADP', 'SBUX', 'GILD', 'ADI', 'LRCX', 'MDLZ', 'REGN',
                     'PYPL', 'KLAC', 'MRVL', 'ORLY', 'CDNS', 'SNPS', 'NXPI', 'WDAY', 'ABNB', 'FTNT',
                     'DDOG', 'TEAM', 'ZM', 'CRWD', 'ZS', 'OKTA', 'DOCU', 'NOW', 'PANW', 'MU',
-                    'ANET', 'LULU', 'ODFL', 'EXC', 'CTAS', 'ROST', 'TJX', 'MCD', 'YUM', 'CMG',
-                    
-                    # 중형주 (101-200위)
-                    'FAST', 'PAYX', 'VRSK', 'CHTR', 'EA', 'PCAR', 'MCHP', 'KDP', 'TTWO', 'CTSH',
-                    'DXCM', 'MNST', 'MAR', 'AZO', 'CPRT', 'NTES', 'EBAY', 'IDXX', 'SGEN', 'SPLK',
-                    'VRSN', 'SWKS', 'CDW', 'INCY', 'ALGN', 'EXPE', 'TROW', 'FISV', 'CTXS', 'CERN',
-                    'XLNX', 'ADSK', 'BMRN', 'MRNA', 'BIIB', 'ILMN', 'AMGN', 'CSX', 'WBA', 'DLTR',
-                    'TSCO', 'FOX', 'FOXA', 'NDAQ', 'ULTA', 'LRCX', 'ANSS', 'ALXN', 'MXIM', 'CTAS',
-                    'JBHT', 'SIRI', 'PCLN', 'CHRW', 'HOLX', 'NTAP', 'VRTX', 'MELI', 'JD', 'ROKU',
-                    'NFLX', 'GILD', 'CELG', 'WLTW', 'HAS', 'MAT', 'EXPD', 'COST', 'SBAC', 'AMAT',
-                    'MSCI', 'INFO', 'TER', 'SIVB', 'NCLH', 'AAL', 'WYNN', 'LVS', 'MGM', 'CZR',
-                    'PENN', 'BYD', 'SAVE', 'JBLU', 'ALK', 'LUV', 'UAL', 'DAL', 'CCL', 'RCL',
-                    'EXPE', 'TRIP', 'BKNG', 'PCLN', 'EXPD', 'CHRW', 'UPS', 'FDX', 'ODFL', 'JBHT',
-                    
-                    # 중소형주 (201-300위)
-                    'POOL', 'TECH', 'SMCI', 'MKTX', 'ENPH', 'MPWR', 'FSLR', 'SEDG', 'RUN', 'SPWR',
-                    'CSIQ', 'JKS', 'SOL', 'NOVA', 'OLED', 'RGEN', 'LGND', 'ALNY', 'RARE', 'FOLD',
-                    'SRPT', 'BLUE', 'SAGE', 'ARWR', 'EDIT', 'CRSP', 'NTLA', 'BEAM', 'VERV', 'PRTG',
-                    'VCEL', 'CAPR', 'ALEC', 'AMRS', 'GMAB', 'KRTX', 'MRTX', 'CVAC', 'BPMC', 'GLPG',
-                    'GTHX', 'IMMU', 'SRNE', 'INO', 'NVAX', 'BNTX', 'MRNA', 'PFE', 'JNJ', 'ABT',
-                    'TMO', 'DHR', 'A', 'SYK', 'BSX', 'MDT', 'ISRG', 'HOLX', 'VAR', 'DXCM',
-                    'ALGN', 'EW', 'TDOC', 'VEEV', 'RMD', 'PODD', 'TNDM', 'OMCL', 'LIVN', 'NEOG',
-                    'NVCR', 'IOVA', 'ZLAB', 'AKCA', 'MIRM', 'PRTA', 'PACB', 'NVTA', 'CDNA', 'FATE',
-                    'RGNX', 'DNLI', 'ARCT', 'RDUS', 'TGTX', 'CPRX', 'CTIC', 'ADPT', 'MRSN', 'CBPO',
-                    'RVMD', 'SWTX', 'YMAB', 'IBRX', 'PRAX', 'PTCT', 'CDMO', 'MDGL', 'HOOK', 'PRME',
-                    
-                    # 소형주 (301-400위)
-                    'KYMR', 'KRYS', 'ETNB', 'VKTX', 'CGEM', 'SERA', 'XENE', 'VTRS', 'VKTX', 'CGEM',
-                    'LYEL', 'GLUE', 'PCRX', 'TPTX', 'VCEL', 'CAPR', 'ALEC', 'AMRS', 'GMAB', 'KRTX',
-                    'MRTX', 'CVAC', 'BPMC', 'GLPG', 'GTHX', 'IMMU', 'SRNE', 'INO', 'NVAX', 'BNTX',
-                    'MRNA', 'PFE', 'JNJ', 'ABT', 'TMO', 'DHR', 'A', 'SYK', 'BSX', 'MDT',
-                    'ISRG', 'HOLX', 'VAR', 'DXCM', 'ALGN', 'EW', 'TDOC', 'VEEV', 'RMD', 'PODD',
-                    'TNDM', 'OMCL', 'LIVN', 'NEOG', 'NVCR', 'IOVA', 'ZLAB', 'AKCA', 'MIRM', 'PRTA',
-                    'PACB', 'NVTA', 'CDNA', 'FATE', 'RGNX', 'DNLI', 'ARCT', 'RDUS', 'TGTX', 'CPRX',
-                    'CTIC', 'ADPT', 'MRSN', 'CBPO', 'RVMD', 'SWTX', 'YMAB', 'IBRX', 'PRAX', 'PTCT',
-                    'CDMO', 'MDGL', 'HOOK', 'PRME', 'KYMR', 'KRYS', 'ETNB', 'VKTX', 'CGEM', 'SERA',
-                    'XENE', 'VTRS', 'VKTX', 'CGEM', 'LYEL', 'GLUE', 'PCRX', 'TPTX', 'VCEL', 'CAPR',
-                    
-                    # 나머지 소형주 (401-500위)
-                    'MMM', 'AOS', 'APD', 'AKAM', 'ALB', 'ARE', 'ALGN', 'ALLE', 'LNT', 'ALL',
-                    'GOOGL', 'GOOG', 'MO', 'AMZN', 'AMCR', 'AMD', 'AEE', 'AAL', 'AEP', 'AXP',
-                    'AIG', 'AMT', 'AWK', 'AMP', 'ABC', 'AME', 'AMGN', 'APH', 'ADI', 'ANSS',
-                    'ANTM', 'AON', 'APA', 'AAPL', 'AMAT', 'APTV', 'ADM', 'ANET', 'AJG', 'AIZ',
-                    'T', 'ATO', 'ADSK', 'ADP', 'AZO', 'AVB', 'AVY', 'BKR', 'BLL', 'BAC',
-                    'BBWI', 'BAX', 'BDX', 'BRK-B', 'BBY', 'BIO', 'BIIB', 'BLK', 'BK', 'BA',
-                    'BKNG', 'BWA', 'BXP', 'BSX', 'BMY', 'AVGO', 'BR', 'BRO', 'BF-B', 'CHRW',
-                    'CDNS', 'CZR', 'CPT', 'CPB', 'COF', 'CAH', 'KMX', 'CCL', 'CARR', 'CTLT',
-                    'CAT', 'CBOE', 'CBRE', 'CDW', 'CE', 'CNC', 'CNP', 'CDAY', 'CERN', 'CF',
-                    'CRL', 'SCHW', 'CHTR', 'CVX', 'CMG', 'CB', 'CHD', 'CI', 'CINF', 'CTAS'
+                    'ANET', 'LULU', 'ODFL', 'EXC', 'CTAS', 'ROST', 'TJX', 'MCD', 'YUM', 'CMG'
                 ]
-                
-                if limit:
-                    return sp500_symbols[:limit]
-                return sp500_symbols
+                return sp500_symbols[:limit]
                 
             elif market_type == 'NASDAQ':
-                # NASDAQ 100 + 주요 기술주 전체 (약 200개)
+                # 나스닥 상위 200개 기업 (시가총액 순) - 기술주 중심
                 nasdaq_symbols = [
-                    # NASDAQ 100 핵심 기업들
                     'AAPL', 'MSFT', 'GOOGL', 'GOOG', 'AMZN', 'NVDA', 'META', 'TSLA', 'AVGO', 'ADBE',
                     'CRM', 'NFLX', 'INTC', 'AMD', 'QCOM', 'TMUS', 'AMAT', 'ISRG', 'BKNG', 'VRTX',
                     'ADP', 'SBUX', 'GILD', 'ADI', 'LRCX', 'MDLZ', 'REGN', 'PYPL', 'KLAC', 'MRVL',
                     'ORLY', 'CDNS', 'SNPS', 'NXPI', 'WDAY', 'ABNB', 'FTNT', 'DDOG', 'TEAM', 'ZM',
-                    'CRWD', 'ZS', 'OKTA', 'DOCU', 'NOW', 'PANW', 'MU', 'ANET', 'LULU', 'ODFL',
-                    
-                    # 추가 NASDAQ 주요 기업들
-                    'FAST', 'PAYX', 'VRSK', 'CHTR', 'EA', 'PCAR', 'MCHP', 'KDP', 'TTWO', 'CTSH',
-                    'DXCM', 'MNST', 'MAR', 'AZO', 'CPRT', 'NTES', 'EBAY', 'IDXX', 'SGEN', 'SPLK',
-                    'VRSN', 'SWKS', 'CDW', 'INCY', 'ALGN', 'EXPE', 'TROW', 'FISV', 'CTXS', 'CERN',
-                    'XLNX', 'ADSK', 'BMRN', 'MRNA', 'BIIB', 'ILMN', 'CSX', 'WBA', 'DLTR', 'TSCO',
-                    'FOX', 'FOXA', 'NDAQ', 'ULTA', 'ANSS', 'ALXN', 'MXIM', 'JBHT', 'SIRI', 'CHRW',
-                    
-                    # 바이오/헬스케어
-                    'HOLX', 'NTAP', 'MELI', 'JD', 'ROKU', 'CELG', 'WLTW', 'HAS', 'MAT', 'EXPD',
-                    'SBAC', 'MSCI', 'INFO', 'TER', 'SIVB', 'NCLH', 'AAL', 'WYNN', 'LVS', 'MGM',
-                    'CZR', 'PENN', 'BYD', 'SAVE', 'JBLU', 'ALK', 'LUV', 'UAL', 'DAL', 'CCL',
-                    'RCL', 'TRIP', 'UPS', 'FDX', 'POOL', 'TECH', 'SMCI', 'MKTX', 'ENPH', 'MPWR',
-                    
-                    # 신재생에너지 & 클린텍
-                    'FSLR', 'SEDG', 'RUN', 'SPWR', 'CSIQ', 'JKS', 'SOL', 'NOVA', 'OLED', 'RGEN',
-                    'LGND', 'ALNY', 'RARE', 'FOLD', 'SRPT', 'BLUE', 'SAGE', 'ARWR', 'EDIT', 'CRSP',
-                    'NTLA', 'BEAM', 'VERV', 'PRTG', 'VCEL', 'CAPR', 'ALEC', 'AMRS', 'GMAB', 'KRTX',
-                    
-                    # 소프트웨어 & 클라우드
-                    'SNOW', 'PLTR', 'U', 'NET', 'ESTC', 'MDB', 'CFLT', 'GTLB', 'BILL', 'ZI',
-                    'SMAR', 'PCTY', 'TENB', 'SUMO', 'AI', 'PATH', 'DOCN', 'FROG', 'BIGC', 'COUP',
-                    'VEEV', 'CRM', 'ORCL', 'SAP', 'ADBE', 'INTU', 'CTXS', 'VMW', 'SPLK', 'RNG'
+                    'CRWD', 'ZS', 'OKTA', 'DOCU', 'NOW', 'PANW', 'MU', 'ANET', 'LULU', 'ODFL'
                 ]
-                
-                if limit:
-                    return nasdaq_symbols[:limit]
-                return nasdaq_symbols
+                return nasdaq_symbols[:limit]
             
             return None
             
@@ -207,9 +81,9 @@ class StockAnalyzer:
             print(f"[WARNING] 미국 {market_type} 조회 실패: {e}")
             return None
 
-    def get_top_companies_by_market_cap(self, market='SP500', limit=None):
-        """시가총액 기준 상위 기업 가져오기 (전체 또는 제한)"""
-        print(f"[DEBUG] 시가총액 기업 조회 시작: market={market}, limit={limit}")
+    def get_top_companies_by_market_cap(self, market='SP500', limit=200):  # limit 증가
+        """시가총액 기준 상위 기업 가져오기 (최적화 버전)"""
+        print(f"[DEBUG] 시가총액 상위 {limit}개 기업 조회 시작: market={market}")
         
         try:
             companies = {}
@@ -225,7 +99,7 @@ class StockAnalyzer:
         
             elif market in ['KOSPI', 'KOSDAQ']:
                 # 한국 종목은 병렬 처리로 회사명 가져오기
-                korea_symbols = self._get_korea_market_cap_from_naver(market, limit or 50)
+                korea_symbols = self._get_korea_market_cap_from_naver(market, limit)
                 if korea_symbols:
                     # 병렬 처리로 회사명 가져오기
                     companies = self._get_korea_company_names_parallel(korea_symbols)
@@ -598,15 +472,15 @@ class StockAnalyzer:
         except:
             return symbol
     
-    def get_recommendations(self, market='ALL', period='6mo', limit=None):
-        """추천 종목 리스트 가져오기 (전체 또는 제한)"""
-        print(f"[DEBUG] get_recommendations 호출: market={market}, period={period}, limit={limit}")
+    def get_recommendations(self, market='ALL', period='6mo'):
+        """추천 종목 리스트 가져오기 (최적화 버전)"""
+        print(f"[DEBUG] get_recommendations 호출: market={market}, period={period}")
         
         # 현재 기간 저장
         self.current_period = period
         
-        # 시가총액 기업 가져오기 (전체 또는 제한)
-        symbols = self.get_top_companies_by_market_cap(market, limit)
+        # 시가총액 상위 기업 가져오기 (Streamlit용으로 수 줄임)
+        symbols = self.get_top_companies_by_market_cap(market, 50)
         
         print(f"[DEBUG] 분석할 종목 수: {len(symbols)}")
         
@@ -623,7 +497,6 @@ class StockAnalyzer:
     def _analyze_stocks_parallel(self, symbols, period):
         """병렬 처리로 주식 분석 수행"""
         results = []
-        total_symbols = len(symbols)
         
         def analyze_single_stock(symbol):
             try:
@@ -633,32 +506,23 @@ class StockAnalyzer:
                 print(f"[ERROR] {symbol} 분석 중 오류: {str(e)}")
                 return None
         
-        # 대용량 처리를 위해 워커 수와 타임아웃 조정
-        max_workers = min(4, total_symbols // 10 + 1)  # 동적 워커 수 조정
-        timeout_total = max(600, total_symbols * 2)  # 총 타임아웃 (최소 10분)
-        timeout_single = min(60, timeout_total // total_symbols)  # 개별 타임아웃
-        
-        print(f"[DEBUG] 병렬 처리 설정: 워커={max_workers}, 총타임아웃={timeout_total}초, 개별타임아웃={timeout_single}초")
-        
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        # 워커 수를 늘리고 타임아웃 설정
+        with ThreadPoolExecutor(max_workers=5) as executor:  # 워커 수 증가
             # 모든 분석 작업을 제출
             future_to_symbol = {executor.submit(analyze_single_stock, symbol): symbol for symbol in symbols.keys()}
             
-            # 완료된 작업부터 결과 수집
+            # 완료된 작업부터 결과 수집 (타임아웃 설정)
             completed_count = 0
-            for future in as_completed(future_to_symbol, timeout=timeout_total):
+            for future in as_completed(future_to_symbol, timeout=300):  # 5분 타임아웃
                 symbol = future_to_symbol[future]
                 try:
-                    analysis = future.result(timeout=timeout_single)
+                    analysis = future.result(timeout=30)  # 각 작업당 30초 타임아웃
                     if analysis:
                         results.append(analysis)
                     
                     completed_count += 1
-                    
-                    # 진행률 표시 (10% 단위)
-                    if completed_count % max(1, total_symbols // 10) == 0:
-                        progress = completed_count / total_symbols * 100
-                        print(f"[DEBUG] 분석 진행률: {completed_count}/{total_symbols} ({progress:.1f}%)")
+                    if completed_count % 5 == 0:
+                        print(f"[DEBUG] 분석 진행률: {completed_count}/{len(symbols)} ({completed_count/len(symbols)*100:.1f}%)")
                         
                 except Exception as e:
                     print(f"[ERROR] {symbol} 결과 처리 중 오류: {str(e)}")
@@ -855,7 +719,7 @@ class StockAnalyzer:
                     fig.add_annotation(
                         x=date,
                         y=ma125_price * 0.98,
-                        text=f"지지 {i+1}",
+                        text=f"지지 {i+1}번째째",
                         showarrow=False,
                         font=dict(size=8, color="orange"),
                         bgcolor="yellow",
@@ -913,32 +777,12 @@ def main():
         "시장 선택",
         options=['SP500', 'NASDAQ', 'KOSPI', 'KOSDAQ'],
         format_func=lambda x: {
-            'SP500': 'S&P 500 (미국 대형주 전체)',
-            'NASDAQ': 'NASDAQ (미국 기술주 전체)',
+            'SP500': 'S&P 500 (미국 대형주 200개)',
+            'NASDAQ': 'NASDAQ (미국 기술주 200개)',
             'KOSPI': 'KOSPI (한국 대형주 50)',
             'KOSDAQ': 'KOSDAQ (한국 기술주 50)'
         }[x]
     )
-    
-    # 분석 규모 선택 (미국 시장만)
-    analysis_size = None
-    if market in ['SP500', 'NASDAQ']:
-        analysis_size = st.sidebar.selectbox(
-            "분석 규모",
-            options=['전체', '상위50', '상위100'],
-            index=1,  # 기본값: 상위50
-            help="전체 분석 시 시간이 오래 걸릴 수 있습니다."
-        )
-        
-        # 분석 개수 결정
-        if analysis_size == '전체':
-            limit = None
-        elif analysis_size == '상위50':
-            limit = 50
-        elif analysis_size == '상위100':
-            limit = 100
-    else:
-        limit = 50  # 한국 시장은 기본 50개
     
     period = st.sidebar.selectbox(
         "📅 조회 기간 설정",
@@ -1030,26 +874,12 @@ def main():
     
     # 분석 실행
     if analyze_button:
-        # 분석 규모에 따른 예상 시간 안내
-        if market in ['SP500', 'NASDAQ'] and analysis_size == '전체':
-            expected_time = "15-30분"
-            total_stocks = "500개" if market == 'SP500' else "200개"
-        elif market in ['SP500', 'NASDAQ'] and analysis_size == '상위100':
-            expected_time = "5-10분"
-            total_stocks = "100개"
-        else:
-            expected_time = "2-5분"
-            total_stocks = "50개"
-            
-        st.info(f"📊 {total_stocks} 종목 분석 시작 (예상 소요 시간: {expected_time})")
-        
-        with st.spinner(f"{market} 시장 {total_stocks} 분석 중... 잠시만 기다려주세요."):
+        with st.spinner(f"{market} 시장 분석 중... 잠시만 기다려주세요."):
             try:
-                results = analyzer.get_recommendations(market, period, limit)
+                results = analyzer.get_recommendations(market, period)
                 st.session_state.analysis_results = results
                 st.session_state.current_market = market
                 st.session_state.current_period = period
-                st.session_state.current_analysis_size = analysis_size if market in ['SP500', 'NASDAQ'] else '상위50'
                 
                 st.success(f"✅ 분석 완료! 총 {len(results)}개 종목 분석")
                 
@@ -1059,10 +889,7 @@ def main():
     
     # 분석 결과 표시
     if st.session_state.analysis_results:
-        current_market = st.session_state.get('current_market', market)
-        current_analysis_size = st.session_state.get('current_analysis_size', '상위50')
-        
-        st.subheader(f"🎯 분석 결과 ({current_market} - {current_analysis_size})")
+        st.subheader("🎯 분석 결과")
         
         # 결과를 DataFrame으로 변환
         results_data = []
@@ -1129,21 +956,15 @@ def main():
     st.sidebar.markdown("### 📖 사용법")
     st.sidebar.markdown("""
     1. **시장 선택**: 분석할 시장을 선택하세요
-    2. **분석 규모**: 미국 시장의 경우 전체/상위100/상위50 선택
-    3. **기간 설정**: 차트 조회 기간을 설정하세요  
-    4. **분석 시작**: 버튼을 클릭하여 분석을 시작하세요
-    5. **결과 확인**: 표에서 종목을 클릭하면 차트가 표시됩니다
+    2. **기간 설정**: 차트 조회 기간을 설정하세요  
+    3. **분석 시작**: 버튼을 클릭하여 분석을 시작하세요
+    4. **결과 확인**: 표에서 종목을 클릭하면 차트가 표시됩니다
     
     **점수 기준:**
     - 골든크로스: 25점
     - 이평선 위: 25점  
     - 125일선 지지: 25점
     - 추세 안정: 25점
-    
-    **⚠️ 주의사항:**
-    - 전체 분석 시 시간이 많이 소요됩니다
-    - S&P 500 전체: 500개 종목 (15-30분)
-    - NASDAQ 전체: 200개 종목 (10-20분)
     """)
     
     st.sidebar.markdown("---")
@@ -1153,25 +974,7 @@ def main():
     - 기술적 분석 지표 활용
     - 골든크로스 패턴 감지
     - 이동평균선 기반 추세 분석
-    - 대용량 병렬 처리 최적화
     """)
-    
-    # 성능 정보 표시
-    if st.session_state.analysis_results:
-        total_analyzed = len(st.session_state.analysis_results)
-        st.sidebar.markdown("---")
-        st.sidebar.markdown("### 📈 분석 현황")
-        st.sidebar.metric("분석 완료 종목", f"{total_analyzed}개")
-        
-        # 점수별 분포
-        high_score = len([r for r in st.session_state.analysis_results if r['score'] >= 75])
-        medium_score = len([r for r in st.session_state.analysis_results if 50 <= r['score'] < 75])
-        low_score = len([r for r in st.session_state.analysis_results if r['score'] < 50])
-        
-        st.sidebar.markdown("**점수 분포:**")
-        st.sidebar.markdown(f"- 고점수 (75점+): {high_score}개")
-        st.sidebar.markdown(f"- 중간점수 (50-74점): {medium_score}개") 
-        st.sidebar.markdown(f"- 저점수 (50점 미만): {low_score}개")
 
 if __name__ == '__main__':
     main()
