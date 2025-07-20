@@ -949,7 +949,9 @@ def main():
         selected_indices = st.dataframe(
             df_results[['Symbol', 'Company', 'Price', 'GC', 'MA', '125', 'Trend', 'Score']],
             use_container_width=True,
-            hide_index=True
+            hide_index=True,
+            on_select="rerun",
+            selection_mode="single-row"
         )
         
         # 선택된 종목의 차트 표시 (임시로 첫 번째 종목 표시)
