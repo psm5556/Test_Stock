@@ -216,7 +216,7 @@ class StockAnalyzer:
         
             elif market in ['KOSPI', 'KOSDAQ']:
                 # 한국 종목은 병렬 처리로 회사명 가져오기
-                korea_symbols = self._get_korea_market_cap_from_naver(market, limit or 50)
+                korea_symbols = self._get_korea_market_cap_from_naver(market, limit or 1000)
                 if korea_symbols:
                     # 병렬 처리로 회사명 가져오기
                     companies = self._get_korea_company_names_parallel(korea_symbols)
