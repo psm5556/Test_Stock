@@ -228,7 +228,7 @@ class StockAnalyzer:
             print(f"[ERROR] 시가총액 조회 중 오류: {e}")
             return {}
     
-    def _get_korea_market_cap_from_naver(self, market_type='KOSPI', limit=50):
+    def _get_korea_market_cap_from_naver(self, market_type='KOSPI', limit=1000):
         """네이버 금융에서 한국 시가총액 순위 가져오기"""
         try:
             print(f"[DEBUG] 네이버 금융에서 {market_type} 시가총액 순위 조회 시도")
