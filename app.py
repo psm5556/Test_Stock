@@ -244,7 +244,7 @@ class StockAnalyzer:
             else:
                 base_url = "https://finance.naver.com/sise/sise_market_sum.nhn"
             
-            while len(all_codes) < limit and page <= 2:  # 페이지 수 줄임
+            while len(all_codes) < limit and page <= 4:  # 페이지 수 줄임
                 url = f"{base_url}?&page={page}"
                 
                 headers = {
@@ -922,7 +922,7 @@ def main():
             'SP500': 'S&P 500 (전체 500개)',
             'NASDAQ': 'NASDAQ (전체 주요 기술주)',
             'ALL': '미국 전체 (S&P500 + NASDAQ)',
-            'KOSPI': 'KOSPI (50개)',
+            'KOSPI': 'KOSPI (200개)',
             'KOSDAQ': 'KOSDAQ (50개)',
             'FUTURE_LEADERS': '🌟 미래 대장주 엄선 (60개)',
             'AEROSPACE': '🚀 우주항공 섹터',
