@@ -264,27 +264,14 @@ class StockAnalyzer:
                       annotation_text="공포")
         
         # 현재값 포인트 추가
-        if (self.fear_greed_current and 
-            self.fear_greed_history is not None and 
-            hasattr(self.fear_greed_history, 'empty') and 
-            not self.fear_greed_history.empty):
-            try:
-                # DataFrame인지 확인하고 안전하게 접근
-                if hasattr(self.fear_greed_history, 'iloc'):
-                    last_date = self.fear_greed_history['Date'].iloc[-1]
-                else:
-                    # numpy array인 경우
-                    last_date = self.fear_greed_history['Date'][-1]
-                
-                fig.add_trace(go.Scatter(
-                    x=[last_date],
-                    y=[self.fear_greed_current],
-                    mode='markers',
-                    marker=dict(color='red', size=10),
-                    name=f'현재: {self.fear_greed_current:.1f}'
-                ))
-            except Exception as e:
-                print(f"[WARNING] 현재값 포인트 추가 실패: {e}")
+        if self.fear_greed_current and self.fear_greed_history is not None and not self.fear_greed_history.empty:
+            fig.add_trace(go.Scatter(
+                x=[self.fear_greed_history['Date'].iloc[-1]],
+                y=[self.fear_greed_current],
+                mode='markers',
+                marker=dict(color='red', size=10),
+                name=f'현재: {self.fear_greed_current:.1f}'
+            ))
         
         period_label = self.period_labels.get(period, period)
         
@@ -296,46 +283,23 @@ class StockAnalyzer:
             showlegend=True,
             plot_bgcolor='white',
             paper_bgcolor='white',
-            xaxis=dict(
-                gridcolor='lightgray',
-                fixedrange=False  # x축 이동 가능
-            ),
-            yaxis=dict(
-                range=[0, 100], 
-                gridcolor='lightgray',
-                fixedrange=False  # y축 이동 가능
-            ),
+            xaxis=dict(gridcolor='lightgray'),
+            yaxis=dict(range=[0, 100], gridcolor='lightgray'),
             margin=dict(t=40, b=40, l=50, r=50),
-            # 모바일 터치 제스처 설정
+            # 모바일 인터랙션 설정
             dragmode='pan',
             modebar=dict(
                 orientation='v',
                 bgcolor='rgba(255,255,255,0.8)',
                 color='black',
-                activecolor='red',
-                remove=['lasso2d', 'select2d']  # 불필요한 도구 제거
+                activecolor='red'
             )
         )
         
-        # 모바일 터치 제스처 설정
+        # 모바일 터치 인터랙션 설정
         fig.update_layout(
-            newshape=dict(
-                fillcolor="rgba(0,0,0,0)",
-                opacity=0,
-                line=dict(width=0)
-            )
-        )
-        
-        # 터치 제스처를 위한 추가 설정
-        fig.update_layout(
-            hovermode='x unified',
-            clickmode='event+select'
-        )
-        
-        # 모바일 터치 제스처를 위한 설정
-        fig.update_layout(
-            hovermode='x unified',
-            clickmode='event+select'
+            newshape=dict(line_color="yellow", line_width=2),
+            activeshape=dict(fillcolor="yellow", opacity=0.7)
         )
         
         return fig
@@ -646,30 +610,11 @@ class StockAnalyzer:
     def create_stock_chart(self, analysis):
         """종목 차트 생성"""
         try:
-            # 필수 키 확인
-            required_keys = ['data', 'symbol', 'company_name', 'score', 'period_label']
-            for key in required_keys:
-                if key not in analysis:
-                    print(f"[ERROR] 분석 데이터에 필수 키 '{key}'가 없습니다.")
-                    return None
-            
             df = analysis['data']
             symbol = analysis['symbol']
             company_name = analysis['company_name']
             score = analysis['score']
             period_label = analysis['period_label']
-            
-            # 데이터프레임 유효성 검사
-            if df is None or df.empty:
-                print(f"[ERROR] {symbol} 데이터가 비어있습니다.")
-                return None
-            
-            # 필수 컬럼 확인
-            required_columns = ['Open', 'High', 'Low', 'Close', 'MA20', 'MA60', 'MA125']
-            for col in required_columns:
-                if col not in df.columns:
-                    print(f"[ERROR] {symbol} 데이터에 필수 컬럼 '{col}'가 없습니다.")
-                    return None
             
             # 캔들스틱 차트 생성
             fig = go.Figure()
@@ -797,8 +742,7 @@ class StockAnalyzer:
                 paper_bgcolor='white',
                 xaxis=dict(
                     gridcolor='lightgray',
-                    rangeslider=dict(visible=False),
-                    fixedrange=False  # x축 이동 가능
+                    rangeslider=dict(visible=False)
                 ),
                 yaxis=dict(
                     gridcolor='lightgray',
@@ -807,48 +751,30 @@ class StockAnalyzer:
                     tickmode='auto',
                     nticks=10,
                     autorange=True,
-                    fixedrange=False,  # y축 이동 가능
+                    fixedrange=False,
                     automargin=True
                 ),
                 margin=dict(t=35, b=35, l=35, r=35),
-                # 모바일 터치 제스처 설정
+                # 모바일 인터랙션 설정
                 dragmode='pan',
                 modebar=dict(
                     orientation='v',
                     bgcolor='rgba(255,255,255,0.8)',
                     color='black',
-                    activecolor='red',
-                    remove=['lasso2d', 'select2d']  # 불필요한 도구 제거
+                    activecolor='red'
                 )
             )
             
-            # 모바일 터치 제스처 설정
+            # 모바일 터치 인터랙션 설정
             fig.update_layout(
-                newshape=dict(
-                    fillcolor="rgba(0,0,0,0)",
-                    opacity=0,
-                    line=dict(width=0)
-                )
-            )
-            
-            # 터치 제스처를 위한 추가 설정
-            fig.update_layout(
-                hovermode='x unified',
-                clickmode='event+select'
-            )
-            
-            # 모바일 터치 제스처를 위한 설정
-            fig.update_layout(
-                hovermode='x unified',
-                clickmode='event+select'
+                newshape=dict(line_color="yellow", line_width=2),
+                activeshape=dict(fillcolor="yellow", opacity=0.7)
             )
             
             return fig
             
         except Exception as e:
             print(f"[ERROR] 차트 생성 중 오류: {str(e)}")
-            import traceback
-            traceback.print_exc()
             return None
 
 # Streamlit 앱 메인 함수
@@ -957,7 +883,7 @@ def main():
             </div>
             """, unsafe_allow_html=True)
     
-    # 분석 정보 (전체 너비)
+    # 분석 정보
     st.subheader("📊 분석 정보")
     if analyze_button:
         st.info("분석이 시작되었습니다. 잠시만 기다려주세요...")
@@ -968,7 +894,7 @@ def main():
     if analyze_button:
         with st.spinner(f"{market} 시장 분석 중... 잠시만 기다려주세요."):
             try:
-                results = analyzer.get_recommendations(market or 'SP500', period or '6mo')
+                results = analyzer.get_recommendations(market, period)
                 st.session_state.analysis_results = results
                 st.session_state.current_market = market
                 st.session_state.current_period = period
@@ -1000,30 +926,19 @@ def main():
         
         df_results = pd.DataFrame(results_data)
         
-        # 종목 선택을 위한 체크박스 추가
-        st.subheader("📊 종목 차트 보기")
+        # 데이터프레임 표시 (클릭 가능)
+        selected_indices = st.dataframe(
+            df_results[['Symbol', 'Company', 'Price', 'GC', 'MA', '125', 'Trend', 'Score']],
+            use_container_width=True,
+            hide_index=True,
+            on_select="rerun",
+            selection_mode="single-row"
+        )
         
-        # 체크박스로 종목 선택
-        if st.session_state.analysis_results:
-            # 체크박스 상태 초기화
-            if 'selected_stocks' not in st.session_state:
-                st.session_state.selected_stocks = []
-            
-            # 체크박스 생성
-            selected_stocks = []
-            for i, result in enumerate(st.session_state.analysis_results):
-                stock_label = f"{result['company_name']} ({result['symbol']}) - 점수: {result['score']}점"
-                if st.checkbox(stock_label, key=f"stock_{i}"):
-                    selected_stocks.append(i)
-            
-            # 선택된 종목이 있으면 첫 번째 선택된 종목의 차트 표시
-            if selected_stocks:
-                selected_idx = selected_stocks[0]  # 첫 번째 선택된 종목
-                selected_result = st.session_state.analysis_results[selected_idx]
-            else:
-                # 선택된 종목이 없으면 첫 번째 종목 표시
-                selected_result = st.session_state.analysis_results[0]
-                st.info("차트를 보려면 위의 체크박스에서 종목을 선택하세요.")
+        # 선택된 종목의 차트 표시
+        if selected_indices['selection']['rows']:
+            selected_idx = selected_indices['selection']['rows'][0]
+            selected_result = st.session_state.analysis_results[selected_idx]
             
             st.subheader(f"📊 {selected_result['company_name']} ({selected_result['symbol']}) 차트")
             
