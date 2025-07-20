@@ -285,21 +285,7 @@ class StockAnalyzer:
             paper_bgcolor='white',
             xaxis=dict(gridcolor='lightgray'),
             yaxis=dict(range=[0, 100], gridcolor='lightgray'),
-            margin=dict(t=40, b=40, l=50, r=50),
-            # 모바일 인터랙션 설정
-            dragmode='pan',
-            modebar=dict(
-                orientation='v',
-                bgcolor='rgba(255,255,255,0.8)',
-                color='black',
-                activecolor='red'
-            )
-        )
-        
-        # 모바일 터치 인터랙션 설정
-        fig.update_layout(
-            newshape=dict(line_color="yellow", line_width=2),
-            activeshape=dict(fillcolor="yellow", opacity=0.7)
+            margin=dict(t=40, b=40, l=50, r=50)
         )
         
         return fig
@@ -344,16 +330,15 @@ class StockAnalyzer:
         return False, None
     
     def check_above_ma_lines(self, df):
-        """현재 가격이 20일선, 60일선 위에 있고 125일선은 아래에 있는지 확인"""
+        """현재 가격이 20일선, 60일선 위에 있는지 확인"""
         if len(df) < 1:
             return False
         
         current_price = df['Close'].iloc[-1]
         ma20 = df['MA20'].iloc[-1]
         ma60 = df['MA60'].iloc[-1]
-        ma125 = df['MA125'].iloc[-1]
         
-        return current_price > ma20 and current_price > ma60 and current_price < ma125
+        return current_price > ma20 and current_price > ma60
     
     def check_ma125_support(self, df):
         """125일선 위에서 2개 이상 캔들이 지지하는지 확인"""
@@ -685,7 +670,7 @@ class StockAnalyzer:
                     fillcolor="lightgreen",
                     opacity=0.5,
                     layer="below",
-                    line=dict(width=0),
+                    line=dict(color="green", width=2),
                 )
                 
                 # 텍스트 주석 추가
@@ -718,7 +703,7 @@ class StockAnalyzer:
                         fillcolor="yellow",
                         opacity=0.6,
                         layer="below",
-                        line=dict(width=0),
+                        line=dict(color="orange", width=2),
                     )
                     
                     # 지지 횟수 표시
@@ -787,8 +772,7 @@ def main():
             'NASDAQ': 'NASDAQ (미국 기술주 50)',
             'KOSPI': 'KOSPI (한국 대형주 50)',
             'KOSDAQ': 'KOSDAQ (한국 기술주 50)'
-        }[x],
-        index=0
+        }[x]
     )
     
     period = st.sidebar.selectbox(
@@ -865,7 +849,7 @@ def main():
                 
                 # 차트 표시
                 if 'fear_greed_chart' in st.session_state:
-                    st.plotly_chart(st.session_state.fear_greed_chart, use_container_width=True, config={'displayModeBar': True})
+                    st.plotly_chart(st.session_state.fear_greed_chart, use_container_width=True)
                     
             except Exception as e:
                 st.error(f"공포 탐욕 지수 로딩 실패: {e}")
@@ -921,22 +905,25 @@ def main():
         df_results = pd.DataFrame(results_data)
         
         # 데이터프레임 표시 (클릭 가능)
-        st.dataframe(
+        selected_indices = st.dataframe(
             df_results[['Symbol', 'Company', 'Price', 'GC', 'MA', '125', 'Trend', 'Score']],
             use_container_width=True,
-            hide_index=True
+            hide_index=True,
+            on_select="rerun",
+            selection_mode="single-row"
         )
         
-        # 선택된 종목의 차트 표시 (임시로 첫 번째 종목 표시)
-        if st.session_state.analysis_results:
-            selected_result = st.session_state.analysis_results[0]  # 임시로 첫 번째 종목 선택
+        # 선택된 종목의 차트 표시
+        if selected_indices['selection']['rows']:
+            selected_idx = selected_indices['selection']['rows'][0]
+            selected_result = st.session_state.analysis_results[selected_idx]
             
             st.subheader(f"📊 {selected_result['company_name']} ({selected_result['symbol']}) 차트")
             
             # 차트 생성 및 표시
             chart = analyzer.create_stock_chart(selected_result)
             if chart:
-                st.plotly_chart(chart, use_container_width=True, config={'displayModeBar': True})
+                st.plotly_chart(chart, use_container_width=True)
             else:
                 st.error("차트를 생성할 수 없습니다.")
                 
