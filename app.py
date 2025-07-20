@@ -43,53 +43,128 @@ class StockAnalyzer:
             '5y': 1825
         }
         
-    def _get_us_market_cap_from_yahoo(self, market_type='SP500', limit=200):
-        """미국 시가총액 상위 종목 가져오기 (하드코딩)"""
+    def _get_sp500_symbols_full(self):
+        """S&P 500 전체 기업 리스트 (500개)"""
+        return [
+            'AAPL', 'MSFT', 'GOOGL', 'GOOG', 'AMZN', 'NVDA', 'META', 'BRK-B', 'LLY', 'AVGO', 
+            'UNH', 'JPM', 'XOM', 'V', 'PG', 'JNJ', 'MA', 'HD', 'CVX', 'ABBV',
+            'PFE', 'BAC', 'KO', 'COST', 'TMO', 'WMT', 'CSCO', 'DIS', 'ABT', 'DHR',
+            'MRK', 'ADBE', 'CRM', 'NFLX', 'INTC', 'AMD', 'QCOM', 'IBM', 'GE', 'BA',
+            'CAT', 'HON', 'RTX', 'GS', 'MS', 'VZ', 'CMCSA', 'NKE', 'ORCL', 'PEP',
+            'TXN', 'PM', 'T', 'AMGN', 'COP', 'UNP', 'NEE', 'LOW', 'TMUS', 'AMAT',
+            'ISRG', 'BKNG', 'VRTX', 'ADP', 'SBUX', 'GILD', 'ADI', 'LRCX', 'MDLZ', 'REGN',
+            'PYPL', 'KLAC', 'MRVL', 'ORLY', 'CDNS', 'SNPS', 'NXPI', 'WDAY', 'ABNB', 'FTNT',
+            'DDOG', 'TEAM', 'ZM', 'CRWD', 'ZS', 'OKTA', 'DOCU', 'NOW', 'PANW', 'MU',
+            'ANET', 'LULU', 'ODFL', 'EXC', 'CTAS', 'ROST', 'TJX', 'MCD', 'YUM', 'CMG',
+            'MMC', 'ACN', 'LIN', 'SPGI', 'TFC', 'BLK', 'AON', 'ICE', 'COF', 'FI',
+            'BSX', 'SO', 'PLD', 'DUK', 'SCHW', 'CL', 'CB', 'USB', 'BMY', 'DE',
+            'HCA', 'NSC', 'APH', 'SYK', 'ZTS', 'PNC', 'CI', 'WM', 'EQIX', 'CCI',
+            'AMT', 'MCO', 'ITW', 'TGT', 'FISV', 'CSX', 'BDX', 'NOC', 'FCX', 'SHW',
+            'GD', 'EMR', 'PGR', 'AON', 'GM', 'MCK', 'AJG', 'TRV', 'PSA', 'WELL',
+            'ECL', 'ROP', 'CARR', 'ALL', 'AEP', 'WMB', 'CME', 'DLR', 'O', 'PCAR',
+            'OKE', 'KMI', 'TEL', 'AIG', 'HLT', 'PSX', 'SPG', 'CTSH', 'PAYX', 'SRE',
+            'F', 'AZO', 'MSI', 'CNC', 'MSCI', 'CMI', 'PRU', 'AFL', 'FAST', 'GWW',
+            'RSG', 'KR', 'OTIS', 'CBRE', 'VRSK', 'ADSK', 'EA', 'CTVA', 'HUM', 'IDXX',
+            'EW', 'XEL', 'DD', 'COIN', 'HPQ', 'DXCM', 'GRMN', 'WEC', 'GEHC', 'GLW',
+            'KHC', 'ED', 'WBA', 'NDAQ', 'RMD', 'BK', 'DOW', 'AWK', 'ANSS', 'A',
+            'EXR', 'IRM', 'FANG', 'PPG', 'CPRT', 'ROK', 'URI', 'MNST', 'SBAC', 'STZ',
+            'DVN', 'IT', 'VICI', 'KEYS', 'MLM', 'YUM', 'ACGL', 'VMC', 'CHTR', 'MPWR',
+            'EFX', 'BIIB', 'CDW', 'TROW', 'EBAY', 'NTAP', 'TSN', 'CSGP', 'WAB', 'HUBB',
+            'WTW', 'HPE', 'AVB', 'DLTR', 'MTB', 'ZBH', 'EXPD', 'ETN', 'PPL', 'FTV',
+            'GPN', 'DTE', 'ALGN', 'VLTO', 'GIS', 'LDOS', 'BRO', 'K', 'BALL', 'HOLX',
+            'MRO', 'LH', 'EIX', 'CLX', 'CAH', 'AEE', 'DRI', 'J', 'EPAM', 'KIM',
+            'ES', 'APTV', 'ZBRA', 'ARE', 'UAL', 'BF-B', 'IEX', 'CHD', 'WY', 'LYB',
+            'STE', 'INCY', 'LVS', 'MAA', 'HSY', 'DAL', 'TTWO', 'EQT', 'SWKS', 'JBHT',
+            'FITB', 'CAG', 'CNP', 'POOL', 'CCL', 'TECH', 'CTLT', 'FE', 'HBAN', 'RCL',
+            'BAX', 'INVH', 'TAP', 'WAT', 'IP', 'MOS', 'LW', 'TRMB', 'AMCR', 'SYF',
+            'TPG', 'KMX', 'JKHY', 'RF', 'SMCI', 'CMS', 'PODD', 'BR', 'WRB', 'LKQ',
+            'NTRS', 'ALB', 'STT', 'ATO', 'EXPE', 'MPC', 'ESS', 'COO', 'AKAM', 'UDR',
+            'BBWI', 'NCLH', 'CPT', 'DFS', 'VRSN', 'CFGTRADE', 'PKI', 'TYL', 'GEN', 'CBOE',
+            'BBY', 'DGX', 'SWK', 'FFIV', 'L', 'MKTX', 'FOXA', 'FOX', 'ENTG', 'ULTA',
+            'LUV', 'FICO', 'EVRG', 'OMC', 'VTRS', 'PFG', 'TER', 'FSLR', 'STLD', 'AOS',
+            'MOH', 'LYV', 'IVZ', 'ENPH', 'SJM', 'JNPR', 'UPS', 'KEY', 'NWSA', 'NWS',
+            'FRT', 'NRG', 'TPR', 'PARA', 'CRL', 'MCHP', 'EMN', 'NI', 'REG', 'AIZ',
+            'DOV', 'PAYC', 'BXP', 'ZION', 'PNR', 'MAR', 'CHRW', 'FMC', 'WYNN', 'NVR',
+            'SOLV', 'CTXS', 'CPB', 'CF', 'HII', 'HRL', 'IPG', 'BEN', 'WDC', 'GNRC',
+            'XRAY', 'MHK', 'HSIC', 'CE', 'PHM', 'ALLE', 'LEN', 'AAL', 'NEM', 'TDG',
+            'NDSN', 'RHI', 'GL', 'PBCT', 'PWR', 'SEE', 'RL', 'HAS', 'WHR', 'IFF',
+            'PRGO', 'FLS', 'ALK', 'PVH', 'VFC', 'DISH'
+        ]
+    
+    def _get_nasdaq_symbols_full(self):
+        """NASDAQ 전체 주요 기업 리스트 (주요 기술주 중심 400개+)"""
+        return [
+            'AAPL', 'MSFT', 'GOOGL', 'GOOG', 'AMZN', 'NVDA', 'META', 'TSLA', 'AVGO', 'ADBE',
+            'CRM', 'NFLX', 'INTC', 'AMD', 'QCOM', 'TMUS', 'AMAT', 'ISRG', 'BKNG', 'VRTX',
+            'ADP', 'SBUX', 'GILD', 'ADI', 'LRCX', 'MDLZ', 'REGN', 'PYPL', 'KLAC', 'MRVL',
+            'ORLY', 'CDNS', 'SNPS', 'NXPI', 'WDAY', 'ABNB', 'FTNT', 'DDOG', 'TEAM', 'ZM',
+            'CRWD', 'ZS', 'OKTA', 'DOCU', 'NOW', 'PANW', 'MU', 'ANET', 'LULU', 'ODFL',
+            'CPRT', 'CSCO', 'CTAS', 'FAST', 'VRSK', 'ADSK', 'EA', 'DXCM', 'GRMN', 'IDXX',
+            'NDAQ', 'ANSS', 'MNST', 'MPWR', 'CDW', 'EBAY', 'NTAP', 'BIIB', 'CHTR', 'ALGN',
+            'DLTR', 'SWKS', 'TTWO', 'SMCI', 'PODD', 'AKAM', 'FICO', 'ENPH', 'FSLR', 'JNPR',
+            'MCHP', 'WDC', 'XRAY', 'CTXS', 'ULTA', 'FISV', 'PAYX', 'WBA', 'COST', 'FOX',
+            'FOXA', 'MRNA', 'BMRN', 'TECH', 'ILMN', 'INCY', 'SIRI', 'PCTY', 'EXPD', 'MELI',
+            'KDP', 'LCID', 'ROKU', 'HOOD', 'RIVN', 'SGEN', 'NTES', 'JD', 'PDD', 'BIDU',
+            'SPLK', 'PTON', 'ZI', 'SHOP', 'SPOT', 'PLUG', 'FUBO', 'DOCU', 'ZG', 'ZILLOW',
+            'UBER', 'LYFT', 'DASH', 'SNOW', 'RBLX', 'PLTR', 'COIN', 'HOOD', 'SOFI', 'UPST',
+            'AFRM', 'SQ', 'ROKU', 'PINS', 'SNAP', 'TWTR', 'FB', 'GOOGL', 'GOOG', 'NFLX',
+            'TSLA', 'NVDA', 'AMD', 'INTC', 'QCOM', 'AVGO', 'ADBE', 'CRM', 'ORCL', 'NOW',
+            'WDAY', 'DDOG', 'CRWD', 'ZS', 'OKTA', 'SPLK', 'PANW', 'FTNT', 'CYBR', 'FEYE',
+            'NLOK', 'CHKP', 'VRSN', 'PFPT', 'MIME', 'TENB', 'RPD', 'SAIL', 'NET', 'FSLY',
+            'ESTC', 'DOCU', 'BOX', 'WORK', 'TEAM', 'ATLASSIAN', 'ASANA', 'MNDY', 'GTLB', 'PD',
+            'VEEV', 'CRM', 'ADBE', 'WDAY', 'NOW', 'DDOG', 'SNOW', 'MDB', 'ESTC', 'ELASTIC',
+            'PLTR', 'AI', 'C3AI', 'BBAI', 'SOUN', 'RKLB', 'SPCE', 'ASTR', 'BLDE', 'JOBY',
+            'EVTL', 'LILM', 'ACHR', 'KCAC', 'AVAV', 'KTOS', 'IRDM', 'MAXR', 'SPIR', 'RKLB',
+            'GRAB', 'SE', 'BABA', 'JD', 'PDD', 'NTES', 'BIDU', 'IQ', 'BILI', 'TME',
+            'WB', 'YUMC', 'EDU', 'TAL', 'GSX', 'GOTU', 'COE', 'LAIX', 'RYB', 'CAAS',
+            'VIPS', 'DADA', 'KC', 'YMM', 'TUYA', 'API', 'DOYU', 'HUYA', 'YY', 'MOMO',
+            'LKCO', 'LK', 'COFFEE', 'QSR', 'SBUX', 'DNKN', 'DPZ', 'YUM', 'MCD', 'CMG',
+            'SHAK', 'WING', 'TXRH', 'BJRI', 'BLMN', 'CAKE', 'CHUY', 'DENN', 'EAT', 'FRGI',
+            'HABT', 'JACK', 'KRUS', 'LOCO', 'NDLS', 'NOODLES', 'PBPB', 'PZZA', 'RRGB', 'RUTH',
+            'SONC', 'TACO', 'WEN', 'ZOES', 'AMZN', 'EBAY', 'SHOP', 'ETSY', 'W', 'OSTK',
+            'GRUB', 'UBER', 'LYFT', 'DASH', 'ABNB', 'BKNG', 'EXPE', 'TRIP', 'MMYT', 'DESP',
+            'AGODA', 'PCLN', 'KAYAK', 'OPEN', 'MOMENTA', 'TRIVAGO', 'QRTEA', 'QRTEB', 'LTRPA',
+            'LTRPB', 'IAC', 'MTCH', 'BMBL', 'MSGS', 'WMG', 'SIRI', 'SPOT', 'ROKU', 'NFLX',
+            'DIS', 'PARA', 'WBD', 'FOX', 'FOXA', 'CMCSA', 'T', 'VZ', 'TMUS', 'S',
+            'USM', 'SHEN', 'BAND', 'GSAT', 'IRDM', 'VSAT', 'GILT', 'GOGO', 'ASTS', 'ORBC'
+        ]
+    
+    def _get_us_market_cap_from_yahoo(self, market_type='SP500', limit=None):
+        """미국 시가총액 상위 종목 가져오기 (전체 리스트)"""
         try:
-            print(f"[DEBUG] 미국 {market_type} 시가총액 상위 종목 조회 시도")
+            print(f"[DEBUG] 미국 {market_type} 전체 종목 조회")
             
             if market_type == 'SP500':
-                # S&P 500 상위 200개 기업 (시가총액 순) - 대형주 중심
-                sp500_symbols = [
-                    'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'BRK-B', 'LLY', 'AVGO', 'UNH',
-                    'JPM', 'XOM', 'V', 'PG', 'JNJ', 'MA', 'HD', 'CVX', 'ABBV', 'PFE',
-                    'BAC', 'KO', 'COST', 'TMO', 'WMT', 'CSCO', 'DIS', 'ABT', 'DHR', 'MRK',
-                    'ADBE', 'CRM', 'NFLX', 'INTC', 'AMD', 'QCOM', 'IBM', 'GE', 'BA', 'CAT',
-                    'HON', 'RTX', 'GS', 'MS', 'VZ', 'CMCSA', 'NKE', 'ORCL', 'PEP', 'TXN',
-                    'PM', 'T', 'AMGN', 'COP', 'UNP', 'NEE', 'LOW', 'TMUS', 'AMAT', 'ISRG',
-                    'BKNG', 'VRTX', 'ADP', 'SBUX', 'GILD', 'ADI', 'LRCX', 'MDLZ', 'REGN',
-                    'PYPL', 'KLAC', 'MRVL', 'ORLY', 'CDNS', 'SNPS', 'NXPI', 'WDAY', 'ABNB', 'FTNT',
-                    'DDOG', 'TEAM', 'ZM', 'CRWD', 'ZS', 'OKTA', 'DOCU', 'NOW', 'PANW', 'MU',
-                    'ANET', 'LULU', 'ODFL', 'EXC', 'CTAS', 'ROST', 'TJX', 'MCD', 'YUM', 'CMG'
-                ]
-                return sp500_symbols[:limit]
-                
+                symbols = self._get_sp500_symbols_full()
             elif market_type == 'NASDAQ':
-                # 나스닥 상위 200개 기업 (시가총액 순) - 기술주 중심
-                nasdaq_symbols = [
-                    'AAPL', 'MSFT', 'GOOGL', 'GOOG', 'AMZN', 'NVDA', 'META', 'TSLA', 'AVGO', 'ADBE',
-                    'CRM', 'NFLX', 'INTC', 'AMD', 'QCOM', 'TMUS', 'AMAT', 'ISRG', 'BKNG', 'VRTX',
-                    'ADP', 'SBUX', 'GILD', 'ADI', 'LRCX', 'MDLZ', 'REGN', 'PYPL', 'KLAC', 'MRVL',
-                    'ORLY', 'CDNS', 'SNPS', 'NXPI', 'WDAY', 'ABNB', 'FTNT', 'DDOG', 'TEAM', 'ZM',
-                    'CRWD', 'ZS', 'OKTA', 'DOCU', 'NOW', 'PANW', 'MU', 'ANET', 'LULU', 'ODFL'
-                ]
-                return nasdaq_symbols[:limit]
+                symbols = self._get_nasdaq_symbols_full()
+            elif market_type == 'ALL':
+                # SP500과 NASDAQ 합치기 (중복 제거)
+                sp500 = self._get_sp500_symbols_full()
+                nasdaq = self._get_nasdaq_symbols_full()
+                symbols = list(set(sp500 + nasdaq))  # 중복 제거
+            else:
+                symbols = self._get_sp500_symbols_full()
             
-            return None
+            if limit:
+                symbols = symbols[:limit]
+                
+            print(f"[DEBUG] {market_type} 총 종목 수: {len(symbols)}")
+            return symbols
             
         except Exception as e:
             print(f"[WARNING] 미국 {market_type} 조회 실패: {e}")
             return None
 
-    def get_top_companies_by_market_cap(self, market='SP500', limit=200):  # limit 증가
-        """시가총액 기준 상위 기업 가져오기 (최적화 버전)"""
-        print(f"[DEBUG] 시가총액 상위 {limit}개 기업 조회 시작: market={market}")
+    def get_top_companies_by_market_cap(self, market='SP500', limit=None):
+        """시가총액 기준 상위 기업 가져오기 (전체 또는 제한)"""
+        print(f"[DEBUG] 시가총액 기업 조회 시작: market={market}, limit={limit}")
         
         try:
             companies = {}
             
-            if market in ['SP500', 'NASDAQ']:
-                # 미국 종목은 하드코딩된 회사명 사용 (API 호출 최소화)
+            if market in ['SP500', 'NASDAQ', 'ALL']:
+                # 미국 종목은 하드코딩된 회사명 사용
                 us_symbols = self._get_us_market_cap_from_yahoo(market, limit)
                 if us_symbols:
                     # 하드코딩된 회사명 매핑 사용
@@ -99,7 +174,7 @@ class StockAnalyzer:
         
             elif market in ['KOSPI', 'KOSDAQ']:
                 # 한국 종목은 병렬 처리로 회사명 가져오기
-                korea_symbols = self._get_korea_market_cap_from_naver(market, limit)
+                korea_symbols = self._get_korea_market_cap_from_naver(market, limit or 50)
                 if korea_symbols:
                     # 병렬 처리로 회사명 가져오기
                     companies = self._get_korea_company_names_parallel(korea_symbols)
@@ -473,14 +548,14 @@ class StockAnalyzer:
             return symbol
     
     def get_recommendations(self, market='ALL', period='6mo'):
-        """추천 종목 리스트 가져오기 (최적화 버전)"""
+        """추천 종목 리스트 가져오기 (전체 또는 제한 없음)"""
         print(f"[DEBUG] get_recommendations 호출: market={market}, period={period}")
         
         # 현재 기간 저장
         self.current_period = period
         
-        # 시가총액 상위 기업 가져오기 (Streamlit용으로 수 줄임)
-        symbols = self.get_top_companies_by_market_cap(market, 50)
+        # 전체 기업 가져오기 (제한 없음)
+        symbols = self.get_top_companies_by_market_cap(market, limit=None)
         
         print(f"[DEBUG] 분석할 종목 수: {len(symbols)}")
         
@@ -495,7 +570,7 @@ class StockAnalyzer:
         return results
 
     def _analyze_stocks_parallel(self, symbols, period):
-        """병렬 처리로 주식 분석 수행"""
+        """병렬 처리로 주식 분석 수행 (대량 데이터 처리 최적화)"""
         results = []
         
         def analyze_single_stock(symbol):
@@ -506,66 +581,242 @@ class StockAnalyzer:
                 print(f"[ERROR] {symbol} 분석 중 오류: {str(e)}")
                 return None
         
-        # 워커 수를 늘리고 타임아웃 설정
-        with ThreadPoolExecutor(max_workers=5) as executor:  # 워커 수 증가
-            # 모든 분석 작업을 제출
-            future_to_symbol = {executor.submit(analyze_single_stock, symbol): symbol for symbol in symbols.keys()}
+        # 대량 데이터 처리를 위한 배치 시스템
+        batch_size = 20  # 배치 크기
+        symbol_list = list(symbols.keys())
+        
+        print(f"[DEBUG] 총 {len(symbol_list)}개 종목을 {batch_size}개씩 배치로 처리")
+        
+        for i in range(0, len(symbol_list), batch_size):
+            batch_symbols = symbol_list[i:i+batch_size]
+            batch_results = []
             
-            # 완료된 작업부터 결과 수집 (타임아웃 설정)
-            completed_count = 0
-            for future in as_completed(future_to_symbol, timeout=300):  # 5분 타임아웃
-                symbol = future_to_symbol[future]
-                try:
-                    analysis = future.result(timeout=30)  # 각 작업당 30초 타임아웃
-                    if analysis:
-                        results.append(analysis)
-                    
-                    completed_count += 1
-                    if completed_count % 5 == 0:
-                        print(f"[DEBUG] 분석 진행률: {completed_count}/{len(symbols)} ({completed_count/len(symbols)*100:.1f}%)")
-                        
-                except Exception as e:
-                    print(f"[ERROR] {symbol} 결과 처리 중 오류: {str(e)}")
+            print(f"[DEBUG] 배치 {i//batch_size + 1}/{(len(symbol_list)-1)//batch_size + 1} 처리 중 ({len(batch_symbols)}개 종목)")
+            
+            # 배치별로 병렬 처리
+            with ThreadPoolExecutor(max_workers=8) as executor:  # 워커 수 증가
+                future_to_symbol = {executor.submit(analyze_single_stock, symbol): symbol for symbol in batch_symbols}
+                
+                # 완료된 작업부터 결과 수집
+                for future in as_completed(future_to_symbol, timeout=180):  # 3분 타임아웃
+                    symbol = future_to_symbol[future]
+                    try:
+                        analysis = future.result(timeout=60)  # 각 작업당 1분 타임아웃
+                        if analysis:
+                            batch_results.append(analysis)
+                    except Exception as e:
+                        print(f"[ERROR] {symbol} 결과 처리 중 오류: {str(e)}")
+            
+            results.extend(batch_results)
+            print(f"[DEBUG] 배치 완료: {len(batch_results)}개 성공, 누적 {len(results)}개")
+            
+            # 배치 간 잠시 대기 (API 제한 방지)
+            if i + batch_size < len(symbol_list):
+                time.sleep(1)
         
         return results
 
     def _get_us_company_names(self):
-        """미국 기업명 하드코딩 (API 호출 최소화)"""
+        """미국 기업명 하드코딩 (확장된 버전)"""
         return {
-            'AAPL': 'Apple Inc.', 'MSFT': 'Microsoft Corp.', 'GOOGL': 'Alphabet Inc.',
-            'AMZN': 'Amazon.com Inc.', 'NVDA': 'NVIDIA Corp.', 'META': 'Meta Platforms Inc.',
-            'TSLA': 'Tesla Inc.', 'BRK-B': 'Berkshire Hathaway Inc.', 'LLY': 'Eli Lilly and Co.',
-            'AVGO': 'Broadcom Inc.', 'UNH': 'UnitedHealth Group Inc.', 'JPM': 'JPMorgan Chase & Co.',
-            'XOM': 'Exxon Mobil Corp.', 'V': 'Visa Inc.', 'PG': 'Procter & Gamble Co.',
-            'JNJ': 'Johnson & Johnson', 'MA': 'Mastercard Inc.', 'HD': 'Home Depot Inc.',
-            'CVX': 'Chevron Corp.', 'ABBV': 'AbbVie Inc.', 'PFE': 'Pfizer Inc.',
-            'BAC': 'Bank of America Corp.', 'KO': 'Coca-Cola Co.', 'COST': 'Costco Wholesale Corp.',
-            'TMO': 'Thermo Fisher Scientific Inc.', 'WMT': 'Walmart Inc.', 'CSCO': 'Cisco Systems Inc.',
-            'DIS': 'Walt Disney Co.', 'ABT': 'Abbott Laboratories', 'DHR': 'Danaher Corp.',
-            'MRK': 'Merck & Co. Inc.', 'ADBE': 'Adobe Inc.', 'CRM': 'Salesforce Inc.',
-            'NFLX': 'Netflix Inc.', 'INTC': 'Intel Corp.', 'AMD': 'Advanced Micro Devices Inc.',
-            'QCOM': 'Qualcomm Inc.', 'IBM': 'International Business Machines Corp.', 'GE': 'General Electric Co.',
-            'BA': 'Boeing Co.', 'CAT': 'Caterpillar Inc.', 'HON': 'Honeywell International Inc.',
-            'RTX': 'Raytheon Technologies Corp.', 'GS': 'Goldman Sachs Group Inc.', 'MS': 'Morgan Stanley',
-            'VZ': 'Verizon Communications Inc.', 'CMCSA': 'Comcast Corp.', 'NKE': 'Nike Inc.',
-            'ORCL': 'Oracle Corp.', 'PEP': 'PepsiCo Inc.', 'TXN': 'Texas Instruments Inc.',
-            'PM': 'Philip Morris International Inc.', 'T': 'AT&T Inc.', 'AMGN': 'Amgen Inc.',
-            'COP': 'ConocoPhillips', 'UNP': 'Union Pacific Corp.', 'NEE': 'NextEra Energy Inc.',
-            'LOW': 'Lowe\'s Companies Inc.', 'TMUS': 'T-Mobile US Inc.', 'AMAT': 'Applied Materials Inc.',
-            'ISRG': 'Intuitive Surgical Inc.', 'BKNG': 'Booking Holdings Inc.', 'VRTX': 'Vertex Pharmaceuticals Inc.',
-            'ADP': 'Automatic Data Processing Inc.', 'SBUX': 'Starbucks Corp.', 'GILD': 'Gilead Sciences Inc.',
-            'ADI': 'Analog Devices Inc.', 'LRCX': 'Lam Research Corp.', 'MDLZ': 'Mondelez International Inc.',
-            'REGN': 'Regeneron Pharmaceuticals Inc.', 'PYPL': 'PayPal Holdings Inc.', 'KLAC': 'KLA Corp.',
-            'MRVL': 'Marvell Technology Inc.', 'ORLY': 'O\'Reilly Automotive Inc.', 'CDNS': 'Cadence Design Systems Inc.',
-            'SNPS': 'Synopsys Inc.', 'NXPI': 'NXP Semiconductors NV', 'WDAY': 'Workday Inc.',
-            'ABNB': 'Airbnb Inc.', 'FTNT': 'Fortinet Inc.', 'DDOG': 'Datadog Inc.',
-            'TEAM': 'Atlassian Corp.', 'ZM': 'Zoom Video Communications Inc.', 'CRWD': 'CrowdStrike Holdings Inc.',
-            'ZS': 'Zscaler Inc.', 'OKTA': 'Okta Inc.', 'DOCU': 'DocuSign Inc.',
-            'NOW': 'ServiceNow Inc.', 'PANW': 'Palo Alto Networks Inc.', 'MU': 'Micron Technology Inc.',
-            'ANET': 'Arista Networks Inc.', 'LULU': 'Lululemon Athletica Inc.', 'ODFL': 'Old Dominion Freight Line Inc.',
-            'EXC': 'Exelon Corp.', 'CTAS': 'Cintas Corp.', 'ROST': 'Ross Stores Inc.',
-            'TJX': 'TJX Companies Inc.', 'MCD': 'McDonald\'s Corp.', 'YUM': 'Yum! Brands Inc.',
-            'CMG': 'Chipotle Mexican Grill Inc.'
+            # 기존 기업들
+            'AAPL': 'Apple Inc.', 'MSFT': 'Microsoft Corp.', 'GOOGL': 'Alphabet Inc. Class A',
+            'GOOG': 'Alphabet Inc. Class C', 'AMZN': 'Amazon.com Inc.', 'NVDA': 'NVIDIA Corp.', 
+            'META': 'Meta Platforms Inc.', 'TSLA': 'Tesla Inc.', 'BRK-B': 'Berkshire Hathaway Inc.',
+            'LLY': 'Eli Lilly and Co.', 'AVGO': 'Broadcom Inc.', 'UNH': 'UnitedHealth Group Inc.',
+            'JPM': 'JPMorgan Chase & Co.', 'XOM': 'Exxon Mobil Corp.', 'V': 'Visa Inc.',
+            'PG': 'Procter & Gamble Co.', 'JNJ': 'Johnson & Johnson', 'MA': 'Mastercard Inc.',
+            'HD': 'Home Depot Inc.', 'CVX': 'Chevron Corp.', 'ABBV': 'AbbVie Inc.',
+            'PFE': 'Pfizer Inc.', 'BAC': 'Bank of America Corp.', 'KO': 'Coca-Cola Co.',
+            'COST': 'Costco Wholesale Corp.', 'TMO': 'Thermo Fisher Scientific Inc.', 'WMT': 'Walmart Inc.',
+            'CSCO': 'Cisco Systems Inc.', 'DIS': 'Walt Disney Co.', 'ABT': 'Abbott Laboratories',
+            'DHR': 'Danaher Corp.', 'MRK': 'Merck & Co. Inc.', 'ADBE': 'Adobe Inc.',
+            'CRM': 'Salesforce Inc.', 'NFLX': 'Netflix Inc.', 'INTC': 'Intel Corp.',
+            'AMD': 'Advanced Micro Devices Inc.', 'QCOM': 'Qualcomm Inc.', 'IBM': 'International Business Machines Corp.',
+            'GE': 'General Electric Co.', 'BA': 'Boeing Co.', 'CAT': 'Caterpillar Inc.',
+            'HON': 'Honeywell International Inc.', 'RTX': 'Raytheon Technologies Corp.', 'GS': 'Goldman Sachs Group Inc.',
+            'MS': 'Morgan Stanley', 'VZ': 'Verizon Communications Inc.', 'CMCSA': 'Comcast Corp.',
+            'NKE': 'Nike Inc.', 'ORCL': 'Oracle Corp.', 'PEP': 'PepsiCo Inc.',
+            'TXN': 'Texas Instruments Inc.', 'PM': 'Philip Morris International Inc.', 'T': 'AT&T Inc.',
+            'AMGN': 'Amgen Inc.', 'COP': 'ConocoPhillips', 'UNP': 'Union Pacific Corp.',
+            'NEE': 'NextEra Energy Inc.', 'LOW': "Lowe's Companies Inc.", 'TMUS': 'T-Mobile US Inc.',
+            'AMAT': 'Applied Materials Inc.', 'ISRG': 'Intuitive Surgical Inc.', 'BKNG': 'Booking Holdings Inc.',
+            'VRTX': 'Vertex Pharmaceuticals Inc.', 'ADP': 'Automatic Data Processing Inc.', 'SBUX': 'Starbucks Corp.',
+            'GILD': 'Gilead Sciences Inc.', 'ADI': 'Analog Devices Inc.', 'LRCX': 'Lam Research Corp.',
+            'MDLZ': 'Mondelez International Inc.', 'REGN': 'Regeneron Pharmaceuticals Inc.', 'PYPL': 'PayPal Holdings Inc.',
+            'KLAC': 'KLA Corp.', 'MRVL': 'Marvell Technology Inc.', 'ORLY': "O'Reilly Automotive Inc.",
+            'CDNS': 'Cadence Design Systems Inc.', 'SNPS': 'Synopsys Inc.', 'NXPI': 'NXP Semiconductors NV',
+            'WDAY': 'Workday Inc.', 'ABNB': 'Airbnb Inc.', 'FTNT': 'Fortinet Inc.',
+            'DDOG': 'Datadog Inc.', 'TEAM': 'Atlassian Corp.', 'ZM': 'Zoom Video Communications Inc.',
+            'CRWD': 'CrowdStrike Holdings Inc.', 'ZS': 'Zscaler Inc.', 'OKTA': 'Okta Inc.',
+            'DOCU': 'DocuSign Inc.', 'NOW': 'ServiceNow Inc.', 'PANW': 'Palo Alto Networks Inc.',
+            'MU': 'Micron Technology Inc.', 'ANET': 'Arista Networks Inc.', 'LULU': 'Lululemon Athletica Inc.',
+            'ODFL': 'Old Dominion Freight Line Inc.', 'EXC': 'Exelon Corp.', 'CTAS': 'Cintas Corp.',
+            'ROST': 'Ross Stores Inc.', 'TJX': 'TJX Companies Inc.', 'MCD': "McDonald's Corp.",
+            'YUM': 'Yum! Brands Inc.', 'CMG': 'Chipotle Mexican Grill Inc.',
+            
+            # 추가 기업들
+            'MMC': 'Marsh & McLennan Companies Inc.', 'ACN': 'Accenture plc', 'LIN': 'Linde plc',
+            'SPGI': 'S&P Global Inc.', 'TFC': 'Truist Financial Corp.', 'BLK': 'BlackRock Inc.',
+            'AON': 'Aon plc', 'ICE': 'Intercontinental Exchange Inc.', 'COF': 'Capital One Financial Corp.',
+            'FI': 'Fiserv Inc.', 'BSX': 'Boston Scientific Corp.', 'SO': 'Southern Co.',
+            'PLD': 'Prologis Inc.', 'DUK': 'Duke Energy Corp.', 'SCHW': 'Charles Schwab Corp.',
+            'CL': 'Colgate-Palmolive Co.', 'CB': 'Chubb Ltd.', 'USB': 'U.S. Bancorp',
+            'BMY': 'Bristol-Myers Squibb Co.', 'DE': 'Deere & Co.', 'HCA': 'HCA Healthcare Inc.',
+            'NSC': 'Norfolk Southern Corp.', 'APH': 'Amphenol Corp.', 'SYK': 'Stryker Corp.',
+            'ZTS': 'Zoetis Inc.', 'PNC': 'PNC Financial Services Group Inc.', 'CI': 'Cigna Corp.',
+            'WM': 'Waste Management Inc.', 'EQIX': 'Equinix Inc.', 'CCI': 'Crown Castle International Corp.',
+            'AMT': 'American Tower Corp.', 'MCO': 'Moody\'s Corp.', 'ITW': 'Illinois Tool Works Inc.',
+            'TGT': 'Target Corp.', 'FISV': 'Fiserv Inc.', 'CSX': 'CSX Corp.',
+            'BDX': 'Becton Dickinson and Co.', 'NOC': 'Northrop Grumman Corp.', 'FCX': 'Freeport-McMoRan Inc.',
+            'SHW': 'Sherwin-Williams Co.', 'GD': 'General Dynamics Corp.', 'EMR': 'Emerson Electric Co.',
+            'PGR': 'Progressive Corp.', 'GM': 'General Motors Co.', 'MCK': 'McKesson Corp.',
+            'AJG': 'Arthur J. Gallagher & Co.', 'TRV': 'Travelers Companies Inc.', 'PSA': 'Public Storage',
+            'WELL': 'Welltower Inc.', 'ECL': 'Ecolab Inc.', 'ROP': 'Roper Technologies Inc.',
+            'CARR': 'Carrier Global Corp.', 'ALL': 'Allstate Corp.', 'AEP': 'American Electric Power Co. Inc.',
+            'WMB': 'Williams Companies Inc.', 'CME': 'CME Group Inc.', 'DLR': 'Digital Realty Trust Inc.',
+            'O': 'Realty Income Corp.', 'PCAR': 'PACCAR Inc.', 'OKE': 'ONEOK Inc.',
+            'KMI': 'Kinder Morgan Inc.', 'TEL': 'TE Connectivity Ltd.', 'AIG': 'American International Group Inc.',
+            'HLT': 'Hilton Worldwide Holdings Inc.', 'PSX': 'Phillips 66', 'SPG': 'Simon Property Group Inc.',
+            'CTSH': 'Cognizant Technology Solutions Corp.', 'PAYX': 'Paychex Inc.', 'SRE': 'Sempra Energy',
+            'F': 'Ford Motor Co.', 'AZO': 'AutoZone Inc.', 'MSI': 'Motorola Solutions Inc.',
+            'CNC': 'Centene Corp.', 'MSCI': 'MSCI Inc.', 'CMI': 'Cummins Inc.',
+            'PRU': 'Prudential Financial Inc.', 'AFL': 'AFLAC Inc.', 'FAST': 'Fastenal Co.',
+            'GWW': 'W.W. Grainger Inc.', 'RSG': 'Republic Services Inc.', 'KR': 'Kroger Co.',
+            'OTIS': 'Otis Worldwide Corp.', 'CBRE': 'CBRE Group Inc.', 'VRSK': 'Verisk Analytics Inc.',
+            'ADSK': 'Autodesk Inc.', 'EA': 'Electronic Arts Inc.', 'CTVA': 'Corteva Inc.',
+            'HUM': 'Humana Inc.', 'IDXX': 'IDEXX Laboratories Inc.', 'EW': 'Edwards Lifesciences Corp.',
+            'XEL': 'Xcel Energy Inc.', 'DD': 'DuPont de Nemours Inc.', 'COIN': 'Coinbase Global Inc.',
+            'HPQ': 'HP Inc.', 'DXCM': 'DexCom Inc.', 'GRMN': 'Garmin Ltd.',
+            'WEC': 'WEC Energy Group Inc.', 'GEHC': 'GE HealthCare Technologies Inc.', 'GLW': 'Corning Inc.',
+            'KHC': 'Kraft Heinz Co.', 'ED': 'Consolidated Edison Inc.', 'WBA': 'Walgreens Boots Alliance Inc.',
+            'NDAQ': 'Nasdaq Inc.', 'RMD': 'ResMed Inc.', 'BK': 'Bank of New York Mellon Corp.',
+            'DOW': 'Dow Inc.', 'AWK': 'American Water Works Co. Inc.', 'ANSS': 'ANSYS Inc.',
+            'A': 'Agilent Technologies Inc.', 'EXR': 'Extended Stay America Inc.', 'IRM': 'Iron Mountain Inc.',
+            'FANG': 'Diamondback Energy Inc.', 'PPG': 'PPG Industries Inc.', 'CPRT': 'Copart Inc.',
+            'ROK': 'Rockwell Automation Inc.', 'URI': 'United Rentals Inc.', 'MNST': 'Monster Beverage Corp.',
+            'SBAC': 'SBA Communications Corp.', 'STZ': 'Constellation Brands Inc.', 'DVN': 'Devon Energy Corp.',
+            'IT': 'Gartner Inc.', 'VICI': 'VICI Properties Inc.', 'KEYS': 'Keysight Technologies Inc.',
+            'MLM': 'Martin Marietta Materials Inc.', 'ACGL': 'Arch Capital Group Ltd.', 'VMC': 'Vulcan Materials Co.',
+            'CHTR': 'Charter Communications Inc.', 'MPWR': 'Monolithic Power Systems Inc.', 'EFX': 'Equifax Inc.',
+            'BIIB': 'Biogen Inc.', 'CDW': 'CDW Corp.', 'TROW': 'T. Rowe Price Group Inc.',
+            'EBAY': 'eBay Inc.', 'NTAP': 'NetApp Inc.', 'TSN': 'Tyson Foods Inc.',
+            'CSGP': 'CoStar Group Inc.', 'WAB': 'Westinghouse Air Brake Technologies Corp.', 'HUBB': 'Hubbell Inc.',
+            'WTW': 'Willis Towers Watson Public Ltd. Co.', 'HPE': 'Hewlett Packard Enterprise Co.', 'AVB': 'AvalonBay Communities Inc.',
+            'DLTR': 'Dollar Tree Inc.', 'MTB': 'M&T Bank Corp.', 'ZBH': 'Zimmer Biomet Holdings Inc.',
+            'EXPD': 'Expeditors International of Washington Inc.', 'ETN': 'Eaton Corp. plc', 'PPL': 'PPL Corp.',
+            'FTV': 'Fortive Corp.', 'GPN': 'Global Payments Inc.', 'DTE': 'DTE Energy Co.',
+            'ALGN': 'Align Technology Inc.', 'VLTO': 'Veralto Corp.', 'GIS': 'General Mills Inc.',
+            'LDOS': 'Leidos Holdings Inc.', 'BRO': 'Brown & Brown Inc.', 'K': 'Kellogg Co.',
+            'BALL': 'Ball Corp.', 'HOLX': 'Hologic Inc.', 'MRO': 'Marathon Oil Corp.',
+            'LH': 'Laboratory Corp. of America Holdings', 'EIX': 'Edison International', 'CLX': 'Clorox Co.',
+            'CAH': 'Cardinal Health Inc.', 'AEE': 'Ameren Corp.', 'DRI': 'Darden Restaurants Inc.',
+            'J': 'Jacobs Engineering Group Inc.', 'EPAM': 'EPAM Systems Inc.', 'KIM': 'Kimco Realty Corp.',
+            'ES': 'Eversource Energy', 'APTV': 'Aptiv PLC', 'ZBRA': 'Zebra Technologies Corp.',
+            'ARE': 'Alexandria Real Estate Equities Inc.', 'UAL': 'United Airlines Holdings Inc.', 'BF-B': 'Brown-Forman Corp.',
+            'IEX': 'IDEX Corp.', 'CHD': 'Church & Dwight Co. Inc.', 'WY': 'Weyerhaeuser Co.',
+            'LYB': 'LyondellBasell Industries NV', 'STE': 'STERIS plc', 'INCY': 'Incyte Corp.',
+            'LVS': 'Las Vegas Sands Corp.', 'MAA': 'Mid-America Apartment Communities Inc.', 'HSY': 'Hershey Co.',
+            'DAL': 'Delta Air Lines Inc.', 'TTWO': 'Take-Two Interactive Software Inc.', 'EQT': 'EQT Corp.',
+            'SWKS': 'Skyworks Solutions Inc.', 'JBHT': 'J.B. Hunt Transport Services Inc.', 'FITB': 'Fifth Third Bancorp',
+            'CAG': 'Conagra Brands Inc.', 'CNP': 'CenterPoint Energy Inc.', 'POOL': 'Pool Corp.',
+            'CCL': 'Carnival Corp.', 'TECH': 'Bio-Techne Corp.', 'CTLT': 'Catalent Inc.',
+            'FE': 'FirstEnergy Corp.', 'HBAN': 'Huntington Bancshares Inc.', 'RCL': 'Royal Caribbean Cruises Ltd.',
+            'BAX': 'Baxter International Inc.', 'INVH': 'Invitation Homes Inc.', 'TAP': 'Molson Coors Beverage Co.',
+            'WAT': 'Waters Corp.', 'IP': 'International Paper Co.', 'MOS': 'Mosaic Co.',
+            'LW': 'Lamb Weston Holdings Inc.', 'TRMB': 'Trimble Inc.', 'AMCR': 'Amcor plc',
+            'SYF': 'Synchrony Financial', 'TPG': 'Texas Pacific Group Inc.', 'KMX': 'CarMax Inc.',
+            'JKHY': 'Jack Henry & Associates Inc.', 'RF': 'Regions Financial Corp.', 'SMCI': 'Super Micro Computer Inc.',
+            'CMS': 'CMS Energy Corp.', 'PODD': 'Insulet Corp.', 'BR': 'Broadridge Financial Solutions Inc.',
+            'WRB': 'W. R. Berkley Corp.', 'LKQ': 'LKQ Corp.',             'NTRS': 'Northern Trust Corp.',
+            'ALB': 'Albemarle Corp.', 'STT': 'State Street Corp.', 'ATO': 'Atmos Energy Corp.',
+            'EXPE': 'Expedia Group Inc.', 'MPC': 'Marathon Petroleum Corp.', 'ESS': 'Essex Property Trust Inc.',
+            'COO': 'Cooper Companies Inc.', 'AKAM': 'Akamai Technologies Inc.', 'UDR': 'UDR Inc.',
+            'BBWI': 'Bath & Body Works Inc.', 'NCLH': 'Norwegian Cruise Line Holdings Ltd.', 'CPT': 'Camden Property Trust',
+            'DFS': 'Discover Financial Services', 'VRSN': 'VeriSign Inc.', 'PKI': 'PerkinElmer Inc.',
+            'TYL': 'Tyler Technologies Inc.', 'GEN': 'Gen Digital Inc.', 'CBOE': 'Cboe Global Markets Inc.',
+            'BBY': 'Best Buy Co. Inc.', 'DGX': 'Quest Diagnostics Inc.', 'SWK': 'Stanley Black & Decker Inc.',
+            'FFIV': 'F5 Inc.', 'L': 'Loews Corp.', 'MKTX': 'MarketAxess Holdings Inc.',
+            'FOXA': 'Fox Corp. Class A', 'FOX': 'Fox Corp. Class B', 'ENTG': 'Entegris Inc.',
+            'ULTA': 'Ulta Beauty Inc.', 'LUV': 'Southwest Airlines Co.', 'FICO': 'Fair Isaac Corp.',
+            'EVRG': 'Evergy Inc.', 'OMC': 'Omnicom Group Inc.', 'VTRS': 'Viatris Inc.',
+            'PFG': 'Principal Financial Group Inc.', 'TER': 'Teradyne Inc.', 'FSLR': 'First Solar Inc.',
+            'STLD': 'Steel Dynamics Inc.', 'AOS': 'A.O. Smith Corp.', 'MOH': 'Molina Healthcare Inc.',
+            'LYV': 'Live Nation Entertainment Inc.', 'IVZ': 'Invesco Ltd.', 'ENPH': 'Enphase Energy Inc.',
+            'SJM': 'J.M. Smucker Co.', 'JNPR': 'Juniper Networks Inc.', 'UPS': 'United Parcel Service Inc.',
+            'KEY': 'KeyCorp', 'NWSA': 'News Corp. Class A', 'NWS': 'News Corp. Class B',
+            'FRT': 'Federal Realty Investment Trust', 'NRG': 'NRG Energy Inc.', 'TPR': 'Tapestry Inc.',
+            'PARA': 'Paramount Global', 'CRL': 'Charles River Laboratories International Inc.', 'MCHP': 'Microchip Technology Inc.',
+            'EMN': 'Eastman Chemical Co.', 'NI': 'NiSource Inc.', 'REG': 'Regency Centers Corp.',
+            'AIZ': 'Assurant Inc.', 'DOV': 'Dover Corp.', 'PAYC': 'Paycom Software Inc.',
+            'BXP': 'Boston Properties Inc.', 'ZION': 'Zions Bancorporation N.A.', 'PNR': 'Pentair plc',
+            'MAR': 'Marriott International Inc.', 'CHRW': 'C.H. Robinson Worldwide Inc.', 'FMC': 'FMC Corp.',
+            'WYNN': 'Wynn Resorts Ltd.', 'NVR': 'NVR Inc.', 'SOLV': 'Solventum Corp.',
+            'CTXS': 'Citrix Systems Inc.', 'CPB': 'Campbell Soup Co.', 'CF': 'CF Industries Holdings Inc.',
+            'HII': 'Huntington Ingalls Industries Inc.', 'HRL': 'Hormel Foods Corp.', 'IPG': 'Interpublic Group of Companies Inc.',
+            'BEN': 'Franklin Resources Inc.', 'WDC': 'Western Digital Corp.', 'GNRC': 'Generac Holdings Inc.',
+            'XRAY': 'DENTSPLY SIRONA Inc.', 'MHK': 'Mohawk Industries Inc.', 'HSIC': 'Henry Schein Inc.',
+            'CE': 'Celanese Corp.', 'PHM': 'PulteGroup Inc.', 'ALLE': 'Allegion plc',
+            'LEN': 'Lennar Corp.', 'AAL': 'American Airlines Group Inc.', 'NEM': 'Newmont Corp.',
+            'TDG': 'TransDigm Group Inc.', 'NDSN': 'Nordson Corp.', 'RHI': 'Robert Half Inc.',
+            'GL': 'Globe Life Inc.', 'PWR': 'Quanta Services Inc.', 'SEE': 'Sealed Air Corp.',
+            'RL': 'Ralph Lauren Corp.', 'HAS': 'Hasbro Inc.', 'WHR': 'Whirlpool Corp.',
+            'IFF': 'International Flavors & Fragrances Inc.', 'PRGO': 'Perrigo Co. plc', 'FLS': 'Flowserve Corp.',
+            'ALK': 'Alaska Air Group Inc.', 'PVH': 'PVH Corp.', 'VFC': 'V.F. Corp.',
+            'DISH': 'DISH Network Corp.',
+            
+            # NASDAQ 추가 기업들
+            'MRNA': 'Moderna Inc.', 'BMRN': 'BioMarin Pharmaceutical Inc.', 'ILMN': 'Illumina Inc.',
+            'SIRI': 'Sirius XM Holdings Inc.', 'PCTY': 'Paylocity Holding Corp.', 'MELI': 'MercadoLibre Inc.',
+            'KDP': 'Keurig Dr Pepper Inc.', 'LCID': 'Lucid Group Inc.', 'ROKU': 'Roku Inc.',
+            'HOOD': 'Robinhood Markets Inc.', 'RIVN': 'Rivian Automotive Inc.', 'SGEN': 'Seagen Inc.',
+            'NTES': 'NetEase Inc.', 'JD': 'JD.com Inc.', 'PDD': 'PDD Holdings Inc.',
+            'BIDU': 'Baidu Inc.', 'SPLK': 'Splunk Inc.', 'PTON': 'Peloton Interactive Inc.',
+            'ZI': 'ZoomInfo Technologies Inc.', 'SHOP': 'Shopify Inc.', 'SPOT': 'Spotify Technology S.A.',
+            'PLUG': 'Plug Power Inc.', 'FUBO': 'fuboTV Inc.', 'ZG': 'Zillow Group Inc.',
+            'UBER': 'Uber Technologies Inc.', 'LYFT': 'Lyft Inc.', 'DASH': 'DoorDash Inc.',
+            'SNOW': 'Snowflake Inc.', 'RBLX': 'Roblox Corp.', 'PLTR': 'Palantir Technologies Inc.',
+            'SOFI': 'SoFi Technologies Inc.', 'UPST': 'Upstart Holdings Inc.', 'AFRM': 'Affirm Holdings Inc.',
+            'SQ': 'Block Inc.', 'PINS': 'Pinterest Inc.', 'SNAP': 'Snap Inc.',
+            'CYBR': 'CyberArk Software Ltd.', 'FEYE': 'FireEye Inc.', 'NLOK': 'NortonLifeLock Inc.',
+            'CHKP': 'Check Point Software Technologies Ltd.', 'PFPT': 'Proofpoint Inc.', 'MIME': 'Mimecast Ltd.',
+            'TENB': 'Tenable Holdings Inc.', 'RPD': 'Rapid7 Inc.', 'SAIL': 'SailPoint Technologies Holdings Inc.',
+            'NET': 'Cloudflare Inc.', 'FSLY': 'Fastly Inc.', 'ESTC': 'Elastic N.V.',
+            'BOX': 'Box Inc.', 'WORK': 'Slack Technologies Inc.', 'ASANA': 'Asana Inc.',
+            'MNDY': 'monday.com Ltd.', 'GTLB': 'GitLab Inc.', 'PD': 'PagerDuty Inc.',
+            'VEEV': 'Veeva Systems Inc.', 'MDB': 'MongoDB Inc.', 'AI': 'C3.ai Inc.',
+            'BBAI': 'BigBear.ai Holdings Inc.', 'SOUN': 'SoundHound AI Inc.', 'RKLB': 'Rocket Lab USA Inc.',
+            'SPCE': 'Virgin Galactic Holdings Inc.', 'ASTR': 'Astra Space Inc.', 'BLDE': 'Blade Air Mobility Inc.',
+            'JOBY': 'Joby Aviation Inc.', 'EVTL': 'Vertical Aerospace Ltd.', 'LILM': 'Lilium N.V.',
+            'ACHR': 'Archer Aviation Inc.', 'AVAV': 'AeroVironment Inc.', 'KTOS': 'Kratos Defense & Security Solutions Inc.',
+            'IRDM': 'Iridium Communications Inc.', 'MAXR': 'Maxar Technologies Inc.', 'SPIR': 'Spire Global Inc.',
+            'GRAB': 'Grab Holdings Ltd.', 'SE': 'Sea Ltd.', 'BABA': 'Alibaba Group Holding Ltd.',
+            'IQ': 'iQIYI Inc.', 'BILI': 'Bilibili Inc.', 'TME': 'Tencent Music Entertainment Group',
+            'WB': 'Weibo Corp.', 'YUMC': 'Yum China Holdings Inc.', 'EDU': 'New Oriental Education & Technology Group Inc.',
+            'TAL': 'TAL Education Group', 'GSX': 'Gensyn Inc.', 'GOTU': 'Gaotu Techedu Inc.',
+            'COE': 'China Online Education Group', 'LAIX': 'LAIX Inc.', 'RYB': 'RYB Education Inc.',
+            'CAAS': 'China Automotive Systems Inc.', 'VIPS': 'Vipshop Holdings Ltd.', 'DADA': 'Dada Nexus Ltd.',
+            'KC': 'Kingsoft Cloud Holdings Ltd.', 'YMM': 'Full Truck Alliance Co. Ltd.', 'TUYA': 'Tuya Inc.',
+            'API': 'Agora Inc.', 'DOYU': 'DouYu International Holdings Ltd.', 'HUYA': 'HUYA Inc.',
+            'YY': 'JOYY Inc.', 'MOMO': 'Hello Group Inc.', 'LKCO': 'Luokung Technology Corp.',
+            'LK': 'Luckin Coffee Inc.', 'QSR': 'Restaurant Brands International Inc.', 'DNKN': 'Dunkin\' Brands Group Inc.',
+            'DPZ': 'Domino\'s Pizza Inc.', 'SHAK': 'Shake Shack Inc.', 'WING': 'Wingstop Inc.',
+            'TXRH': 'Texas Roadhouse Inc.', 'BJRI': 'BJ\'s Restaurants Inc.', 'BLMN': 'Bloomin\' Brands Inc.',
+            'CAKE': 'Cheesecake Factory Inc.', 'CHUY': 'Chuy\'s Holdings Inc.', 'DENN': 'Denny\'s Corp.',
+            'EAT': 'Brinker International Inc.', 'FRGI': 'Fiesta Restaurant Group Inc.', 'HABT': 'Habit Restaurants Inc.',
+            'JACK': 'Jack in the Box Inc.', 'KRUS': 'Kura Sushi USA Inc.', 'LOCO': 'El Pollo Loco Holdings Inc.',
+            'NDLS': 'Noodles & Company', 'PBPB': 'Potbelly Corp.', 'PZZA': 'Papa John\'s International Inc.',
+            'RRGB': 'Red Robin Gourmet Burgers Inc.', 'RUTH': 'Ruth\'s Hospitality Group Inc.', 'SONC': 'Sonic Corp.',
+            'TACO': 'Del Taco Restaurants Inc.', 'WEN': 'Wendy\'s Co.', 'ZOES': 'Zoe\'s Kitchen Inc.',
+            'ETSY': 'Etsy Inc.', 'W': 'Wayfair Inc.', 'OSTK': 'Overstock.com Inc.',
+            'GRUB': 'Grubhub Inc.', 'TRIP': 'TripAdvisor Inc.', 'MMYT': 'MakeMyTrip Ltd.',
+            'DESP': 'Despegar.com Corp.', 'TRIVAGO': 'trivago N.V.', 'QRTEA': 'Qurate Retail Inc.',
+            'QRTEB': 'Qurate Retail Inc.', 'LTRPA': 'Liberty TripAdvisor Holdings Inc.', 'LTRPB': 'Liberty TripAdvisor Holdings Inc.',
+            'IAC': 'IAC/InterActiveCorp', 'MTCH': 'Match Group Inc.', 'BMBL': 'Bumble Inc.',
+            'MSGS': 'Madison Square Garden Sports Corp.', 'WMG': 'Warner Music Group Corp.', 'WBD': 'Warner Bros. Discovery Inc.',
+            'USM': 'United States Cellular Corp.', 'SHEN': 'Shenandoah Telecommunications Co.', 'BAND': 'Bandwidth Inc.',
+            'GSAT': 'Globalstar Inc.', 'VSAT': 'Viasat Inc.', 'GILT': 'Gilat Satellite Networks Ltd.',
+            'GOGO': 'Gogo Inc.', 'ASTS': 'AST SpaceMobile Inc.', 'ORBC': 'ORBCOMM Inc.'
         }
 
     def _get_korea_company_names_parallel(self, symbols):
@@ -583,7 +834,7 @@ class StockAnalyzer:
                 return symbol, symbol
         
         # ThreadPoolExecutor로 병렬 처리
-        with ThreadPoolExecutor(max_workers=2) as executor:
+        with ThreadPoolExecutor(max_workers=3) as executor:
             # 모든 작업을 제출
             future_to_symbol = {executor.submit(get_company_name, symbol): symbol for symbol in symbols}
             
@@ -719,7 +970,7 @@ class StockAnalyzer:
                     fig.add_annotation(
                         x=date,
                         y=ma125_price * 0.98,
-                        text=f"지지 {i+1}번째째",
+                        text=f"지지 {i+1}번째",
                         showarrow=False,
                         font=dict(size=8, color="orange"),
                         bgcolor="yellow",
@@ -768,19 +1019,20 @@ def main():
         initial_sidebar_state="expanded"
     )
     
-    st.title("📈 주식 기술적 분석 종목 추천 시스템")
+    st.title("📈 주식 기술적 분석 종목 추천 시스템 (전체 분석)")
     
     # 사이드바 설정
     st.sidebar.header("🔍 분석 설정")
     
     market = st.sidebar.selectbox(
         "시장 선택",
-        options=['SP500', 'NASDAQ', 'KOSPI', 'KOSDAQ'],
+        options=['SP500', 'NASDAQ', 'ALL', 'KOSPI', 'KOSDAQ'],
         format_func=lambda x: {
-            'SP500': 'S&P 500 (미국 대형주 200개)',
-            'NASDAQ': 'NASDAQ (미국 기술주 200개)',
-            'KOSPI': 'KOSPI (한국 대형주 50)',
-            'KOSDAQ': 'KOSDAQ (한국 기술주 50)'
+            'SP500': 'S&P 500 (전체 500개)',
+            'NASDAQ': 'NASDAQ (전체 주요 기술주)',
+            'ALL': '미국 전체 (S&P500 + NASDAQ)',
+            'KOSPI': 'KOSPI (50개)',
+            'KOSDAQ': 'KOSDAQ (50개)'
         }[x]
     )
     
@@ -799,7 +1051,11 @@ def main():
     )
     
     # 분석 시작 버튼
-    analyze_button = st.sidebar.button("🚀 분석 시작", type="primary")
+    analyze_button = st.sidebar.button("🚀 전체 분석 시작", type="primary")
+    
+    # 진행률 표시를 위한 placeholder
+    if 'progress_placeholder' not in st.session_state:
+        st.session_state.progress_placeholder = None
     
     # StockAnalyzer 인스턴스 생성
     if 'analyzer' not in st.session_state:
@@ -810,6 +1066,15 @@ def main():
     # 분석 결과 저장용 session state
     if 'analysis_results' not in st.session_state:
         st.session_state.analysis_results = []
+    
+    # 경고 메시지 표시
+    if market in ['SP500', 'NASDAQ', 'ALL']:
+        expected_count = {
+            'SP500': '500개',
+            'NASDAQ': '400개+',
+            'ALL': '900개+'
+        }
+        st.sidebar.warning(f"⚠️ {market} 전체 분석 예상 시간: 10-30분\n예상 종목 수: {expected_count[market]}")
     
     # 공포 탐욕 지수 (full width)
     st.subheader("😨 공포 탐욕 지수")
@@ -870,111 +1135,195 @@ def main():
             </div>
             """, unsafe_allow_html=True)
     else:
-        st.info("왼쪽에서 분석 설정을 선택하고 '분석 시작' 버튼을 클릭하세요.")
+        st.info("왼쪽에서 분석 설정을 선택하고 '전체 분석 시작' 버튼을 클릭하세요.")
     
     # 분석 실행
     if analyze_button:
-        with st.spinner(f"{market} 시장 분석 중... 잠시만 기다려주세요."):
+        # 진행률 표시용 컨테이너
+        progress_container = st.container()
+        
+        with progress_container:
+            st.subheader(f"🔄 {market} 시장 전체 분석 진행 중...")
+            progress_bar = st.progress(0)
+            status_text = st.empty()
+            
             try:
+                status_text.text("분석을 시작합니다...")
+                
+                # 분석 실행
                 results = analyzer.get_recommendations(market, period)
+                
+                progress_bar.progress(100)
+                status_text.text(f"✅ 분석 완료! 총 {len(results)}개 종목 분석됨")
+                
                 st.session_state.analysis_results = results
                 st.session_state.current_market = market
                 st.session_state.current_period = period
                 
-                st.success(f"✅ 분석 완료! 총 {len(results)}개 종목 분석")
+                st.success(f"✅ {market} 전체 분석 완료! 총 {len(results)}개 종목 중 상위 종목들을 확인하세요.")
                 
             except Exception as e:
                 st.error(f"❌ 분석 중 오류 발생: {str(e)}")
                 st.session_state.analysis_results = []
+            finally:
+                # 진행률 표시 제거
+                progress_container.empty()
     
     # 분석 결과 표시
     if st.session_state.analysis_results:
         st.subheader("🎯 분석 결과")
         
-        # 결과를 DataFrame으로 변환
-        results_data = []
-        for i, result in enumerate(st.session_state.analysis_results):
-            results_data.append({
-                'Index': i,
-                'Symbol': result['symbol'],
-                'Company': result['company_name'],
-                'Price': f"${result['current_price']:.2f}",
-                'GC': '✅' if result['golden_cross'] else '❌',
-                'MA': '✅' if result['above_ma_lines'] else '❌', 
-                '125': '✅' if result['ma125_support'] else '❌',
-                'Trend': '✅' if result['trend_stable'] else '❌',
-                'Score': result['score']
-            })
+        # 통계 정보 표시
+        total_stocks = len(st.session_state.analysis_results)
+        high_score_stocks = len([r for r in st.session_state.analysis_results if r['score'] >= 75])
+        medium_score_stocks = len([r for r in st.session_state.analysis_results if 50 <= r['score'] < 75])
         
-        df_results = pd.DataFrame(results_data)
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("총 분석 종목", f"{total_stocks}개")
+        with col2:
+            st.metric("고득점 (75점+)", f"{high_score_stocks}개")
+        with col3:
+            st.metric("중간점수 (50-74점)", f"{medium_score_stocks}개")
+        with col4:
+            current_market = st.session_state.get('current_market', market)
+            st.metric("분석 시장", current_market)
         
-        # 데이터프레임 표시 (클릭 가능)
-        selected_indices = st.dataframe(
-            df_results[['Symbol', 'Company', 'Price', 'GC', 'MA', '125', 'Trend', 'Score']],
-            use_container_width=True,
-            hide_index=True,
-            on_select="rerun",
-            selection_mode="single-row"
+        # 점수별 필터링 옵션
+        score_filter = st.selectbox(
+            "점수별 필터링",
+            options=['전체', '고득점 (75점+)', '중간이상 (50점+)', '골든크로스만', '추세안정만'],
+            index=0
         )
         
-        # 선택된 종목의 차트 표시
-        if selected_indices['selection']['rows']:
-            selected_idx = selected_indices['selection']['rows'][0]
-            selected_result = st.session_state.analysis_results[selected_idx]
+        # 필터링 적용
+        filtered_results = st.session_state.analysis_results.copy()
+        
+        if score_filter == '고득점 (75점+)':
+            filtered_results = [r for r in filtered_results if r['score'] >= 75]
+        elif score_filter == '중간이상 (50점+)':
+            filtered_results = [r for r in filtered_results if r['score'] >= 50]
+        elif score_filter == '골든크로스만':
+            filtered_results = [r for r in filtered_results if r['golden_cross']]
+        elif score_filter == '추세안정만':
+            filtered_results = [r for r in filtered_results if r['trend_stable']]
+        
+        # 결과를 DataFrame으로 변환
+        if filtered_results:
+            results_data = []
+            for i, result in enumerate(filtered_results):
+                results_data.append({
+                    'Index': i,
+                    'Symbol': result['symbol'],
+                    'Company': result['company_name'],
+                    'Price': f"${result['current_price']:.2f}",
+                    'GC': '✅' if result['golden_cross'] else '❌',
+                    'MA': '✅' if result['above_ma_lines'] else '❌', 
+                    '125': '✅' if result['ma125_support'] else '❌',
+                    'Trend': '✅' if result['trend_stable'] else '❌',
+                    'Score': result['score']
+                })
             
-            st.subheader(f"📊 {selected_result['company_name']} ({selected_result['symbol']}) 차트")
+            df_results = pd.DataFrame(results_data)
             
-            # 차트 생성 및 표시
-            chart = analyzer.create_stock_chart(selected_result)
-            if chart:
-                st.plotly_chart(chart, use_container_width=True)
-            else:
-                st.error("차트를 생성할 수 없습니다.")
+            st.write(f"📊 필터링된 결과: {len(filtered_results)}개 종목")
+            
+            # 데이터프레임 표시 (클릭 가능)
+            selected_indices = st.dataframe(
+                df_results[['Symbol', 'Company', 'Price', 'GC', 'MA', '125', 'Trend', 'Score']],
+                use_container_width=True,
+                hide_index=True,
+                on_select="rerun",
+                selection_mode="single-row"
+            )
+            
+            # 선택된 종목의 차트 표시
+            if selected_indices['selection']['rows']:
+                selected_idx = selected_indices['selection']['rows'][0]
+                selected_result = filtered_results[selected_idx]
                 
-            # 분석 세부 정보 표시
-            col1, col2, col3, col4 = st.columns(4)
-            
-            with col1:
-                st.metric("골든크로스", "✅" if selected_result['golden_cross'] else "❌")
-            with col2:
-                st.metric("이평선 위", "✅" if selected_result['above_ma_lines'] else "❌")
-            with col3:
-                st.metric("125일선 지지", "✅" if selected_result['ma125_support'] else "❌")
-            with col4:
-                st.metric("추세 안정", "✅" if selected_result['trend_stable'] else "❌")
+                st.subheader(f"📊 {selected_result['company_name']} ({selected_result['symbol']}) 차트")
                 
-            # 종합 점수 표시
-            score_color = "green" if selected_result['score'] >= 75 else "orange" if selected_result['score'] >= 50 else "red"
-            st.markdown(f"""
-            <div style="text-align: center; padding: 15px; border: 2px solid {score_color}; border-radius: 10px; margin: 10px 0;">
-                <h2 style="color: {score_color}; margin: 0;">종합 점수: {selected_result['score']}점</h2>
-            </div>
-            """, unsafe_allow_html=True)
+                # 차트 생성 및 표시
+                with st.spinner("차트 생성 중..."):
+                    chart = analyzer.create_stock_chart(selected_result)
+                    if chart:
+                        st.plotly_chart(chart, use_container_width=True)
+                    else:
+                        st.error("차트를 생성할 수 없습니다.")
+                        
+                # 분석 세부 정보 표시
+                col1, col2, col3, col4 = st.columns(4)
+                
+                with col1:
+                    st.metric("골든크로스", "✅" if selected_result['golden_cross'] else "❌")
+                with col2:
+                    st.metric("이평선 위", "✅" if selected_result['above_ma_lines'] else "❌")
+                with col3:
+                    st.metric("125일선 지지", "✅" if selected_result['ma125_support'] else "❌")
+                with col4:
+                    st.metric("추세 안정", "✅" if selected_result['trend_stable'] else "❌")
+                    
+                # 종합 점수 표시
+                score_color = "green" if selected_result['score'] >= 75 else "orange" if selected_result['score'] >= 50 else "red"
+                st.markdown(f"""
+                <div style="text-align: center; padding: 15px; border: 2px solid {score_color}; border-radius: 10px; margin: 10px 0;">
+                    <h2 style="color: {score_color}; margin: 0;">종합 점수: {selected_result['score']}점</h2>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # 추가 정보 표시
+                if selected_result['golden_cross'] and selected_result['cross_date']:
+                    st.info(f"🌟 골든크로스 발생일: {selected_result['cross_date'].strftime('%Y-%m-%d')}")
+                
+                if selected_result['ma125_support']:
+                    st.info(f"🛡️ 125일선 지지: 최근 {selected_result['support_count']}개 캔들이 125일선 위에서 지지")
+        else:
+            st.warning("필터링 조건에 해당하는 종목이 없습니다.")
     
     # 사이드바에 사용법 설명
     st.sidebar.markdown("---")
     st.sidebar.markdown("### 📖 사용법")
     st.sidebar.markdown("""
     1. **시장 선택**: 분석할 시장을 선택하세요
+       - S&P 500: 미국 대형주 500개 전체
+       - NASDAQ: 미국 기술주 400개+ 전체  
+       - ALL: S&P500 + NASDAQ 합계 (중복제거)
     2. **기간 설정**: 차트 조회 기간을 설정하세요  
-    3. **분석 시작**: 버튼을 클릭하여 분석을 시작하세요
-    4. **결과 확인**: 표에서 종목을 클릭하면 차트가 표시됩니다
+    3. **전체 분석 시작**: 버튼을 클릭하여 전체 분석을 시작하세요
+    4. **결과 확인**: 점수별 필터링 후 종목을 클릭하면 차트가 표시됩니다
     
     **점수 기준:**
     - 골든크로스: 25점
     - 이평선 위: 25점  
     - 125일선 지지: 25점
     - 추세 안정: 25점
+    
+    **⚠️ 주의사항:**
+    - 전체 분석은 시간이 오래 걸립니다
+    - 미국 전체(ALL) 분석 시 30분+ 소요 가능
     """)
     
     st.sidebar.markdown("---")
-    st.sidebar.markdown("### ℹ️ 정보")
+    st.sidebar.markdown("### ℹ️ 분석 정보")
     st.sidebar.markdown("""
     - 실시간 데이터 기반 분석
     - 기술적 분석 지표 활용
     - 골든크로스 패턴 감지
     - 이동평균선 기반 추세 분석
+    - 대용량 병렬 처리 최적화
+    - 배치 단위 분석으로 안정성 확보
     """)
+    
+    # 하단 정보
+    st.markdown("---")
+    st.markdown("""
+    <div style="text-align: center; color: gray; font-size: 12px;">
+    📈 주식 기술적 분석 종목 추천 시스템 (전체 분석 버전)<br>
+    ⚠️ 투자 결정은 본인의 판단과 책임 하에 하시기 바랍니다.
+    </div>
+    """, unsafe_allow_html=True)
 
 if __name__ == '__main__':
     main()
+            '
