@@ -218,31 +218,46 @@ class StockAnalyzer:
             page = 1
             
             # KOSPI와 KOSDAQ URL 구분
-            if market_type == 'KOSPI':
-                base_url = "https://finance.naver.com/sise/sise_market_sum.nhn"
-            elif market_type == 'KOSDAQ':
-                base_url = "https://finance.naver.com/sise/sise_market_sum.nhn?sosok=1"
-            else:
-                base_url = "https://finance.naver.com/sise/sise_market_sum.nhn"
+            base_url = "https://finance.naver.com/sise/sise_market_sum.nhn"
+            market_param = "0" if market_type == 'KOSPI' else "1"
             
             while len(all_codes) < limit and page <= 10:  # 페이지 수 줄임
-                url = f"{base_url}?&page={page}"
+                url = f"{base_url}?sosok={market_param}&page={page}"
+                print(f"[DEBUG] 요청 URL: {url}")
                 
                 headers = {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                    'Accept-Language': 'ko-KR,ko;q=0.8,en-US;q=0.5,en;q=0.3',
                 }
                 
-                response = requests.get(url, headers=headers, timeout=10)
-                response.raise_for_status()
-                
-                # 정규표현식으로 직접 종목코드 추출
-                pattern = r'/item/main\.naver\?code=(\d{6})'
-                matches = re.findall(pattern, response.text)
-                
-                # 중복 제거하면서 추가
-                all_codes.extend(matches)
-                all_codes = list(dict.fromkeys(all_codes))  # 순서 유지하면서 중복 제거
-                page += 1
+                try:
+                    response = requests.get(url, headers=headers, timeout=10)
+                    response.raise_for_status()
+                    response.encoding = 'euc-kr'  # 한글 인코딩 설정
+                    
+                    # 정규표현식으로 직접 종목코드 추출 (href 패턴 수정)
+                    pattern = r'href=["\']\/item\/main\.nhn\?code=(\d{6})["\']'
+                    matches = re.findall(pattern, response.text)
+                    
+                    if not matches:
+                        print(f"[WARNING] {url}에서 종목코드를 찾을 수 없음")
+                        print(f"[DEBUG] 페이지 내용 일부: {response.text[:500]}")  # 페이지 내용 확인
+                        break
+                    
+                    # 중복 제거하면서 추가
+                    all_codes.extend(matches)
+                    all_codes = list(dict.fromkeys(all_codes))  # 순서 유지하면서 중복 제거
+                    
+                    print(f"[DEBUG] 페이지 {page}에서 {len(matches)}개 종목코드 추출")
+                    page += 1
+                    
+                    # 잠시 대기 (네이버 서버 부하 방지)
+                    time.sleep(0.5)
+                    
+                except requests.exceptions.RequestException as e:
+                    print(f"[ERROR] 페이지 {page} 요청 실패: {e}")
+                    break
             
             # limit 개수만큼 선택하고 시장별 접미사 붙이기
             suffix = ".KS" if market_type == 'KOSPI' else ".KQ"
