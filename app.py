@@ -197,7 +197,7 @@ class StockAnalyzer:
         
             elif market in ['KOSPI', 'KOSDAQ']:
                 # 한국 종목은 병렬 처리로 회사명 가져오기
-                korea_symbols = self._get_korea_market_cap_from_naver(market, limit or 50)
+                korea_symbols = self._get_korea_market_cap_from_naver(market, limit or 1000)
                 if korea_symbols:
                     # 병렬 처리로 회사명 가져오기
                     companies = self._get_korea_company_names_parallel(korea_symbols)
@@ -209,7 +209,7 @@ class StockAnalyzer:
             print(f"[ERROR] 시가총액 조회 중 오류: {e}")
             return {}
     
-    def _get_korea_market_cap_from_naver(self, market_type='KOSPI', limit=50):
+    def _get_korea_market_cap_from_naver(self, market_type='KOSPI', limit=1000):
         """네이버 금융에서 한국 시가총액 순위 가져오기"""
         try:
             print(f"[DEBUG] 네이버 금융에서 {market_type} 시가총액 순위 조회 시도")
@@ -225,7 +225,7 @@ class StockAnalyzer:
             else:
                 base_url = "https://finance.naver.com/sise/sise_market_sum.nhn"
             
-            while len(all_codes) < limit and page <= 2:  # 페이지 수 줄임
+            while len(all_codes) < limit and page <= 10:  # 페이지 수 줄임
                 url = f"{base_url}?&page={page}"
                 
                 headers = {
