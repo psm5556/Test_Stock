@@ -1,61 +1,4 @@
-return companies
-    
-    def _get_sector_company_names(self):
-        """섹터별 기업명 매핑"""
-        return {
-            # 우주항공 추가 기업들
-            'LMT': 'Lockheed Martin Corp.', 'HWM': 'Howmet Aerospace Inc.', 'LHX': 'L3Harris Technologies Inc.',
-            'RKLB': 'Rocket Lab USA Inc.', 'SPCE': 'Virgin Galactic Holdings Inc.', 'ASTR': 'Astra Space Inc.',
-            'BLDE': 'Blade Air Mobility Inc.', 'JOBY': 'Joby Aviation Inc.', 'EVTL': 'Vertical Aerospace Ltd.',
-            'LILM': 'Lilium N.V.', 'ACHR': 'Archer Aviation Inc.', 'MAXR': 'Maxar Technologies Inc.',
-            'SPIR': 'Spire Global Inc.', 'IRDM': 'Iridium Communications Inc.', 'VSAT': 'Viasat Inc.',
-            'GSAT': 'Globalstar Inc.', 'ASTS': 'AST SpaceMobile Inc.', 'ORBC': 'ORBCOMM Inc.',
-            'GILT': 'Gilat Satellite Networks Ltd.', 'UTX': 'United Technologies Corp.', 'AXON': 'Axon Enterprise Inc.',
-            'TXT': 'Textron Inc.', 'PH': 'Parker-Hannifin Corp.', 'ITT': 'ITT Inc.', 'CW': 'Curtiss-Wright Corp.',
-            'MOG-A': 'Moog Inc.',
-            
-            # 양자컴퓨터 관련 기업들
-            'IONQ': 'IonQ Inc.', 'RGTI': 'Rigetti Computing Inc.', 'QUBT': 'Quantum Computing Inc.',
-            'ARQQ': 'Arqit Quantum Inc.', 'QTUM': 'Quantum Corp.', 'DEFN': 'DefenseStorm Inc.',
-            'TSM': 'Taiwan Semiconductor Manufacturing Co.', 'ASML': 'ASML Holding N.V.',
-            
-            # 노화역전/장수 기업들
-            'NVAX': 'Novavax Inc.', 'BNTX': 'BioNTech SE', 'GSK': 'GlaxoSmithKline plc',
-            'NVO': 'Novo Nordisk A/S', 'AZN': 'AstraZeneca plc', 'UNITY': 'Unity Biotechnology Inc.',
-            'SEER': 'Seer Inc.', 'TWST': 'Twist Bioscience Corp.', 'CRSP': 'CRISPR Therapeutics AG',
-            'EDIT': 'Editas Medicine Inc.', 'NTLA': 'Intellia Therapeutics Inc.', 'BEAM': 'Beam Therapeutics Inc.',
-            'VERV': 'Verve Therapeutics Inc.',
-            
-            # 합성생물학 기업들
-            'FATE': 'Fate Therapeutics Inc.', 'BLUE': 'bluebird bio Inc.', 'CELG': 'Celgene Corp.',
-            'DNA': 'Ginkgo Bioworks Holdings Inc.', 'SYN': 'Synthetic Biologics Inc.', 'AMRS': 'Amyris Inc.',
-            'CODX': 'Co-Diagnostics Inc.', 'PACB': 'Pacific Biosciences of California Inc.', 'LIFE': 'aTyr Pharma Inc.',
-            'BIO': 'Bio-Rad Laboratories Inc.', 'CDNA': 'CareDx Inc.', 'FOLD': 'Amicus Therapeutics Inc.',
-            'RGNX': 'REGENXBIO Inc.', 'SGEN': 'Seagen Inc.', 'HALO': 'Halozyme Therapeutics Inc.',
-            'EVGN': 'Evogene Ltd.', 'CYTK': 'Cytokinetics Inc.', 'ABUS': 'Arbutus Biopharma Corp.',
-            'IMUX': 'Immunic Inc.',
-            
-            # 스테이블코인/암호화폐 관련 기업들
-            'MSTR': 'MicroStrategy Inc.', 'RIOT': 'Riot Blockchain Inc.', 'MARA': 'Marathon Digital Holdings Inc.',
-            'CLSK': 'CleanSpark Inc.', 'BITF': 'Bitfarms Ltd.', 'HUT': 'Hut 8 Mining Corp.',
-            'CAN': 'Canaan Inc.', 'BTBT': 'Bit Digital Inc.', 'LC': 'LendingClub Corp.',
-            'GBTC': 'Grayscale Bitcoin Trust', 'ETHE': 'Grayscale Ethereum Trust', 'LTCN': 'Grayscale Litecoin Trust',
-            'BITO': 'ProShares Bitcoin Strategy ETF', 'ARKK': 'ARK Innovation ETF', 'BLOK': 'Amplify Transformational Data Sharing ETF',
-            'LEGR': 'First Trust Indxx Innovative Transaction & Process ETF', 'KOIN': 'Innovation Shares NextGen Protocol ETF',
-            
-            # 데이터센터 냉각기술 기업들
-            'JCI': 'Johnson Controls International plc', 'XYL': 'Xylem Inc.', 'VLTO': 'Veralto Corp.',
-            'CGNX': 'Cognex Corp.', 'FLIR': 'FLIR Systems Inc.', 'NOVT': 'Novanta Inc.',
-            'AZEK': 'The AZEK Company Inc.', 'COOL': 'Corner Growth Acquisition Corp.',
-            'AAON': 'AAON Inc.', 'SMTC': 'Semtech Corp.', 'EVTC': 'Evertec Inc.',
-            
-            # BCI (뇌-컴퓨터 인터페이스) 기업들
-            'NEGG': 'Newegg Commerce Inc.', 'CTRL': 'Control4 Corp.', 'NURO': 'NeuroMetrix Inc.',
-            'SYNC': 'Synacor Inc.', 'LFMD': 'LifeMD Inc.', 'AXGN': 'AxoGen Inc.',
-            'PRTS': 'CarParts.com Inc.', 'GMED': 'Globus Medical Inc.', 'KALA': 'Kala Pharmaceuticals Inc.',
-            'INVA': 'Innoviva Inc.', 'PHVS': 'Pharvaris N.V.', 'SENS': 'Senseonics Holdings Inc.',
-            'CRMD': 'CorMedix Inc.', 'KRYS': 'Krystal Biotech Inc.', 'ATNF': '180 Life Sciences Corp.'
-        }import streamlit as st
+import streamlit as st
 import plotly.graph_objs as go
 import pandas as pd
 import numpy as np
@@ -186,63 +129,8 @@ class StockAnalyzer:
             'USM', 'SHEN', 'BAND', 'GSAT', 'IRDM', 'VSAT', 'GILT', 'GOGO', 'ASTS', 'ORBC'
         ]
     
-    def _get_sector_symbols(self, sector_type):
-        """섹터별 주요 기업 심볼 가져오기"""
-        sector_symbols = {
-            'AEROSPACE': [
-                # 우주항공 기업들
-                'BA', 'LMT', 'RTX', 'NOC', 'GD', 'LHX', 'TDG', 'HWM', 'LDOS', 'KTOS',
-                'AVAV', 'RKLB', 'SPCE', 'ASTR', 'BLDE', 'JOBY', 'EVTL', 'LILM', 'ACHR',
-                'MAXR', 'SPIR', 'IRDM', 'VSAT', 'GSAT', 'ASTS', 'ORBC', 'GILT',
-                'CAT', 'HON', 'UTX', 'AXON', 'TXT', 'PH', 'ITT', 'CW', 'MOG-A'
-            ],
-            'QUANTUM': [
-                # 양자컴퓨터 관련 기업들
-                'IBM', 'GOOGL', 'MSFT', 'NVDA', 'INTC', 'AMD', 'QCOM', 'MRVL', 'XLNX',
-                'IONQ', 'RGTI', 'QUBT', 'ARQQ', 'QTUM', 'DEFN', 'AMZN', 'CRM',
-                'ORCL', 'CSCO', 'TSM', 'ASML', 'KLAC', 'LRCX', 'AMAT', 'TXN'
-            ],
-            'LONGEVITY': [
-                # 노화역전/장수 기업들
-                'GILD', 'AMGN', 'REGN', 'VRTX', 'BIIB', 'MRNA', 'NVAX', 'BNTX', 'ILMN',
-                'TMO', 'DHR', 'A', 'DXCM', 'ISRG', 'VEEV', 'BSX', 'MDT', 'ABT',
-                'JNJ', 'PFE', 'ABBV', 'LLY', 'BMY', 'MRK', 'GSK', 'NVO', 'AZN',
-                'UNITY', 'SEER', 'TWST', 'CRSP', 'EDIT', 'NTLA', 'BEAM', 'VERV'
-            ],
-            'SYNTHETIC_BIO': [
-                # 합성생물학 기업들
-                'TWST', 'CRSP', 'EDIT', 'NTLA', 'BEAM', 'VERV', 'SEER', 'UNITY', 'FATE',
-                'BLUE', 'CELG', 'GILD', 'MRNA', 'BNTX', 'NVAX', 'DNA', 'SYN', 'AMRS',
-                'CODX', 'PACB', 'ILMN', 'TMO', 'DHR', 'A', 'LIFE', 'BIO', 'CDNA',
-                'FOLD', 'RGNX', 'SGEN', 'HALO', 'EVGN', 'CYTK', 'ABUS', 'IMUX'
-            ],
-            'STABLECOIN': [
-                # 스테이블코인/암호화폐 관련 기업들
-                'COIN', 'MSTR', 'RIOT', 'MARA', 'CLSK', 'BITF', 'HUT', 'CAN', 'BTBT',
-                'SQ', 'PYPL', 'MA', 'V', 'NVDA', 'AMD', 'TSLA', 'HOOD', 'SOFI',
-                'AFRM', 'UPST', 'LC', 'MTCH', 'Z', 'ZG', 'PINS', 'SNAP', 'TWTR',
-                'GBTC', 'ETHE', 'LTCN', 'BITO', 'ARKK', 'BLOK', 'LEGR', 'KOIN'
-            ],
-            'DATACENTER_COOLING': [
-                # 데이터센터 냉각기술 기업들
-                'NVDA', 'AMD', 'INTC', 'QCOM', 'MRVL', 'XLNX', 'AMAT', 'LRCX', 'KLAC',
-                'JCI', 'CARR', 'ITW', 'EMR', 'HON', 'DHR', 'TMO', 'WAT', 'XYL',
-                'VLTO', 'CGNX', 'FLIR', 'TER', 'KEYS', 'NOVT', 'NDSN', 'HUBB',
-                'AZEK', 'COOL', 'AAON', 'SMTC', 'EVTC', 'DLR', 'EQIX', 'AMT'
-            ],
-            'BCI': [
-                # 뇌-컴퓨터 인터페이스(BCI) 기업들
-                'NVDA', 'GOOGL', 'MSFT', 'META', 'AAPL', 'TSLA', 'NEGG', 'SNAP', 'MRNA',
-                'ILMN', 'TMO', 'DHR', 'A', 'ISRG', 'VEEV', 'BSX', 'MDT', 'ABT',
-                'JNJ', 'DXCM', 'CTRL', 'NURO', 'SYNC', 'LFMD', 'AXGN', 'PRTS',
-                'GMED', 'KALA', 'INVA', 'PHVS', 'SENS', 'CRMD', 'KRYS', 'ATNF'
-            ]
-        }
-        
-        return sector_symbols.get(sector_type, [])
-    
     def _get_us_market_cap_from_yahoo(self, market_type='SP500', limit=None):
-        """미국 시가총액 상위 종목 가져오기 (전체 리스트 + 섹터별)"""
+        """미국 시가총액 상위 종목 가져오기 (전체 리스트)"""
         try:
             print(f"[DEBUG] 미국 {market_type} 전체 종목 조회")
             
@@ -255,9 +143,6 @@ class StockAnalyzer:
                 sp500 = self._get_sp500_symbols_full()
                 nasdaq = self._get_nasdaq_symbols_full()
                 symbols = list(set(sp500 + nasdaq))  # 중복 제거
-            elif market_type in ['AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN', 'DATACENTER_COOLING', 'BCI']:
-                # 섹터별 종목 가져오기
-                symbols = self._get_sector_symbols(market_type)
             else:
                 symbols = self._get_sp500_symbols_full()
             
@@ -272,22 +157,18 @@ class StockAnalyzer:
             return None
 
     def get_top_companies_by_market_cap(self, market='SP500', limit=None):
-        """시가총액 기준 상위 기업 가져오기 (전체 또는 제한 + 섹터별)"""
+        """시가총액 기준 상위 기업 가져오기 (전체 또는 제한)"""
         print(f"[DEBUG] 시가총액 기업 조회 시작: market={market}, limit={limit}")
         
         try:
             companies = {}
             
-            if market in ['SP500', 'NASDAQ', 'ALL', 'AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN', 'DATACENTER_COOLING', 'BCI']:
+            if market in ['SP500', 'NASDAQ', 'ALL']:
                 # 미국 종목은 하드코딩된 회사명 사용
                 us_symbols = self._get_us_market_cap_from_yahoo(market, limit)
                 if us_symbols:
                     # 하드코딩된 회사명 매핑 사용
                     company_names = self._get_us_company_names()
-                    # 섹터별 회사명 매핑 추가
-                    sector_company_names = self._get_sector_company_names()
-                    company_names.update(sector_company_names)
-                    
                     for symbol in us_symbols:
                         companies[symbol] = company_names.get(symbol, symbol)
         
@@ -299,62 +180,7 @@ class StockAnalyzer:
                     companies = self._get_korea_company_names_parallel(korea_symbols)
             
             print(f"[DEBUG] 최종 종목 수: {len(companies)}개")
-        def _get_sector_company_names(self):
-        """섹터별 기업명 매핑"""
-        return {
-            # 우주항공 추가 기업들
-            'LMT': 'Lockheed Martin Corp.', 'HWM': 'Howmet Aerospace Inc.', 'LHX': 'L3Harris Technologies Inc.',
-            'RKLB': 'Rocket Lab USA Inc.', 'SPCE': 'Virgin Galactic Holdings Inc.', 'ASTR': 'Astra Space Inc.',
-            'BLDE': 'Blade Air Mobility Inc.', 'JOBY': 'Joby Aviation Inc.', 'EVTL': 'Vertical Aerospace Ltd.',
-            'LILM': 'Lilium N.V.', 'ACHR': 'Archer Aviation Inc.', 'MAXR': 'Maxar Technologies Inc.',
-            'SPIR': 'Spire Global Inc.', 'IRDM': 'Iridium Communications Inc.', 'VSAT': 'Viasat Inc.',
-            'GSAT': 'Globalstar Inc.', 'ASTS': 'AST SpaceMobile Inc.', 'ORBC': 'ORBCOMM Inc.',
-            'GILT': 'Gilat Satellite Networks Ltd.', 'UTX': 'United Technologies Corp.', 'AXON': 'Axon Enterprise Inc.',
-            'TXT': 'Textron Inc.', 'PH': 'Parker-Hannifin Corp.', 'ITT': 'ITT Inc.', 'CW': 'Curtiss-Wright Corp.',
-            'MOG-A': 'Moog Inc.',
-            
-            # 양자컴퓨터 관련 기업들
-            'IONQ': 'IonQ Inc.', 'RGTI': 'Rigetti Computing Inc.', 'QUBT': 'Quantum Computing Inc.',
-            'ARQQ': 'Arqit Quantum Inc.', 'QTUM': 'Quantum Corp.', 'DEFN': 'DefenseStorm Inc.',
-            'TSM': 'Taiwan Semiconductor Manufacturing Co.', 'ASML': 'ASML Holding N.V.',
-            
-            # 노화역전/장수 기업들
-            'NVAX': 'Novavax Inc.', 'BNTX': 'BioNTech SE', 'GSK': 'GlaxoSmithKline plc',
-            'NVO': 'Novo Nordisk A/S', 'AZN': 'AstraZeneca plc', 'UNITY': 'Unity Biotechnology Inc.',
-            'SEER': 'Seer Inc.', 'TWST': 'Twist Bioscience Corp.', 'CRSP': 'CRISPR Therapeutics AG',
-            'EDIT': 'Editas Medicine Inc.', 'NTLA': 'Intellia Therapeutics Inc.', 'BEAM': 'Beam Therapeutics Inc.',
-            'VERV': 'Verve Therapeutics Inc.',
-            
-            # 합성생물학 기업들
-            'FATE': 'Fate Therapeutics Inc.', 'BLUE': 'bluebird bio Inc.', 'CELG': 'Celgene Corp.',
-            'DNA': 'Ginkgo Bioworks Holdings Inc.', 'SYN': 'Synthetic Biologics Inc.', 'AMRS': 'Amyris Inc.',
-            'CODX': 'Co-Diagnostics Inc.', 'PACB': 'Pacific Biosciences of California Inc.', 'LIFE': 'aTyr Pharma Inc.',
-            'BIO': 'Bio-Rad Laboratories Inc.', 'CDNA': 'CareDx Inc.', 'FOLD': 'Amicus Therapeutics Inc.',
-            'RGNX': 'REGENXBIO Inc.', 'SGEN': 'Seagen Inc.', 'HALO': 'Halozyme Therapeutics Inc.',
-            'EVGN': 'Evogene Ltd.', 'CYTK': 'Cytokinetics Inc.', 'ABUS': 'Arbutus Biopharma Corp.',
-            'IMUX': 'Immunic Inc.',
-            
-            # 스테이블코인/암호화폐 관련 기업들
-            'MSTR': 'MicroStrategy Inc.', 'RIOT': 'Riot Blockchain Inc.', 'MARA': 'Marathon Digital Holdings Inc.',
-            'CLSK': 'CleanSpark Inc.', 'BITF': 'Bitfarms Ltd.', 'HUT': 'Hut 8 Mining Corp.',
-            'CAN': 'Canaan Inc.', 'BTBT': 'Bit Digital Inc.', 'LC': 'LendingClub Corp.',
-            'GBTC': 'Grayscale Bitcoin Trust', 'ETHE': 'Grayscale Ethereum Trust', 'LTCN': 'Grayscale Litecoin Trust',
-            'BITO': 'ProShares Bitcoin Strategy ETF', 'ARKK': 'ARK Innovation ETF', 'BLOK': 'Amplify Transformational Data Sharing ETF',
-            'LEGR': 'First Trust Indxx Innovative Transaction & Process ETF', 'KOIN': 'Innovation Shares NextGen Protocol ETF',
-            
-            # 데이터센터 냉각기술 기업들
-            'JCI': 'Johnson Controls International plc', 'XYL': 'Xylem Inc.', 'VLTO': 'Veralto Corp.',
-            'CGNX': 'Cognex Corp.', 'FLIR': 'FLIR Systems Inc.', 'NOVT': 'Novanta Inc.',
-            'AZEK': 'The AZEK Company Inc.', 'COOL': 'Corner Growth Acquisition Corp.',
-            'AAON': 'AAON Inc.', 'SMTC': 'Semtech Corp.', 'EVTC': 'Evertec Inc.',
-            
-            # BCI (뇌-컴퓨터 인터페이스) 기업들
-            'NEGG': 'Newegg Commerce Inc.', 'CTRL': 'Control4 Corp.', 'NURO': 'NeuroMetrix Inc.',
-            'SYNC': 'Synacor Inc.', 'LFMD': 'LifeMD Inc.', 'AXGN': 'AxoGen Inc.',
-            'PRTS': 'CarParts.com Inc.', 'GMED': 'Globus Medical Inc.', 'KALA': 'Kala Pharmaceuticals Inc.',
-            'INVA': 'Innoviva Inc.', 'PHVS': 'Pharvaris N.V.', 'SENS': 'Senseonics Holdings Inc.',
-            'CRMD': 'CorMedix Inc.', 'KRYS': 'Krystal Biotech Inc.', 'ATNF': '180 Life Sciences Corp.'
-        }
+            return companies
             
         except Exception as e:
             print(f"[ERROR] 시가총액 조회 중 오류: {e}")
@@ -1199,23 +1025,14 @@ def main():
     st.sidebar.header("🔍 분석 설정")
     
     market = st.sidebar.selectbox(
-        "시장/섹터 선택",
-        options=['SP500', 'NASDAQ', 'ALL', 'KOSPI', 'KOSDAQ', 'AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN', 'DATACENTER_COOLING', 'BCI'],
+        "시장 선택",
+        options=['SP500', 'NASDAQ', 'ALL', 'KOSPI', 'KOSDAQ'],
         format_func=lambda x: {
             'SP500': 'S&P 500 (전체 500개)',
             'NASDAQ': 'NASDAQ (전체 주요 기술주)',
             'ALL': '미국 전체 (S&P500 + NASDAQ)',
             'KOSPI': 'KOSPI (50개)',
-            'KOSDAQ': 'KOSDAQ (50개)',
-            'AEROSPACE': '🚀 우주항공 섹터',
-            'QUANTUM': '⚛️ 양자컴퓨터 섹터',
-            'LONGEVITY': '🧬 노화역전/장수 섹터',
-            'SYNTHETIC_BIO': '🔬 합성생물학 섹터',
-            'STABLECOIN': '💰 스테이블코인/암호화폐 섹터',
-            'DATACENTER_COOLING': '❄️ 데이터센터 냉각기술 섹터',
-            'BCI': '🧠 뇌-컴퓨터 인터페이스(BCI) 섹터'
-        }[x]
-    )
+            'KOSDAQ': 'KOSDAQ (50개)'
         }[x]
     )
     
@@ -1258,17 +1075,6 @@ def main():
             'ALL': '900개+'
         }
         st.sidebar.warning(f"⚠️ {market} 전체 분석 예상 시간: 10-30분\n예상 종목 수: {expected_count[market]}")
-    elif market in ['AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN', 'DATACENTER_COOLING', 'BCI']:
-        sector_info = {
-            'AEROSPACE': '우주항공 관련 29개 기업',
-            'QUANTUM': '양자컴퓨터 관련 26개 기업', 
-            'LONGEVITY': '노화역전/장수 관련 28개 기업',
-            'SYNTHETIC_BIO': '합성생물학 관련 26개 기업',
-            'STABLECOIN': '스테이블코인/암호화폐 관련 24개 기업',
-            'DATACENTER_COOLING': '데이터센터 냉각기술 관련 26개 기업',
-            'BCI': '뇌-컴퓨터 인터페이스 관련 26개 기업'
-        }
-        st.sidebar.info(f"ℹ️ {sector_info[market]}\n예상 분석 시간: 2-5분")
     
     # 공포 탐욕 지수 (full width)
     st.subheader("😨 공포 탐욕 지수")
@@ -1479,18 +1285,12 @@ def main():
     st.sidebar.markdown("---")
     st.sidebar.markdown("### 📖 사용법")
     st.sidebar.markdown("""
-    1. **시장/섹터 선택**: 분석할 시장이나 섹터를 선택하세요
-       - **전통 시장**: S&P 500, NASDAQ, KOSPI, KOSDAQ
-       - **미래 성장 섹터**: 
-         - 🚀 우주항공 (SpaceX, Boeing, Lockheed 등)
-         - ⚛️ 양자컴퓨터 (IBM, Google, IonQ 등) 
-         - 🧬 노화역전/장수 (Unity Bio, CRISPR 등)
-         - 🔬 합성생물학 (Twist Bio, Ginkgo 등)
-         - 💰 스테이블코인/암호화폐 (Coinbase, MicroStrategy 등)
-         - ❄️ 데이터센터 냉각 (Johnson Controls, Xylem 등)
-         - 🧠 BCI/뇌컴퓨터 (Tesla, Meta, Neuralink 관련 등)
+    1. **시장 선택**: 분석할 시장을 선택하세요
+       - S&P 500: 미국 대형주 500개 전체
+       - NASDAQ: 미국 기술주 400개+ 전체  
+       - ALL: S&P500 + NASDAQ 합계 (중복제거)
     2. **기간 설정**: 차트 조회 기간을 설정하세요  
-    3. **전체 분석 시작**: 버튼을 클릭하여 분석을 시작하세요
+    3. **전체 분석 시작**: 버튼을 클릭하여 전체 분석을 시작하세요
     4. **결과 확인**: 점수별 필터링 후 종목을 클릭하면 차트가 표시됩니다
     
     **점수 기준:**
@@ -1500,26 +1300,8 @@ def main():
     - 추세 안정: 25점
     
     **⚠️ 주의사항:**
-    - 전체 시장 분석은 시간이 오래 걸립니다
-    - 섹터별 분석은 빠르게 완료됩니다 (2-5분)
-    """)
-    
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("### ℹ️ 섹터별 분석 정보")
-    st.sidebar.markdown("""
-    **미래 성장 섹터 특징:**
-    - 🚀 **우주항공**: 우주여행, 위성통신, 항공우주
-    - ⚛️ **양자컴퓨터**: 양자프로세서, 양자알고리즘
-    - 🧬 **노화역전**: 유전자치료, 줄기세포, 수명연장
-    - 🔬 **합성생물학**: DNA편집, 바이오제조
-    - 💰 **스테이블코인**: 블록체인, 디지털자산
-    - ❄️ **데이터센터 냉각**: AI칩 냉각, 에너지효율
-    - 🧠 **BCI**: 뇌임플란트, 뉴럴인터페이스
-    
-    **투자 시 고려사항:**
-    - 신기술 섹터는 변동성이 클 수 있습니다
-    - 장기적 성장 관점에서 접근하세요
-    - 포트폴리오 분산을 권장합니다
+    - 전체 분석은 시간이 오래 걸립니다
+    - 미국 전체(ALL) 분석 시 30분+ 소요 가능
     """)
     
     st.sidebar.markdown("---")
@@ -1537,11 +1319,10 @@ def main():
     st.markdown("---")
     st.markdown("""
     <div style="text-align: center; color: gray; font-size: 12px;">
-    📈 주식 기술적 분석 종목 추천 시스템 (섹터별 분석 지원)<br>
-    🚀 미래 성장 섹터 특화 분석 | ⚠️ 투자 결정은 본인의 판단과 책임 하에 하시기 바랍니다.
+    📈 주식 기술적 분석 종목 추천 시스템 (전체 분석 버전)<br>
+    ⚠️ 투자 결정은 본인의 판단과 책임 하에 하시기 바랍니다.
     </div>
     """, unsafe_allow_html=True)
 
 if __name__ == '__main__':
     main()
-            '
