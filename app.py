@@ -226,7 +226,7 @@ class StockAnalyzer:
                 base_url = "https://finance.naver.com/sise/sise_market_sum.nhn"
             
             # 더 많은 페이지를 시도하고 다양한 패턴으로 종목코드 추출
-            while len(all_codes) < limit and page <= 20:  # 페이지 수 증가
+            while len(all_codes) < limit and page <= 4:  # 페이지 수 증가
                 try:
                     url = f"{base_url}?&page={page}"
                     
