@@ -34,7 +34,16 @@ def _analyze_stocks_parallel(self, symbols, period):
                     completed_count += 1
                     
                     # 진행률 표시 (10% 단위)
-                    if completeimport streamlit as st
+                    if completed_count % max(1, total_symbols // 10) == 0:
+                        progress = completed_count / total_symbols * 100
+                        print(f"[DEBUG] 분석 진행률: {completed_count}/{total_symbols} ({progress:.1f}%)")
+                        
+                except Exception as e:
+                    print(f"[ERROR] {symbol} 결과 처리 중 오류: {str(e)}")
+        
+        return results
+
+    def _get_us_company_names(self):import streamlit as st
 import plotly.graph_objs as go
 import pandas as pd
 import numpy as np
