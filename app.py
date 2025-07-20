@@ -269,7 +269,13 @@ class StockAnalyzer:
             hasattr(self.fear_greed_history, 'empty') and 
             not self.fear_greed_history.empty):
             try:
-                last_date = self.fear_greed_history['Date'].iloc[-1]
+                # DataFrame인지 확인하고 안전하게 접근
+                if hasattr(self.fear_greed_history, 'iloc'):
+                    last_date = self.fear_greed_history['Date'].iloc[-1]
+                else:
+                    # numpy array인 경우
+                    last_date = self.fear_greed_history['Date'][-1]
+                
                 fig.add_trace(go.Scatter(
                     x=[last_date],
                     y=[self.fear_greed_current],
@@ -290,8 +296,15 @@ class StockAnalyzer:
             showlegend=True,
             plot_bgcolor='white',
             paper_bgcolor='white',
-            xaxis=dict(gridcolor='lightgray'),
-            yaxis=dict(range=[0, 100], gridcolor='lightgray'),
+            xaxis=dict(
+                gridcolor='lightgray',
+                fixedrange=False  # x축 이동 가능
+            ),
+            yaxis=dict(
+                range=[0, 100], 
+                gridcolor='lightgray',
+                fixedrange=False  # y축 이동 가능
+            ),
             margin=dict(t=40, b=40, l=50, r=50),
             # 모바일 터치 제스처 설정
             dragmode='pan',
@@ -299,7 +312,8 @@ class StockAnalyzer:
                 orientation='v',
                 bgcolor='rgba(255,255,255,0.8)',
                 color='black',
-                activecolor='red'
+                activecolor='red',
+                remove=['lasso2d', 'select2d']  # 불필요한 도구 제거
             )
         )
         
@@ -310,6 +324,33 @@ class StockAnalyzer:
                 opacity=0,
                 line=dict(width=0)
             )
+        )
+        
+        # 터치 제스처를 위한 추가 설정
+        fig.update_layout(
+            hovermode='x unified',
+            clickmode='event+select'
+        )
+        
+        # 모바일 터치 제스처를 위한 config 설정
+        fig.update_layout(
+            config={
+                'displayModeBar': True,
+                'displaylogo': False,
+                'modeBarButtonsToRemove': ['lasso2d', 'select2d', 'pan2d', 'zoomIn2d', 'zoomOut2d'],
+                'modeBarButtonsToAdd': [
+                    {
+                        'name': 'pan',
+                        'icon': 'pan',
+                        'click': 'pan'
+                    },
+                    {
+                        'name': 'zoom',
+                        'icon': 'zoom',
+                        'click': 'zoom'
+                    }
+                ]
+            }
         )
         
         return fig
@@ -752,7 +793,8 @@ class StockAnalyzer:
                 paper_bgcolor='white',
                 xaxis=dict(
                     gridcolor='lightgray',
-                    rangeslider=dict(visible=False)
+                    rangeslider=dict(visible=False),
+                    fixedrange=False  # x축 이동 가능
                 ),
                 yaxis=dict(
                     gridcolor='lightgray',
@@ -761,7 +803,7 @@ class StockAnalyzer:
                     tickmode='auto',
                     nticks=10,
                     autorange=True,
-                    fixedrange=False,
+                    fixedrange=False,  # y축 이동 가능
                     automargin=True
                 ),
                 margin=dict(t=35, b=35, l=35, r=35),
@@ -771,7 +813,8 @@ class StockAnalyzer:
                     orientation='v',
                     bgcolor='rgba(255,255,255,0.8)',
                     color='black',
-                    activecolor='red'
+                    activecolor='red',
+                    remove=['lasso2d', 'select2d']  # 불필요한 도구 제거
                 )
             )
             
@@ -782,6 +825,33 @@ class StockAnalyzer:
                     opacity=0,
                     line=dict(width=0)
                 )
+            )
+            
+            # 터치 제스처를 위한 추가 설정
+            fig.update_layout(
+                hovermode='x unified',
+                clickmode='event+select'
+            )
+            
+            # 모바일 터치 제스처를 위한 config 설정
+            fig.update_layout(
+                config={
+                    'displayModeBar': True,
+                    'displaylogo': False,
+                    'modeBarButtonsToRemove': ['lasso2d', 'select2d', 'pan2d', 'zoomIn2d', 'zoomOut2d'],
+                    'modeBarButtonsToAdd': [
+                        {
+                            'name': 'pan',
+                            'icon': 'pan',
+                            'click': 'pan'
+                        },
+                        {
+                            'name': 'zoom',
+                            'icon': 'zoom',
+                            'click': 'zoom'
+                        }
+                    ]
+                }
             )
             
             return fig
@@ -939,16 +1009,33 @@ def main():
         
         df_results = pd.DataFrame(results_data)
         
-        # 데이터프레임 표시 (클릭 가능)
-        selected_indices = st.dataframe(
+        # 데이터프레임 표시
+        st.dataframe(
             df_results[['Symbol', 'Company', 'Price', 'GC', 'MA', '125', 'Trend', 'Score']],
             use_container_width=True,
             hide_index=True
         )
         
-        # 선택된 종목의 차트 표시 (임시로 첫 번째 종목 표시)
+        # 종목 선택을 위한 드롭다운 추가
+        st.subheader("📊 종목 차트 보기")
+        
+        # 종목 선택 드롭다운
         if st.session_state.analysis_results:
-            selected_result = st.session_state.analysis_results[0]
+            stock_options = {f"{result['company_name']} ({result['symbol']})": i 
+                           for i, result in enumerate(st.session_state.analysis_results)}
+            
+            selected_stock = st.selectbox(
+                "차트를 볼 종목을 선택하세요:",
+                options=list(stock_options.keys()),
+                index=0,
+                key="stock_selector"
+            )
+            
+            if selected_stock and selected_stock in stock_options:
+                selected_idx = stock_options[selected_stock]
+                selected_result = st.session_state.analysis_results[selected_idx]
+            else:
+                selected_result = st.session_state.analysis_results[0]
             
             st.subheader(f"📊 {selected_result['company_name']} ({selected_result['symbol']}) 차트")
             
