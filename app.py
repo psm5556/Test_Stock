@@ -379,7 +379,7 @@ class StockAnalyzer:
             yaxis_title="지수",
             height=300,
             showlegend=True,
-            plot_bgcolor='white',
+            # plot_bgcolor='white',
             # paper_bgcolor='white',
             xaxis=dict(gridcolor='lightgray'),
             yaxis=dict(range=[0, 100], gridcolor='lightgray'),
