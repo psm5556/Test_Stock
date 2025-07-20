@@ -92,6 +92,25 @@ class StockAnalyzer:
                 'ILMN', 'TMO', 'DHR', 'A', 'ISRG', 'VEEV', 'BSX', 'MDT', 'ABT',
                 'JNJ', 'DXCM', 'CTRL', 'NURO', 'SYNC', 'LFMD', 'AXGN', 'PRTS',
                 'GMED', 'KALA', 'INVA', 'PHVS', 'SENS', 'CRMD', 'KRYS', 'ATNF'
+            ],
+            'FUTURE_LEADERS': [
+                # 미래 대장주 후보들 (각 섹터의 최고 유망주만 선별)
+                # 🚀 우주항공 대장주
+                'RKLB', 'SPCE', 'BA', 'LMT', 'RTX', 'NOC', 'MAXR', 'ASTS',
+                # ⚛️ 양자컴퓨터 대장주  
+                'IONQ', 'RGTI', 'QUBT', 'IBM', 'GOOGL', 'NVDA', 'MSFT',
+                # 🧬 노화역전/장수 대장주
+                'UNITY', 'CRSP', 'EDIT', 'NTLA', 'BEAM', 'VERV', 'TWST', 'GILD', 'MRNA',
+                # 🔬 합성생물학 대장주
+                'DNA', 'TWST', 'AMRS', 'CRSP', 'EDIT', 'FATE', 'BLUE', 'SYN',
+                # 💰 스테이블코인/암호화폐 대장주
+                'COIN', 'MSTR', 'RIOT', 'MARA', 'CLSK', 'SQ', 'PYPL', 'HOOD',
+                # ❄️ 데이터센터 냉각 대장주
+                'NVDA', 'AMD', 'JCI', 'CARR', 'XYL', 'SMTC', 'DLR', 'EQIX',
+                # 🧠 BCI 대장주
+                'NVDA', 'TSLA', 'META', 'GOOGL', 'ISRG', 'DXCM', 'BSX', 'SYNC',
+                # 🤖 AI/로봇 대장주
+                'NVDA', 'AMD', 'GOOGL', 'MSFT', 'TSLA', 'META', 'PLTR', 'C3AI'
             ]
         }
         
@@ -159,7 +178,7 @@ class StockAnalyzer:
                 sp500 = self._get_sp500_symbols_full()
                 nasdaq = self._get_nasdaq_symbols_full()
                 symbols = list(set(sp500 + nasdaq))  # 중복 제거
-            elif market_type in ['AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN', 'DATACENTER_COOLING', 'BCI']:
+            elif market_type in ['AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN', 'DATACENTER_COOLING', 'BCI', 'FUTURE_LEADERS']:
                 # 섹터별 종목 가져오기
                 symbols = self._get_sector_symbols(market_type)
             else:
@@ -182,7 +201,7 @@ class StockAnalyzer:
         try:
             companies = {}
             
-            if market in ['SP500', 'NASDAQ', 'ALL', 'AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN', 'DATACENTER_COOLING', 'BCI']:
+            if market in ['SP500', 'NASDAQ', 'ALL', 'AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN', 'DATACENTER_COOLING', 'BCI', 'FUTURE_LEADERS']:
                 # 미국 종목은 하드코딩된 회사명 사용
                 us_symbols = self._get_us_market_cap_from_yahoo(market, limit)
                 if us_symbols:
@@ -730,7 +749,10 @@ class StockAnalyzer:
             'SYNC': 'Synacor Inc.', 'LFMD': 'LifeMD Inc.', 'AXGN': 'AxoGen Inc.',
             'PRTS': 'CarParts.com Inc.', 'GMED': 'Globus Medical Inc.', 'KALA': 'Kala Pharmaceuticals Inc.',
             'INVA': 'Innoviva Inc.', 'PHVS': 'Pharvaris N.V.', 'SENS': 'Senseonics Holdings Inc.',
-            'CRMD': 'CorMedix Inc.', 'KRYS': 'Krystal Biotech Inc.', 'ATNF': '180 Life Sciences Corp.'
+            'CRMD': 'CorMedix Inc.', 'KRYS': 'Krystal Biotech Inc.', 'ATNF': '180 Life Sciences Corp.',
+            
+            # 미래 대장주 후보 기업들 (추가 매핑)
+            'C3AI': 'C3.ai Inc.', 'PLTR': 'Palantir Technologies Inc.'
         }
 
     def _get_korea_company_names_parallel(self, symbols):
@@ -888,20 +910,21 @@ def main():
         initial_sidebar_state="expanded"
     )
     
-    st.title("📈 주식 기술적 분석 종목 추천 시스템 (섹터별 분석 지원)")
+    st.title("📈 주식 기술적 분석 종목 추천 시스템 (미래 대장주 엄선 포함)")
     
     # 사이드바 설정
     st.sidebar.header("🔍 분석 설정")
     
     market = st.sidebar.selectbox(
         "시장/섹터 선택",
-        options=['SP500', 'NASDAQ', 'ALL', 'KOSPI', 'KOSDAQ', 'AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN', 'DATACENTER_COOLING', 'BCI'],
+        options=['SP500', 'NASDAQ', 'ALL', 'KOSPI', 'KOSDAQ', 'FUTURE_LEADERS', 'AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN', 'DATACENTER_COOLING', 'BCI'],
         format_func=lambda x: {
             'SP500': 'S&P 500 (전체 500개)',
             'NASDAQ': 'NASDAQ (전체 주요 기술주)',
             'ALL': '미국 전체 (S&P500 + NASDAQ)',
             'KOSPI': 'KOSPI (50개)',
             'KOSDAQ': 'KOSDAQ (50개)',
+            'FUTURE_LEADERS': '🌟 미래 대장주 엄선 (60개)',
             'AEROSPACE': '🚀 우주항공 섹터',
             'QUANTUM': '⚛️ 양자컴퓨터 섹터',
             'LONGEVITY': '🧬 노화역전/장수 섹터',
@@ -936,9 +959,10 @@ def main():
             'NASDAQ': '400개+',
             'ALL': '900개+'
         }
-        st.sidebar.warning(f"⚠️ {market} 전체 분석 예상 시간: 5분 이내내\n예상 종목 수: {expected_count[market]}")
-    elif market in ['AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN', 'DATACENTER_COOLING', 'BCI']:
+        st.sidebar.warning(f"⚠️ {market} 전체 분석 예상 시간: 5분 이내\n예상 종목 수: {expected_count[market]}")
+    elif market in ['AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN', 'DATACENTER_COOLING', 'BCI', 'FUTURE_LEADERS']:
         sector_info = {
+            'FUTURE_LEADERS': '🌟 미래 대장주 엄선 60개 기업 (각 섹터 최고 유망주)',
             'AEROSPACE': '우주항공 관련 33개 기업',
             'QUANTUM': '양자컴퓨터 관련 24개 기업', 
             'LONGEVITY': '노화역전/장수 관련 36개 기업',
@@ -947,7 +971,7 @@ def main():
             'DATACENTER_COOLING': '데이터센터 냉각기술 관련 31개 기업',
             'BCI': '뇌-컴퓨터 인터페이스 관련 35개 기업'
         }
-        st.sidebar.info(f"ℹ️ {sector_info[market]}\n예상 분석 시간: 1분 이내내")
+        st.sidebar.info(f"ℹ️ {sector_info[market]}\n예상 분석 시간: 1분 이내")
     
     # StockAnalyzer 인스턴스 생성
     if 'analyzer' not in st.session_state:
@@ -1170,6 +1194,7 @@ def main():
     st.sidebar.markdown("""
     1. **시장/섹터 선택**: 분석할 시장이나 섹터를 선택하세요
        - **전통 시장**: S&P 500, NASDAQ, KOSPI, KOSDAQ
+       - **🌟 미래 대장주**: 각 섹터 최고 유망주만 엄선 (60개)
        - **미래 성장 섹터**: 
          - 🚀 우주항공 (SpaceX, Boeing, Lockheed 등)
          - ⚛️ 양자컴퓨터 (IBM, Google, IonQ 등) 
@@ -1190,12 +1215,23 @@ def main():
     
     **⚠️ 주의사항:**
     - 전체 시장 분석은 시간이 오래 걸립니다
-    - 섹터별 분석은 빠르게 완료됩니다 (1분 이내내)
+    - 섹터별 분석은 빠르게 완료됩니다 (1분 이내)
     """)
     
     st.sidebar.markdown("---")
     st.sidebar.markdown("### ℹ️ 섹터별 분석 정보")
     st.sidebar.markdown("""
+    **🌟 미래 대장주 엄선 섹터:**
+    - 각 미래 성장 섹터에서 가장 유망한 기업들만 선별
+    - 🚀 우주항공: Rocket Lab, Virgin Galactic, Boeing, Lockheed
+    - ⚛️ 양자컴퓨터: IonQ, Rigetti, IBM, Google, NVIDIA
+    - 🧬 노화역전: Unity Bio, CRISPR, Editas, Beam Therapeutics
+    - 🔬 합성생물학: Ginkgo Bioworks, Twist Bio, Amyris
+    - 💰 암호화폐: Coinbase, MicroStrategy, Riot, Marathon
+    - ❄️ 데이터센터: NVIDIA, AMD, Johnson Controls
+    - 🧠 BCI: Tesla, Meta, NVIDIA, Intuitive Surgical
+    - 🤖 AI/로봇: NVIDIA, Google, Microsoft, Palantir
+    
     **미래 성장 섹터 특징:**
     - 🚀 **우주항공**: 우주여행, 위성통신, 항공우주
     - ⚛️ **양자컴퓨터**: 양자프로세서, 양자알고리즘
@@ -1226,8 +1262,8 @@ def main():
     st.markdown("---")
     st.markdown("""
     <div style="text-align: center; color: gray; font-size: 12px;">
-    📈 주식 기술적 분석 종목 추천 시스템 (섹터별 분석 지원)<br>
-    🚀 미래 성장 섹터 특화 분석 | ⚠️ 투자 결정은 본인의 판단과 책임 하에 하시기 바랍니다.
+    📈 주식 기술적 분석 종목 추천 시스템 (미래 대장주 엄선 포함)<br>
+    🌟 미래 대장주 엄선 특화 분석 | ⚠️ 투자 결정은 본인의 판단과 책임 하에 하시기 바랍니다.
     </div>
     """, unsafe_allow_html=True)
 
