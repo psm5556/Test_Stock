@@ -964,6 +964,13 @@ def main():
             key="stock_selector"
         )
         
+        # 분석 결과 테이블 표시
+        st.dataframe(
+            df_results[['Symbol', 'Company', 'Price', 'GC', 'MA', '125', 'Trend', 'Score']],
+            use_container_width=True,
+            hide_index=True
+        )
+        
         # 선택된 종목의 차트 표시
         if selected_symbol:
             selected_result = next((r for r in st.session_state.analysis_results if r['symbol'] == selected_symbol), None)
