@@ -380,7 +380,7 @@ class StockAnalyzer:
             height=300,
             showlegend=True,
             plot_bgcolor='white',
-            paper_bgcolor='white',
+            # paper_bgcolor='white',
             xaxis=dict(gridcolor='lightgray'),
             yaxis=dict(range=[0, 100], gridcolor='lightgray'),
             margin=dict(t=40, b=40, l=50, r=50)
