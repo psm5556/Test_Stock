@@ -122,8 +122,16 @@ class StockAnalyzer:
         
     def _get_sp500_symbols_full(self):
         """S&P 500 전체 기업 리스트 (500개)"""
-        sp500_stocks = fdr.StockListing('S&P500')
-        tickers = sp500_stocks['Symbol']
+        url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+    
+        # Read the HTML tables from the URL
+        tables = pd.read_html(url)
+        
+        # The S&P 500 companies list is typically the first table on the page
+        sp500_table = tables[0]
+        
+        # Extract the 'Symbol' column, which contains the tickers
+        tickers = sp500_table['Symbol'].tolist()
         return tickers
         # return [
         #     'MSFT', 'NVDA', 'AAPL', 'AMZN', 'META', 'AVGO', 'GOOGL', 'TSLA', 'BRK-B', 'GOOG',
@@ -1309,6 +1317,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
