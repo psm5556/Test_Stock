@@ -702,27 +702,36 @@ class StockAnalyzer:
         return results
 
     def _get_us_company_names(self):
-        """미국 주요 지수 기업명 통합 (Nasdaq + S&P500)"""
-        # 1. 나스닥 기업 목록
-        url1 = "https://datahub.io/core/nasdaq-listings/r/nasdaq-listed.csv"
-        df1 = pd.read_csv(url1)
+        """
+        S&P 500과 Nasdaq 100 데이터를 통합하여
+        {Symbol: Name} 형태의 딕셔너리 반환
+        """
+        # --- S&P 500 데이터 로드 ---
+        sp500_url = "https://datahub.io/core/s-and-p-500-companies-financials/r/constituents.csv"
+        df_sp = pd.read_csv(sp500_url)
+        df_sp = df_sp.rename(columns={"Name": "Name", "Symbol": "Symbol"})  # 명시적으로 통일
     
-        # 2. S&P 500 기업 목록
-        url2 = "https://datahub.io/core/s-and-p-500-companies-financials/r/constituents.csv"
-        df2 = pd.read_csv(url2)
+        # --- Nasdaq 데이터 로드 ---
+        nasdaq_url = "https://datahub.io/core/nasdaq-listings/r/nasdaq-listed.csv"
+        df_ns = pd.read_csv(nasdaq_url)
+        # 일부 파일에서는 'Security Name' 컬럼이 존재함
+        if "Security Name" in df_ns.columns:
+            df_ns = df_ns.rename(columns={"Security Name": "Name"})
+        elif "Company Name" in df_ns.columns:
+            df_ns = df_ns.rename(columns={"Company Name": "Name"})
+        df_ns = df_ns[["Symbol", "Name"]]
     
-        # 3. 두 데이터프레임을 병합
-        # df = pd.concat([df1, df2], ignore_index=True)
-
-        df = df2
+        # --- 데이터 병합 ---
+        combined = pd.concat([df_sp[["Symbol", "Name"]], df_ns[["Symbol", "Name"]]], ignore_index=True)
     
-        # 4. 기업명 열 확인 후 병합
-        # name_cols = [col for col in df.columns if col.lower() in ['Name', 'company', 'company name','Security Name']]
-        # name_col = name_cols[0] if name_cols else df.columns[0]
+        # --- 결측/중복 제거 ---
+        combined = combined.dropna(subset=["Symbol", "Name"])
+        combined = combined.drop_duplicates(subset=["Symbol"], keep="first")
     
-        # 5. 중복 제거 후 리스트 반환
-        # return df[name_col].dropna().unique().tolist()
-        return df['Name'].dropna().unique().tolist()
+        # --- 딕셔너리로 변환 ---
+        stock_dict = dict(zip(combined["Symbol"], combined["Name"]))
+    
+        return stock_dict
         
         # return {
         #     # 기존 기업들
@@ -1333,6 +1342,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
