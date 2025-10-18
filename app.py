@@ -87,7 +87,7 @@ class StockAnalyzer:
             'DATACENTER_SEMI': [
                 'SMR','BWXT','NEE','AES','BEPC','BE','FLNC','TSLA','LEU','CEG','SO','ETR','DUK','WEC','GEV',
                 'EQIX','DLR','IRM','AMT','VRT','ETN','SBGSY','ABB','JCI','TT','NVT','LGRDY','ANET','CSCO',
-                'JNPR','CIEN','GLW','LUMN','NVDA','AMD','INTC','AVGO','MRVL','CRWV','ALAB','CLPT','ON','CRDO'
+                'JNPR','CIEN','GLW','LUMN','NVDA','AMD','INTC','AVGO','MRVL','CRWV','ALAB','CLPT','ON','CRDO','NVTS'
             ],
             'BCI': [
                 'NVDA','GOOGL','MSFT','META','AAPL','TSLA','NEGG','SNAP','MRNA',
@@ -1431,6 +1431,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
