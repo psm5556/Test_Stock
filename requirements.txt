@@ -5,3 +5,4 @@ numpy
 yfinance
 requests
 fear_and_greed
+beautifulsoup4
