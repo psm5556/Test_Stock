@@ -11,6 +11,7 @@ import json
 import time
 import re
 import bs4 as bs
+import FinanceDataReader as fdr
 from concurrent.futures import ThreadPoolExecutor, as_completed
 warnings.filterwarnings('ignore')
 
@@ -121,15 +122,8 @@ class StockAnalyzer:
         
     def _get_sp500_symbols_full(self):
         """S&P 500 전체 기업 리스트 (500개)"""
-        resp = requests.get('http://en.wikipedia.org/wiki/List_of_S%26P_500_companies')
-        soup = bs.BeautifulSoup(resp.text, 'lxml')
-        table = soup.find('table', {'class': 'wikitable sortable'})
-        tickers = []
-
-        for row in table.findAll('tr')[1:]:
-            ticker = row.findAll('td')[0].text
-            tickers.append(ticker)
-        tickers = [s.replace('\n', '') for s in tickers]
+        sp500_stocks = fdr.StockListing('S&P500')
+        tickers = sp500_stocks['Symbol']
         return tickers
         # return [
         #     'MSFT', 'NVDA', 'AAPL', 'AMZN', 'META', 'AVGO', 'GOOGL', 'TSLA', 'BRK-B', 'GOOG',
@@ -187,10 +181,8 @@ class StockAnalyzer:
     
     def _get_nasdaq_symbols_full(self):
         """NASDAQ100 기업 리스트 (주요 기술주 중심 100개)"""
-        url = 'https://en.wikipedia.org/wiki/Nasdaq-100'
-        tables = pd.read_html(url)
-        df = tables[2]  # 세 번째 테이블(인덱스 2)이 구성 종목 테이블
-        tickers = df['Ticker'].tolist()  # 'Ticker' 열에서 티커 추출
+        nasdaq_stocks = fdr.StockListing('NASDAQ')
+        tickers = nasdaq_stocks['Symbol']
         return tickers
         # return [
         #     'AAPL', 'ABNB', 'ADBE', 'ADI', 'ADP', 'ADSK', 'AEP', 'AFRM', 'AKAM', 'ALGN',
@@ -1317,6 +1309,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
