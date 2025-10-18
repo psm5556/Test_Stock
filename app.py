@@ -713,13 +713,16 @@ class StockAnalyzer:
     
         # 3. 두 데이터프레임을 병합
         df = pd.concat([df1, df2], ignore_index=True)
+
+        df = df2
     
         # 4. 기업명 열 확인 후 병합
         name_cols = [col for col in df.columns if col.lower() in ['name', 'company', 'company name','Security Name']]
         name_col = name_cols[0] if name_cols else df.columns[0]
     
         # 5. 중복 제거 후 리스트 반환
-        return df[name_col].dropna().unique().tolist()
+        # return df[name_col].dropna().unique().tolist()
+        return df['name'].dropna().unique().tolist()
         
         # return {
         #     # 기존 기업들
@@ -1330,6 +1333,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
