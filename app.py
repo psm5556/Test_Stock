@@ -118,10 +118,8 @@ class StockAnalyzer:
         
     def _get_sp500_symbols_full(self):
         """S&P 500 전체 기업 리스트 (500개)"""
-        url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
-        df = pd.read_html(url, attrs={'id':'constituents'})[0]
-        tickers = df['Symbol'].tolist()
-        return tickers
+        index = yf.Ticker("^GSPC")
+        return index.constituents.index.tolist()
         # return [
         #     'MSFT', 'NVDA', 'AAPL', 'AMZN', 'META', 'AVGO', 'GOOGL', 'TSLA', 'BRK-B', 'GOOG',
         #     'JPM', 'V', 'LLY', 'NFLX', 'MA', 'COST', 'XOM', 'WMT', 'PG', 'JNJ',
@@ -178,9 +176,8 @@ class StockAnalyzer:
     
     def _get_nasdaq_symbols_full(self):
         """NASDAQ100 기업 리스트 (주요 기술주 중심 100개)"""
-        url = 'https://en.wikipedia.org/wiki/Nasdaq-100'
-        df = pd.read_html(url)[0]
-        tickers = df['Ticker'].tolist()
+        index = yf.Ticker("^NDX")
+        return index.constituents.index.tolist()
         # return [
         #     'AAPL', 'ABNB', 'ADBE', 'ADI', 'ADP', 'ADSK', 'AEP', 'AFRM', 'AKAM', 'ALGN',
         #     'AMAT', 'AMD', 'AMGN', 'AMZN', 'ANET', 'ANSS', 'APP', 'ARM', 'ASML', 'AVGO',
@@ -1306,6 +1303,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
