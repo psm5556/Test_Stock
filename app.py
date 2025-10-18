@@ -13,6 +13,8 @@ import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 warnings.filterwarnings('ignore')
 
+API_KEY = "YGXwKuHiww6A0W1xRhg9ruL97gBZ3yf2"
+
 class StockAnalyzer:
     """주식 기술적 분석을 위한 클래스"""
     
@@ -118,8 +120,9 @@ class StockAnalyzer:
         
     def _get_sp500_symbols_full(self):
         """S&P 500 전체 기업 리스트 (500개)"""
-        index = yf.Ticker("^GSPC")
-        return index.constituents.index.tolist()
+        url = f"https://financialmodelingprep.com/api/v3/sp500_constituent?apikey={API_KEY}"
+        data = requests.get(url).json()
+        return [item["symbol"] for item in data]
         # return [
         #     'MSFT', 'NVDA', 'AAPL', 'AMZN', 'META', 'AVGO', 'GOOGL', 'TSLA', 'BRK-B', 'GOOG',
         #     'JPM', 'V', 'LLY', 'NFLX', 'MA', 'COST', 'XOM', 'WMT', 'PG', 'JNJ',
@@ -176,8 +179,9 @@ class StockAnalyzer:
     
     def _get_nasdaq_symbols_full(self):
         """NASDAQ100 기업 리스트 (주요 기술주 중심 100개)"""
-        index = yf.Ticker("^NDX")
-        return index.constituents.index.tolist()
+        url = f"https://financialmodelingprep.com/api/v3/nasdaq_constituent?apikey={API_KEY}"
+        data = requests.get(url).json()
+        return [item["symbol"] for item in data]
         # return [
         #     'AAPL', 'ABNB', 'ADBE', 'ADI', 'ADP', 'ADSK', 'AEP', 'AFRM', 'AKAM', 'ALGN',
         #     'AMAT', 'AMD', 'AMGN', 'AMZN', 'ANET', 'ANSS', 'APP', 'ARM', 'ASML', 'AVGO',
@@ -1303,6 +1307,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
