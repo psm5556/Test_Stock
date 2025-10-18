@@ -1079,7 +1079,13 @@ def main():
             'ALL': '900개+'
         }
         st.sidebar.warning(f"⚠️ {market} 전체 분석 예상 시간: 5분 이내\n예상 종목 수: {expected_count[market]}")
-    elif market in self._get_sector_symbols(market):
+    elif market in [
+        'AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN',
+        'DATACENTER_COOLING', 'BCI', 'FUTURE_LEADERS',
+        'DATA_CENTER_POWER', 'DATA_CENTER_ENERGY', 'HYDROGEN_ENERGY', 'ESS',
+        'DATA_CENTER_INFRASTRUCTURE', 'MEGA_CAP_LEADERS', 'CYBERSECURITY',
+        'SATELLITE_COMMUNICATIONS', 'SUBSEA_CABLES', 'OCEAN_PLASTICS'
+    ]:
         sector_info = {
             'FUTURE_LEADERS': '🌟 미래 대장주 엄선 약 60개 기업 (각 섹터 최고 유망주)',
             'AEROSPACE': '🚀 우주항공·방위산업 관련 약 35개 기업',
@@ -1432,6 +1438,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
