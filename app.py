@@ -495,6 +495,9 @@ class StockAnalyzer:
         df['MA20'] = df['Close'].rolling(window=20).mean()
         df['MA60'] = df['Close'].rolling(window=60).mean()
         df['MA125'] = df['Close'].rolling(window=125).mean()
+        df['MA200'] = df['Close'].rolling(window=200).mean()
+        df['MA240'] = df['Close'].rolling(window=240).mean()
+        df['MA365'] = df['Close'].rolling(window=365).mean()
         return df
     
     def check_golden_cross(self, df):
@@ -932,7 +935,7 @@ class StockAnalyzer:
                 y=df['MA60'],
                 mode='lines',
                 name='60일선',
-                line=dict(color='blue', width=2)
+                line=dict(color='green', width=2)
             ))
             
             fig.add_trace(go.Scatter(
@@ -940,7 +943,31 @@ class StockAnalyzer:
                 y=df['MA125'],
                 mode='lines',
                 name='125일선',
+                line=dict(color='blue', width=2)
+            ))
+            
+            fig.add_trace(go.Scatter(
+                x=df.index,
+                y=df['MA200'],
+                mode='lines',
+                name='200일선',
+                line=dict(color='purple', width=2)
+            ))
+
+            fig.add_trace(go.Scatter(
+                x=df.index,
+                y=df['MA240'],
+                mode='lines',
+                name='240일선',
                 line=dict(color='orange', width=2)
+            ))
+
+            fig.add_trace(go.Scatter(
+                x=df.index,
+                y=df['MA365'],
+                mode='lines',
+                name='365일선',
+                line=dict(color='gray', width=2)
             ))
             
             # 골든크로스 표시
@@ -1449,6 +1476,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
