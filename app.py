@@ -122,9 +122,10 @@ class StockAnalyzer:
         
     def _get_sp500_symbols_full(self):
         """S&P 500 전체 기업 리스트 (500개)"""
-        url = f"https://financialmodelingprep.com/stable/sp500-constituent?apikey={API_KEY}"
-        data = requests.get(url).json()
-        return [item["symbol"] for item in data]
+        """DataHub.io에서 S&P 500 기업 목록 가져오기"""
+        url = "https://datahub.io/core/s-and-p-500-companies-financials/r/constituents.csv"
+        df = pd.read_csv(url)
+        return df['Symbol'].dropna().unique().tolist()
         
         # return [
         #     'MSFT', 'NVDA', 'AAPL', 'AMZN', 'META', 'AVGO', 'GOOGL', 'TSLA', 'BRK-B', 'GOOG',
@@ -182,9 +183,10 @@ class StockAnalyzer:
     
     def _get_nasdaq_symbols_full(self):
         """NASDAQ100 기업 리스트 (주요 기술주 중심 100개)"""
-        url = f"https://financialmodelingprep.com/stable/nasdaq-constituent?apikey=?apikey={API_KEY}"
-        data = requests.get(url).json()
-        return [item["symbol"] for item in data]
+        """DataHub.io에서 Nasdaq 100 기업 목록 가져오기"""
+        url = "https://datahub.io/core/nasdaq-listings/r/nasdaq-listed.csv"
+        df = pd.read_csv(url)
+        return df['Symbol'].dropna().unique().tolist()
         # return [
         #     'AAPL', 'ABNB', 'ADBE', 'ADI', 'ADP', 'ADSK', 'AEP', 'AFRM', 'AKAM', 'ALGN',
         #     'AMAT', 'AMD', 'AMGN', 'AMZN', 'ANET', 'ANSS', 'APP', 'ARM', 'ASML', 'AVGO',
@@ -1310,6 +1312,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
