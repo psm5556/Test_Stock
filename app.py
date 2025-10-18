@@ -10,6 +10,7 @@ import warnings
 import json
 import time
 import re
+import bs4 as bs
 from concurrent.futures import ThreadPoolExecutor, as_completed
 warnings.filterwarnings('ignore')
 
@@ -120,13 +121,15 @@ class StockAnalyzer:
         
     def _get_sp500_symbols_full(self):
         """S&P 500 전체 기업 리스트 (500개)"""
-        # Wikipedia에서 S&P 500 티커 리스트 가져오기
-        url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
-        df = pd.read_html(url)[0]  # 첫 번째 테이블이 S&P 500 구성 종목
-        tickers = df['Symbol'].tolist()  # 'Symbol' 열이 티커 리스트
-        
-        # 일부 티커에 '.'이 포함된 경우 '-'로 교체 (yfinance 호환성 위해, 필요 시)
-        tickers = [ticker.replace('.', '-') for ticker in tickers]
+        resp = requests.get('http://en.wikipedia.org/wiki/List_of_S%26P_500_companies')
+        soup = bs.BeautifulSoup(resp.text, 'lxml')
+        table = soup.find('table', {'class': 'wikitable sortable'})
+        tickers = []
+
+        for row in table.findAll('tr')[1:]:
+            ticker = row.findAll('td')[0].text
+            tickers.append(ticker)
+        tickers = [s.replace('\n', '') for s in tickers]
         return tickers
         # return [
         #     'MSFT', 'NVDA', 'AAPL', 'AMZN', 'META', 'AVGO', 'GOOGL', 'TSLA', 'BRK-B', 'GOOG',
@@ -1314,6 +1317,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
