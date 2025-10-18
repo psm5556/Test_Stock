@@ -120,9 +120,14 @@ class StockAnalyzer:
         
     def _get_sp500_symbols_full(self):
         """S&P 500 전체 기업 리스트 (500개)"""
-        url = f"https://financialmodelingprep.com/api/v3/sp500_constituent?apikey={API_KEY}"
-        data = requests.get(url).json()
-        return [item["symbol"] for item in data]
+        # Wikipedia에서 S&P 500 티커 리스트 가져오기
+        url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
+        df = pd.read_html(url)[0]  # 첫 번째 테이블이 S&P 500 구성 종목
+        tickers = df['Symbol'].tolist()  # 'Symbol' 열이 티커 리스트
+        
+        # 일부 티커에 '.'이 포함된 경우 '-'로 교체 (yfinance 호환성 위해, 필요 시)
+        tickers = [ticker.replace('.', '-') for ticker in tickers]
+        return tickers
         # return [
         #     'MSFT', 'NVDA', 'AAPL', 'AMZN', 'META', 'AVGO', 'GOOGL', 'TSLA', 'BRK-B', 'GOOG',
         #     'JPM', 'V', 'LLY', 'NFLX', 'MA', 'COST', 'XOM', 'WMT', 'PG', 'JNJ',
@@ -179,9 +184,11 @@ class StockAnalyzer:
     
     def _get_nasdaq_symbols_full(self):
         """NASDAQ100 기업 리스트 (주요 기술주 중심 100개)"""
-        url = f"https://financialmodelingprep.com/api/v3/nasdaq_constituent?apikey={API_KEY}"
-        data = requests.get(url).json()
-        return [item["symbol"] for item in data]
+        url = 'https://en.wikipedia.org/wiki/Nasdaq-100'
+        tables = pd.read_html(url)
+        df = tables[2]  # 세 번째 테이블(인덱스 2)이 구성 종목 테이블
+        tickers = df['Ticker'].tolist()  # 'Ticker' 열에서 티커 추출
+        return tickers
         # return [
         #     'AAPL', 'ABNB', 'ADBE', 'ADI', 'ADP', 'ADSK', 'AEP', 'AFRM', 'AKAM', 'ALGN',
         #     'AMAT', 'AMD', 'AMGN', 'AMZN', 'ANET', 'ANSS', 'APP', 'ARM', 'ASML', 'AVGO',
@@ -1307,6 +1314,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
