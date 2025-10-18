@@ -702,16 +702,24 @@ class StockAnalyzer:
         return results
 
     def _get_us_company_names(self):
-        """미국 기업명 하드코딩 (확장된 버전)"""
-        """NASDAQ100 기업 리스트 (주요 기술주 중심 100개)"""
-        """DataHub.io에서 Nasdaq 100 기업 목록 가져오기"""
-        url = "https://datahub.io/core/nasdaq-listings/r/nasdaq-listed.csv"
-        df = pd.read_csv(url)
-
-        url = "https://datahub.io/core/s-and-p-500-companies-financials/r/constituents.csv"
-        df2 = pd.read_csv(url)
-        df.append(df2)
-        return df['Name'].dropna().unique().tolist()
+        """미국 주요 지수 기업명 통합 (Nasdaq + S&P500)"""
+        # 1. 나스닥 기업 목록
+        url1 = "https://datahub.io/core/nasdaq-listings/r/nasdaq-listed.csv"
+        df1 = pd.read_csv(url1)
+    
+        # 2. S&P 500 기업 목록
+        url2 = "https://datahub.io/core/s-and-p-500-companies-financials/r/constituents.csv"
+        df2 = pd.read_csv(url2)
+    
+        # 3. 두 데이터프레임을 병합
+        df = pd.concat([df1, df2], ignore_index=True)
+    
+        # 4. 기업명 열 확인 후 병합
+        name_cols = [col for col in df.columns if col.lower() in ['name', 'company', 'company name']]
+        name_col = name_cols[0] if name_cols else df.columns[0]
+    
+        # 5. 중복 제거 후 리스트 반환
+        return df[name_col].dropna().unique().tolist()
         
         # return {
         #     # 기존 기업들
@@ -1322,6 +1330,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
