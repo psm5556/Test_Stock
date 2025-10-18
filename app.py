@@ -51,51 +51,78 @@ class StockAnalyzer:
         """섹터별 주요 기업 심볼 가져오기"""
         sector_symbols = {
             'AEROSPACE': [
-                # 우주항공 기업들
-                'BA', 'LMT', 'RTX', 'NOC', 'GD', 'LHX', 'TDG', 'HWM', 'LDOS', 'KTOS',
-                'AVAV', 'RKLB', 'SPCE', 'ASTR', 'BLDE', 'JOBY', 'EVTL', 'LILM', 'ACHR',
-                'MAXR', 'SPIR', 'IRDM', 'VSAT', 'GSAT', 'ASTS', 'ORBC', 'GILT',
-                'CAT', 'HON', 'TXT', 'PH', 'ITT', 'CW', 'MOG-A'
+                'BA','LMT','RTX','NOC','GD','LHX','TDG','HWM','LDOS','KTOS',
+                'AVAV','RKLB','SPCE','ASTR','BLDE','JOBY','EVTL','LILM','ACHR',
+                'MAXR','SPIR','IRDM','VSAT','GSAT','ASTS','ORBC','GILT',
+                'CAT','HON','TXT','PH','ITT','CW','MOG-A',
+                'SAIC','HII'
             ],
             'QUANTUM': [
-                # 양자컴퓨터 관련 기업들
-                'IBM', 'GOOGL', 'MSFT', 'NVDA', 'INTC', 'AMD', 'QCOM', 'MRVL',
-                'IONQ', 'RGTI', 'QUBT', 'ARQQ', 'QTUM', 'DEFN', 'AMZN', 'CRM',
-                'ORCL', 'CSCO', 'TSM', 'ASML', 'KLAC', 'LRCX', 'AMAT', 'TXN'
+                'IBM','GOOGL','MSFT','NVDA','INTC','AMD','QCOM','MRVL',
+                'IONQ','RGTI','QUBT','ARQQ','QTUM','DEFN','AMZN','CRM',
+                'ORCL','CSCO','TSM','ASML','KLAC','LRCX','AMAT','TXN'
             ],
             'LONGEVITY': [
-                # 노화역전/장수 기업들
-                'GILD', 'AMGN', 'REGN', 'VRTX', 'BIIB', 'MRNA', 'NVAX', 'BNTX', 'ILMN',
-                'TMO', 'DHR', 'A', 'DXCM', 'ISRG', 'VEEV', 'BSX', 'MDT', 'ABT', 'NTRA',
-                'JNJ', 'PFE', 'ABBV', 'LLY', 'BMY', 'MRK', 'GSK', 'NVO', 'AZN',
-                'UNITY', 'SEER', 'TWST', 'CRSP', 'EDIT', 'NTLA', 'BEAM', 'VERV'
+                'GILD','AMGN','REGN','VRTX','BIIB','MRNA','NVAX','BNTX','ILMN',
+                'TMO','DHR','A','DXCM','ISRG','VEEV','BSX','MDT','ABT','NTRA',
+                'JNJ','PFE','ABBV','LLY','BMY','MRK','GSK','NVO','AZN',
+                'UNITY','SEER','TWST','CRSP','EDIT','NTLA','BEAM','VERV'
             ],
             'SYNTHETIC_BIO': [
-                # 합성생물학 기업들
-                'TWST', 'CRSP', 'EDIT', 'NTLA', 'BEAM', 'VERV', 'SEER', 'UNITY', 'FATE',
-                'BLUE', 'GILD', 'MRNA', 'BNTX', 'NVAX', 'DNA', 'SYN', 'AMRS',
-                'CODX', 'PACB', 'ILMN', 'TMO', 'DHR', 'A', 'LIFE', 'BIO', 'CDNA',
-                'FOLD', 'RGNX', 'SGEN', 'HALO', 'EVGN', 'CYTK', 'ABUS', 'IMUX'
+                'TWST','CRSP','EDIT','NTLA','BEAM','VERV','SEER','UNITY','FATE',
+                'BLUE','GILD','MRNA','BNTX','NVAX','DNA','SYN','AMRS',
+                'CODX','PACB','ILMN','TMO','DHR','A','LIFE','BIO','CDNA',
+                'FOLD','RGNX','SGEN','HALO','EVGN','CYTK','ABUS','IMUX'
             ],
             'STABLECOIN': [
-                # 스테이블코인/암호화폐 관련 기업들
-                'COIN', 'MSTR', 'RIOT', 'MARA', 'CLSK', 'BITF', 'HUT', 'CAN', 'BTBT',
-                'SQ', 'PYPL', 'MA', 'V', 'NVDA', 'AMD', 'TSLA', 'HOOD', 'SOFI',
-                'AFRM', 'UPST', 'LC', 'GBTC', 'ETHE', 'LTCN', 'BITO', 'ARKK'
+                'COIN','MSTR','RIOT','MARA','CLSK','BITF','HUT','CAN','BTBT',
+                'SQ','PYPL','MA','V','NVDA','AMD','TSLA','HOOD','SOFI',
+                'AFRM','UPST','LC','GBTC','ETHE','LTCN','BITO','ARKK',
+                'CME'
             ],
             'DATACENTER_COOLING': [
-                # 데이터센터 냉각기술 기업들
-                'NVDA', 'AMD', 'INTC', 'QCOM', 'MRVL', 'AMAT', 'LRCX', 'KLAC',
-                'JCI', 'CARR', 'ITW', 'EMR', 'HON', 'DHR', 'TMO', 'WAT', 'XYL',
-                'VLTO', 'CGNX', 'TER', 'KEYS', 'NOVT', 'NDSN', 'HUBB',
-                'AAON', 'SMTC', 'EVTC', 'DLR', 'EQIX', 'AMT'
+                'NVDA','AMD','INTC','QCOM','MRVL','AMAT','LRCX','KLAC',
+                'JCI','CARR','ITW','EMR','HON','DHR','TMO','WAT','XYL',
+                'VLTO','CGNX','TER','KEYS','NOVT','NDSN','HUBB',
+                'AAON','SMTC','EVTC','DLR','EQIX','AMT'
             ],
             'BCI': [
-                # 뇌-컴퓨터 인터페이스(BCI) 기업들
-                'NVDA', 'GOOGL', 'MSFT', 'META', 'AAPL', 'TSLA', 'NEGG', 'SNAP', 'MRNA',
-                'ILMN', 'TMO', 'DHR', 'A', 'ISRG', 'VEEV', 'BSX', 'MDT', 'ABT',
-                'JNJ', 'DXCM', 'CTRL', 'NURO', 'SYNC', 'LFMD', 'AXGN', 'PRTS',
-                'GMED', 'KALA', 'INVA', 'PHVS', 'SENS', 'CRMD', 'KRYS', 'ATNF'
+                'NVDA','GOOGL','MSFT','META','AAPL','TSLA','NEGG','SNAP','MRNA',
+                'ILMN','TMO','DHR','A','ISRG','VEEV','BSX','MDT','ABT',
+                'JNJ','DXCM','CTRL','NURO','SYNC','LFMD','AXGN','PRTS',
+                'GMED','KALA','INVA','PHVS','SENS','CRMD','KRYS','ATNF',
+                'PLTR'
+            ],
+            'DATA_CENTER_POWER': [
+                'ETN','ABB','AOSL','BE'
+            ],
+            'DATA_CENTER_ENERGY': [
+                'CEG','D','NEE'
+            ],
+            'HYDROGEN_ENERGY': [
+                'PLUG','APD','LIN','BE'
+            ],
+            'ESS': [
+                'TSLA','ENPH','BLDP'
+            ],
+            'DATA_CENTER_INFRASTRUCTURE': [
+                'EQIX','DLR','AMT'
+            ],
+            'MEGA_CAP_LEADERS': [
+                'AAPL','MSFT','GOOGL','AMZN','NVDA'
+            ],
+            'CYBERSECURITY': [
+                'PANW','CRWD','ZS','FTNT'
+            ],
+            'SATELLITE_COMMUNICATIONS': [
+                'VSAT','ORBC','IRDM'
+            ],
+            'SUBSEA_CABLES': [
+                'TE'
+            ],
+            'OCEAN_PLASTICS': [
+                # 해당 분야 상장사 적으므로 참조용으로 제한
+                'MPC'
             ],
             'FUTURE_LEADERS': [
                 # 미래 대장주 후보들 (각 섹터의 최고 유망주만 선별)
@@ -1342,6 +1369,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
