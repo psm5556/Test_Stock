@@ -66,7 +66,7 @@ class StockAnalyzer:
             'LONGEVITY': [
                 # 노화역전/장수 기업들
                 'GILD', 'AMGN', 'REGN', 'VRTX', 'BIIB', 'MRNA', 'NVAX', 'BNTX', 'ILMN',
-                'TMO', 'DHR', 'A', 'DXCM', 'ISRG', 'VEEV', 'BSX', 'MDT', 'ABT',
+                'TMO', 'DHR', 'A', 'DXCM', 'ISRG', 'VEEV', 'BSX', 'MDT', 'ABT', 'NTRA',
                 'JNJ', 'PFE', 'ABBV', 'LLY', 'BMY', 'MRK', 'GSK', 'NVO', 'AZN',
                 'UNITY', 'SEER', 'TWST', 'CRSP', 'EDIT', 'NTLA', 'BEAM', 'VERV'
             ],
@@ -104,7 +104,7 @@ class StockAnalyzer:
                 # ⚛️ 양자컴퓨터 대장주  
                 'IONQ', 'RGTI', 'QUBT', 'IBM', 'GOOGL', 'NVDA', 'MSFT',
                 # 🧬 노화역전/장수 대장주
-                'UNITY', 'CRSP', 'EDIT', 'NTLA', 'BEAM', 'VERV', 'TWST', 'GILD', 'MRNA',
+                'UNITY', 'CRSP', 'EDIT', 'NTLA', 'BEAM', 'VERV', 'TWST', 'GILD', 'MRNA', 'NTRA',
                 # 🔬 합성생물학 대장주
                 'DNA', 'TWST', 'AMRS', 'CRSP', 'EDIT', 'FATE', 'BLUE', 'SYN',
                 # 💰 스테이블코인/암호화폐 대장주
@@ -1342,6 +1342,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
