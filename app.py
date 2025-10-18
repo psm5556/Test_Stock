@@ -173,7 +173,7 @@ class StockAnalyzer:
         ]
     
     def _get_nasdaq_symbols_full(self):
-        """NASDAQ 전체 주요 기업 리스트 (주요 기술주 중심 400개+)"""
+        """NASDAQ100 기업 리스트 (주요 기술주 중심 100개)"""
         return [
             'AAPL', 'ABNB', 'ADBE', 'ADI', 'ADP', 'ADSK', 'AEP', 'AFRM', 'AKAM', 'ALGN',
             'AMAT', 'AMD', 'AMGN', 'AMZN', 'ANET', 'ANSS', 'APP', 'ARM', 'ASML', 'AVGO',
@@ -1299,4 +1299,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
