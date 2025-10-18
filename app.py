@@ -17,102 +17,7 @@ warnings.filterwarnings('ignore')
 
 API_KEY = "YGXwKuHiww6A0W1xRhg9ruL97gBZ3yf2"
 
-"""섹터별 주요 기업 심볼 가져오기"""
-sector_symbols = {
-    'AEROSPACE': [
-        'BA','LMT','RTX','NOC','GD','LHX','TDG','HWM','LDOS','KTOS',
-        'AVAV','RKLB','SPCE','ASTR','BLDE','JOBY','EVTL','LILM','ACHR',
-        'MAXR','SPIR','IRDM','VSAT','GSAT','ASTS','ORBC','GILT',
-        'CAT','HON','TXT','PH','ITT','CW','MOG-A',
-        'SAIC','HII'
-    ],
-    'QUANTUM': [
-        'IBM','GOOGL','MSFT','NVDA','INTC','AMD','QCOM','MRVL',
-        'IONQ','RGTI','QUBT','ARQQ','QTUM','DEFN','AMZN','CRM',
-        'ORCL','CSCO','TSM','ASML','KLAC','LRCX','AMAT','TXN'
-    ],
-    'LONGEVITY': [
-        'GILD','AMGN','REGN','VRTX','BIIB','MRNA','NVAX','BNTX','ILMN',
-        'TMO','DHR','A','DXCM','ISRG','VEEV','BSX','MDT','ABT','NTRA',
-        'JNJ','PFE','ABBV','LLY','BMY','MRK','GSK','NVO','AZN',
-        'UNITY','SEER','TWST','CRSP','EDIT','NTLA','BEAM','VERV'
-    ],
-    'SYNTHETIC_BIO': [
-        'TWST','CRSP','EDIT','NTLA','BEAM','VERV','SEER','UNITY','FATE',
-        'BLUE','GILD','MRNA','BNTX','NVAX','DNA','SYN','AMRS',
-        'CODX','PACB','ILMN','TMO','DHR','A','LIFE','BIO','CDNA',
-        'FOLD','RGNX','SGEN','HALO','EVGN','CYTK','ABUS','IMUX'
-    ],
-    'STABLECOIN': [
-        'COIN','MSTR','RIOT','MARA','CLSK','BITF','HUT','CAN','BTBT',
-        'SQ','PYPL','MA','V','NVDA','AMD','TSLA','HOOD','SOFI',
-        'AFRM','UPST','LC','GBTC','ETHE','LTCN','BITO','ARKK',
-        'CME'
-    ],
-    'DATACENTER_COOLING': [
-        'NVDA','AMD','INTC','QCOM','MRVL','AMAT','LRCX','KLAC',
-        'JCI','CARR','ITW','EMR','HON','DHR','TMO','WAT','XYL',
-        'VLTO','CGNX','TER','KEYS','NOVT','NDSN','HUBB',
-        'AAON','SMTC','EVTC','DLR','EQIX','AMT'
-    ],
-    'BCI': [
-        'NVDA','GOOGL','MSFT','META','AAPL','TSLA','NEGG','SNAP','MRNA',
-        'ILMN','TMO','DHR','A','ISRG','VEEV','BSX','MDT','ABT',
-        'JNJ','DXCM','CTRL','NURO','SYNC','LFMD','AXGN','PRTS',
-        'GMED','KALA','INVA','PHVS','SENS','CRMD','KRYS','ATNF',
-        'PLTR'
-    ],
-    'DATA_CENTER_POWER': [
-        'ETN','ABB','AOSL','BE'
-    ],
-    'DATA_CENTER_ENERGY': [
-        'CEG','D','NEE'
-    ],
-    'HYDROGEN_ENERGY': [
-        'PLUG','APD','LIN','BE'
-    ],
-    'ESS': [
-        'TSLA','ENPH','BLDP'
-    ],
-    'DATA_CENTER_INFRASTRUCTURE': [
-        'EQIX','DLR','AMT'
-    ],
-    'MEGA_CAP_LEADERS': [
-        'AAPL','MSFT','GOOGL','AMZN','NVDA'
-    ],
-    'CYBERSECURITY': [
-        'PANW','CRWD','ZS','FTNT'
-    ],
-    'SATELLITE_COMMUNICATIONS': [
-        'VSAT','ORBC','IRDM'
-    ],
-    'SUBSEA_CABLES': [
-        'TE'
-    ],
-    'OCEAN_PLASTICS': [
-        # 해당 분야 상장사 적으므로 참조용으로 제한
-        'MPC'
-    ],
-    'FUTURE_LEADERS': [
-        # 미래 대장주 후보들 (각 섹터의 최고 유망주만 선별)
-        # 🚀 우주항공 대장주
-        'RKLB', 'SPCE', 'BA', 'LMT', 'RTX', 'NOC', 'MAXR', 'ASTS',
-        # ⚛️ 양자컴퓨터 대장주  
-        'IONQ', 'RGTI', 'QUBT', 'IBM', 'GOOGL', 'NVDA', 'MSFT',
-        # 🧬 노화역전/장수 대장주
-        'UNITY', 'CRSP', 'EDIT', 'NTLA', 'BEAM', 'VERV', 'TWST', 'GILD', 'MRNA', 'NTRA',
-        # 🔬 합성생물학 대장주
-        'DNA', 'TWST', 'AMRS', 'CRSP', 'EDIT', 'FATE', 'BLUE', 'SYN',
-        # 💰 스테이블코인/암호화폐 대장주
-        'COIN', 'MSTR', 'RIOT', 'MARA', 'CLSK', 'SQ', 'PYPL', 'HOOD',
-        # ❄️ 데이터센터 냉각 대장주
-        'NVDA', 'AMD', 'JCI', 'CARR', 'XYL', 'SMTC', 'DLR', 'EQIX',
-        # 🧠 BCI 대장주
-        'NVDA', 'TSLA', 'META', 'GOOGL', 'ISRG', 'DXCM', 'BSX', 'SYNC',
-        # 🤖 AI/로봇 대장주
-        'NVDA', 'AMD', 'GOOGL', 'MSFT', 'TSLA', 'META', 'PLTR', 'C3AI'
-    ]
-}
+
 
 class StockAnalyzer:
     """주식 기술적 분석을 위한 클래스"""
@@ -145,7 +50,102 @@ class StockAnalyzer:
         }
     
     def _get_sector_symbols(self, sector_type):
-        sector_symbols
+        """섹터별 주요 기업 심볼 가져오기"""
+        sector_symbols = {
+            'AEROSPACE': [
+                'BA','LMT','RTX','NOC','GD','LHX','TDG','HWM','LDOS','KTOS',
+                'AVAV','RKLB','SPCE','ASTR','BLDE','JOBY','EVTL','LILM','ACHR',
+                'MAXR','SPIR','IRDM','VSAT','GSAT','ASTS','ORBC','GILT',
+                'CAT','HON','TXT','PH','ITT','CW','MOG-A',
+                'SAIC','HII'
+            ],
+            'QUANTUM': [
+                'IBM','GOOGL','MSFT','NVDA','INTC','AMD','QCOM','MRVL',
+                'IONQ','RGTI','QUBT','ARQQ','QTUM','DEFN','AMZN','CRM',
+                'ORCL','CSCO','TSM','ASML','KLAC','LRCX','AMAT','TXN'
+            ],
+            'LONGEVITY': [
+                'GILD','AMGN','REGN','VRTX','BIIB','MRNA','NVAX','BNTX','ILMN',
+                'TMO','DHR','A','DXCM','ISRG','VEEV','BSX','MDT','ABT','NTRA',
+                'JNJ','PFE','ABBV','LLY','BMY','MRK','GSK','NVO','AZN',
+                'UNITY','SEER','TWST','CRSP','EDIT','NTLA','BEAM','VERV'
+            ],
+            'SYNTHETIC_BIO': [
+                'TWST','CRSP','EDIT','NTLA','BEAM','VERV','SEER','UNITY','FATE',
+                'BLUE','GILD','MRNA','BNTX','NVAX','DNA','SYN','AMRS',
+                'CODX','PACB','ILMN','TMO','DHR','A','LIFE','BIO','CDNA',
+                'FOLD','RGNX','SGEN','HALO','EVGN','CYTK','ABUS','IMUX'
+            ],
+            'STABLECOIN': [
+                'COIN','MSTR','RIOT','MARA','CLSK','BITF','HUT','CAN','BTBT',
+                'SQ','PYPL','MA','V','NVDA','AMD','TSLA','HOOD','SOFI',
+                'AFRM','UPST','LC','GBTC','ETHE','LTCN','BITO','ARKK',
+                'CME'
+            ],
+            'DATACENTER_COOLING': [
+                'NVDA','AMD','INTC','QCOM','MRVL','AMAT','LRCX','KLAC',
+                'JCI','CARR','ITW','EMR','HON','DHR','TMO','WAT','XYL',
+                'VLTO','CGNX','TER','KEYS','NOVT','NDSN','HUBB',
+                'AAON','SMTC','EVTC','DLR','EQIX','AMT'
+            ],
+            'BCI': [
+                'NVDA','GOOGL','MSFT','META','AAPL','TSLA','NEGG','SNAP','MRNA',
+                'ILMN','TMO','DHR','A','ISRG','VEEV','BSX','MDT','ABT',
+                'JNJ','DXCM','CTRL','NURO','SYNC','LFMD','AXGN','PRTS',
+                'GMED','KALA','INVA','PHVS','SENS','CRMD','KRYS','ATNF',
+                'PLTR'
+            ],
+            'DATA_CENTER_POWER': [
+                'ETN','ABB','AOSL','BE'
+            ],
+            'DATA_CENTER_ENERGY': [
+                'CEG','D','NEE'
+            ],
+            'HYDROGEN_ENERGY': [
+                'PLUG','APD','LIN','BE'
+            ],
+            'ESS': [
+                'TSLA','ENPH','BLDP'
+            ],
+            'DATA_CENTER_INFRASTRUCTURE': [
+                'EQIX','DLR','AMT'
+            ],
+            'MEGA_CAP_LEADERS': [
+                'AAPL','MSFT','GOOGL','AMZN','NVDA'
+            ],
+            'CYBERSECURITY': [
+                'PANW','CRWD','ZS','FTNT'
+            ],
+            'SATELLITE_COMMUNICATIONS': [
+                'VSAT','ORBC','IRDM'
+            ],
+            'SUBSEA_CABLES': [
+                'TE'
+            ],
+            'OCEAN_PLASTICS': [
+                # 해당 분야 상장사 적으므로 참조용으로 제한
+                'MPC'
+            ],
+            'FUTURE_LEADERS': [
+                # 미래 대장주 후보들 (각 섹터의 최고 유망주만 선별)
+                # 🚀 우주항공 대장주
+                'RKLB', 'SPCE', 'BA', 'LMT', 'RTX', 'NOC', 'MAXR', 'ASTS',
+                # ⚛️ 양자컴퓨터 대장주  
+                'IONQ', 'RGTI', 'QUBT', 'IBM', 'GOOGL', 'NVDA', 'MSFT',
+                # 🧬 노화역전/장수 대장주
+                'UNITY', 'CRSP', 'EDIT', 'NTLA', 'BEAM', 'VERV', 'TWST', 'GILD', 'MRNA', 'NTRA',
+                # 🔬 합성생물학 대장주
+                'DNA', 'TWST', 'AMRS', 'CRSP', 'EDIT', 'FATE', 'BLUE', 'SYN',
+                # 💰 스테이블코인/암호화폐 대장주
+                'COIN', 'MSTR', 'RIOT', 'MARA', 'CLSK', 'SQ', 'PYPL', 'HOOD',
+                # ❄️ 데이터센터 냉각 대장주
+                'NVDA', 'AMD', 'JCI', 'CARR', 'XYL', 'SMTC', 'DLR', 'EQIX',
+                # 🧠 BCI 대장주
+                'NVDA', 'TSLA', 'META', 'GOOGL', 'ISRG', 'DXCM', 'BSX', 'SYNC',
+                # 🤖 AI/로봇 대장주
+                'NVDA', 'AMD', 'GOOGL', 'MSFT', 'TSLA', 'META', 'PLTR', 'C3AI'
+            ]
+        }
         
         return sector_symbols.get(sector_type, [])
         
@@ -1079,7 +1079,7 @@ def main():
             'ALL': '900개+'
         }
         st.sidebar.warning(f"⚠️ {market} 전체 분석 예상 시간: 5분 이내\n예상 종목 수: {expected_count[market]}")
-    elif market in sector_symbols:
+    elif market in sector_symbols.keys():
         sector_info = {
             'FUTURE_LEADERS': '🌟 미래 대장주 엄선 약 60개 기업 (각 섹터 최고 유망주)',
             'AEROSPACE': '🚀 우주항공·방위산업 관련 약 35개 기업',
@@ -1432,6 +1432,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
