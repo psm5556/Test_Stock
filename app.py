@@ -118,81 +118,88 @@ class StockAnalyzer:
         
     def _get_sp500_symbols_full(self):
         """S&P 500 전체 기업 리스트 (500개)"""
-        return [
-            'MSFT', 'NVDA', 'AAPL', 'AMZN', 'META', 'AVGO', 'GOOGL', 'TSLA', 'BRK-B', 'GOOG',
-            'JPM', 'V', 'LLY', 'NFLX', 'MA', 'COST', 'XOM', 'WMT', 'PG', 'JNJ',
-            'HD', 'ABBV', 'BAC', 'UNH', 'KO', 'PM', 'CRM', 'ORCL', 'CSCO', 'GE',
-            'PLTR', 'IBM', 'WFC', 'ABT', 'MCD', 'CVX', 'LIN', 'NOW', 'DIS', 'ACN',
-            'T', 'ISRG', 'MRK', 'UBER', 'GS', 'INTU', 'VZ', 'AMD', 'ADBE', 'RTX',
-            'PEP', 'BKNG', 'TXN', 'QCOM', 'PGR', 'CAT', 'SPGI', 'AXP', 'MS', 'BSX',
-            'BA', 'TMO', 'SCHW', 'TJX', 'NEE', 'AMGN', 'HON', 'BLK', 'C', 'UNP',
-            'GILD', 'CMCSA', 'AMAT', 'ADP', 'PFE', 'SYK', 'DE', 'LOW', 'ETN', 'GEV',
-            'PANW', 'DHR', 'COF', 'TMUS', 'MMC', 'VRTX', 'COP', 'ADI', 'MDT', 'CB',
-            'CRWD', 'MU', 'LRCX', 'APH', 'KLAC', 'CME', 'MO', 'BX', 'ICE', 'AMT',
-            'LMT', 'SO', 'PLD', 'ANET', 'BMY', 'TT', 'SBUX', 'ELV', 'FI', 'DUK',
-            'WELL', 'MCK', 'CEG', 'INTC', 'CDNS', 'CI', 'AJG', 'WM', 'PH', 'MDLZ',
-            'EQIX', 'SHW', 'MMM', 'KKR', 'TDG', 'ORLY', 'CVS', 'SNPS', 'AON', 'CTAS',
-            'CL', 'MCO', 'ZTS', 'MSI', 'PYPL', 'NKE', 'WMB', 'GD', 'UPS', 'DASH',
-            'CMG', 'HCA', 'PNC', 'USB', 'HWM', 'ECL', 'EMR', 'ITW', 'FTNT', 'AZO',
-            'NOC', 'JCI', 'BK', 'REGN', 'ADSK', 'EOG', 'TRV', 'ROP', 'APD', 'NEM',
-            'MAR', 'HLT', 'RCL', 'CSX', 'APO', 'CARR', 'WDAY', 'ABNB', 'AEP', 'COIN',
-            'FCX', 'ALL', 'NSC', 'CPRT', 'AXON', 'KMI', 'DLR', 'NXPI', 'VST', 'TFC',
-            'AFL', 'RSG', 'OKE', 'ROST', 'PWR', 'COR', 'PAYX', 'BDX', 'MPC',
-            'PCAR', 'AMP', 'GM', 'AIG', 'SRE', 'SPG', 'O', 'FDX', 'GWW', 'TEL',
-            'D', 'SLB', 'CTVA', 'KMB', 'FAST', 'PSA', 'PSX', 'KVUE', 'KR', 'KDP',
-            'URI', 'MET', 'EW', 'EXC', 'CMI', 'CCI', 'VRSK', 'MNST', 'LHX', 'MSCI',
-            'TGT', 'FIS', 'FICO', 'AME', 'IDXX', 'YUM', 'F', 'VLO', 'XEL', 'CHTR',
-            'CTSH', 'PEG', 'OTIS', 'PCG', 'HIG', 'GLW', 'TTWO', 'CAH', 'ED', 'BKR',
-            'RMD', 'PRU', 'HES', 'VMC', 'CBRE', 'EA', 'LULU', 'ETR', 'SYY', 'TRGP',
-            'DELL', 'ACGL', 'WAB', 'EBAY', 'MLM', 'ROK', 'IT', 'DHI', 'WEC', 'NDAQ',
-            'EQT', 'DXCM', 'VICI', 'IR', 'MPWR', 'EFX', 'GEHC', 'MCHP', 'NRG', 'CSGP',
-            'A', 'WTW', 'DAL', 'ODFL', 'GRMN', 'EXR', 'XYL', 'CNC', 'ANSS', 'MTB',
-            'HUM', 'GIS', 'STZ', 'AVB', 'DD', 'IRM', 'DTE', 'KEYS', 'BR', 'AWK',
-            'VTR', 'OXY', 'STT', 'RJF', 'HPQ', 'TSCO', 'BRO', 'NUE', 'AEE', 'PPG',
-            'GDDY', 'PPL', 'IP', 'TPL', 'FANG', 'FITB', 'ATO', 'VLTO', 'SBAC', 'LEN',
-            'DOV', 'CNP', 'TYL', 'CDW', 'STE', 'UAL', 'EXPE', 'FTV', 'CBOE', 'MTD',
-            'DRI', 'EQR', 'ES', 'CHD', 'KHC', 'ADM', 'HPE', 'IQV', 'CCL', 'VRSN',
-            'CINF', 'CPAY', 'TDY', 'PODD', 'LYV', 'HSY', 'SYF', 'HBAN', 'DG', 'K',
-            'EIX', 'STX', 'SW', 'WRB', 'FE', 'CMS', 'NVR', 'TROW', 'SMCI', 'LDOS',
-            'AMCR', 'DVN', 'WSM', 'NTRS', 'WAT', 'HUBB', 'PTC', 'NTAP', 'LH', 'DOW',
-            'PHM', 'WBD', 'IFF', 'EXPE', 'RF', 'INVH', 'DGX', 'LUV', 'ULTA', 'DECK',
-            'GPN', 'STLD', 'BIIB', 'ZBH', 'ON', 'WY', 'LII', 'MKC', 'MAA', 'NI',
-            'JBL', 'CTRA', 'DLTR', 'ESS', 'MOH', 'FDS', 'FSLR', 'GPC', 'CFG', 'HAL',
-            'TRMB', 'WDC', 'PKG', 'SNA', 'DPZ', 'FFIV', 'TPR', 'PFG', 'CLX', 'PNR',
-            'BALL', 'ROL', 'TSN', 'LNT', 'EXPD', 'COO', 'BAX', 'CF', 'L', 'KEY',
-            'J', 'APTV', 'EVRG', 'WST', 'GEN', 'EL', 'ZBRA', 'LYB', 'EG', 'AVY',
-            'OMC', 'LVS', 'KIM', 'BBY', 'IEX', 'TXT', 'JKHY', 'MAS', 'TER', 'BLDR',
-            'CPT', 'ALLE', 'HOLX', 'UDR', 'PAYC', 'ALGN', 'FOXA', 'SJM', 'JNPR', 'DOC',
-            'REG', 'POOL', 'AKAM', 'CHRW', 'SWKS', 'MOS', 'UHS', 'JBHT', 'RVTY', 'RL',
-            'CAG', 'NDSN', 'TKO', 'NWSA', 'ARE', 'LKQ', 'BG', 'EPAM', 'INCY', 'PNW',
-            'HST', 'SWK', 'VTRS', 'GL', 'SOLV', 'AIZ', 'KMX', 'TAP', 'BXP', 'EMN',
-            'DAY', 'IPG', 'HSIC', 'ERIE', 'HII', 'MRNA', 'HAS', 'HRL', 'WYNN', 'WBA',
-            'AOS', 'NCLH', 'TECH', 'MTCH', 'LW', 'GNRC', 'AES', 'FRT', 'PARA', 'MGM',
-            'CRL', 'FOX', 'CPB', 'BEN', 'ALB', 'IVZ', 'BF-B', 'APA', 'DVA', 'MHK',
-            'NWS', 'AMTM', 'APP', 'HOOD', 'EME'
-        ]
+        url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
+        df = pd.read_html(url, attrs={'id':'constituents'})[0]
+        tickers = df['Symbol'].tolist()
+        return tickers
+        # return [
+        #     'MSFT', 'NVDA', 'AAPL', 'AMZN', 'META', 'AVGO', 'GOOGL', 'TSLA', 'BRK-B', 'GOOG',
+        #     'JPM', 'V', 'LLY', 'NFLX', 'MA', 'COST', 'XOM', 'WMT', 'PG', 'JNJ',
+        #     'HD', 'ABBV', 'BAC', 'UNH', 'KO', 'PM', 'CRM', 'ORCL', 'CSCO', 'GE',
+        #     'PLTR', 'IBM', 'WFC', 'ABT', 'MCD', 'CVX', 'LIN', 'NOW', 'DIS', 'ACN',
+        #     'T', 'ISRG', 'MRK', 'UBER', 'GS', 'INTU', 'VZ', 'AMD', 'ADBE', 'RTX',
+        #     'PEP', 'BKNG', 'TXN', 'QCOM', 'PGR', 'CAT', 'SPGI', 'AXP', 'MS', 'BSX',
+        #     'BA', 'TMO', 'SCHW', 'TJX', 'NEE', 'AMGN', 'HON', 'BLK', 'C', 'UNP',
+        #     'GILD', 'CMCSA', 'AMAT', 'ADP', 'PFE', 'SYK', 'DE', 'LOW', 'ETN', 'GEV',
+        #     'PANW', 'DHR', 'COF', 'TMUS', 'MMC', 'VRTX', 'COP', 'ADI', 'MDT', 'CB',
+        #     'CRWD', 'MU', 'LRCX', 'APH', 'KLAC', 'CME', 'MO', 'BX', 'ICE', 'AMT',
+        #     'LMT', 'SO', 'PLD', 'ANET', 'BMY', 'TT', 'SBUX', 'ELV', 'FI', 'DUK',
+        #     'WELL', 'MCK', 'CEG', 'INTC', 'CDNS', 'CI', 'AJG', 'WM', 'PH', 'MDLZ',
+        #     'EQIX', 'SHW', 'MMM', 'KKR', 'TDG', 'ORLY', 'CVS', 'SNPS', 'AON', 'CTAS',
+        #     'CL', 'MCO', 'ZTS', 'MSI', 'PYPL', 'NKE', 'WMB', 'GD', 'UPS', 'DASH',
+        #     'CMG', 'HCA', 'PNC', 'USB', 'HWM', 'ECL', 'EMR', 'ITW', 'FTNT', 'AZO',
+        #     'NOC', 'JCI', 'BK', 'REGN', 'ADSK', 'EOG', 'TRV', 'ROP', 'APD', 'NEM',
+        #     'MAR', 'HLT', 'RCL', 'CSX', 'APO', 'CARR', 'WDAY', 'ABNB', 'AEP', 'COIN',
+        #     'FCX', 'ALL', 'NSC', 'CPRT', 'AXON', 'KMI', 'DLR', 'NXPI', 'VST', 'TFC',
+        #     'AFL', 'RSG', 'OKE', 'ROST', 'PWR', 'COR', 'PAYX', 'BDX', 'MPC',
+        #     'PCAR', 'AMP', 'GM', 'AIG', 'SRE', 'SPG', 'O', 'FDX', 'GWW', 'TEL',
+        #     'D', 'SLB', 'CTVA', 'KMB', 'FAST', 'PSA', 'PSX', 'KVUE', 'KR', 'KDP',
+        #     'URI', 'MET', 'EW', 'EXC', 'CMI', 'CCI', 'VRSK', 'MNST', 'LHX', 'MSCI',
+        #     'TGT', 'FIS', 'FICO', 'AME', 'IDXX', 'YUM', 'F', 'VLO', 'XEL', 'CHTR',
+        #     'CTSH', 'PEG', 'OTIS', 'PCG', 'HIG', 'GLW', 'TTWO', 'CAH', 'ED', 'BKR',
+        #     'RMD', 'PRU', 'HES', 'VMC', 'CBRE', 'EA', 'LULU', 'ETR', 'SYY', 'TRGP',
+        #     'DELL', 'ACGL', 'WAB', 'EBAY', 'MLM', 'ROK', 'IT', 'DHI', 'WEC', 'NDAQ',
+        #     'EQT', 'DXCM', 'VICI', 'IR', 'MPWR', 'EFX', 'GEHC', 'MCHP', 'NRG', 'CSGP',
+        #     'A', 'WTW', 'DAL', 'ODFL', 'GRMN', 'EXR', 'XYL', 'CNC', 'ANSS', 'MTB',
+        #     'HUM', 'GIS', 'STZ', 'AVB', 'DD', 'IRM', 'DTE', 'KEYS', 'BR', 'AWK',
+        #     'VTR', 'OXY', 'STT', 'RJF', 'HPQ', 'TSCO', 'BRO', 'NUE', 'AEE', 'PPG',
+        #     'GDDY', 'PPL', 'IP', 'TPL', 'FANG', 'FITB', 'ATO', 'VLTO', 'SBAC', 'LEN',
+        #     'DOV', 'CNP', 'TYL', 'CDW', 'STE', 'UAL', 'EXPE', 'FTV', 'CBOE', 'MTD',
+        #     'DRI', 'EQR', 'ES', 'CHD', 'KHC', 'ADM', 'HPE', 'IQV', 'CCL', 'VRSN',
+        #     'CINF', 'CPAY', 'TDY', 'PODD', 'LYV', 'HSY', 'SYF', 'HBAN', 'DG', 'K',
+        #     'EIX', 'STX', 'SW', 'WRB', 'FE', 'CMS', 'NVR', 'TROW', 'SMCI', 'LDOS',
+        #     'AMCR', 'DVN', 'WSM', 'NTRS', 'WAT', 'HUBB', 'PTC', 'NTAP', 'LH', 'DOW',
+        #     'PHM', 'WBD', 'IFF', 'EXPE', 'RF', 'INVH', 'DGX', 'LUV', 'ULTA', 'DECK',
+        #     'GPN', 'STLD', 'BIIB', 'ZBH', 'ON', 'WY', 'LII', 'MKC', 'MAA', 'NI',
+        #     'JBL', 'CTRA', 'DLTR', 'ESS', 'MOH', 'FDS', 'FSLR', 'GPC', 'CFG', 'HAL',
+        #     'TRMB', 'WDC', 'PKG', 'SNA', 'DPZ', 'FFIV', 'TPR', 'PFG', 'CLX', 'PNR',
+        #     'BALL', 'ROL', 'TSN', 'LNT', 'EXPD', 'COO', 'BAX', 'CF', 'L', 'KEY',
+        #     'J', 'APTV', 'EVRG', 'WST', 'GEN', 'EL', 'ZBRA', 'LYB', 'EG', 'AVY',
+        #     'OMC', 'LVS', 'KIM', 'BBY', 'IEX', 'TXT', 'JKHY', 'MAS', 'TER', 'BLDR',
+        #     'CPT', 'ALLE', 'HOLX', 'UDR', 'PAYC', 'ALGN', 'FOXA', 'SJM', 'JNPR', 'DOC',
+        #     'REG', 'POOL', 'AKAM', 'CHRW', 'SWKS', 'MOS', 'UHS', 'JBHT', 'RVTY', 'RL',
+        #     'CAG', 'NDSN', 'TKO', 'NWSA', 'ARE', 'LKQ', 'BG', 'EPAM', 'INCY', 'PNW',
+        #     'HST', 'SWK', 'VTRS', 'GL', 'SOLV', 'AIZ', 'KMX', 'TAP', 'BXP', 'EMN',
+        #     'DAY', 'IPG', 'HSIC', 'ERIE', 'HII', 'MRNA', 'HAS', 'HRL', 'WYNN', 'WBA',
+        #     'AOS', 'NCLH', 'TECH', 'MTCH', 'LW', 'GNRC', 'AES', 'FRT', 'PARA', 'MGM',
+        #     'CRL', 'FOX', 'CPB', 'BEN', 'ALB', 'IVZ', 'BF-B', 'APA', 'DVA', 'MHK',
+        #     'NWS', 'AMTM', 'APP', 'HOOD', 'EME'
+        # ]
     
     def _get_nasdaq_symbols_full(self):
         """NASDAQ100 기업 리스트 (주요 기술주 중심 100개)"""
-        return [
-            'AAPL', 'ABNB', 'ADBE', 'ADI', 'ADP', 'ADSK', 'AEP', 'AFRM', 'AKAM', 'ALGN',
-            'AMAT', 'AMD', 'AMGN', 'AMZN', 'ANET', 'ANSS', 'APP', 'ARM', 'ASML', 'AVGO',
-            'AXON', 'AZN', 'BIDU', 'BIIB', 'BKNG', 'BKR', 'BMRN', 'CCEP', 'CDNS', 'CDW',
-            'CEG', 'CHTR', 'CMCSA', 'COIN', 'COST', 'CPRT', 'CRM', 'CRWD', 'CSCO', 'CSGP',
-            'CSX', 'CTAS', 'CTSH', 'CTXS', 'DASH', 'DDOG', 'DLTR', 'DOCU', 'DXCM', 'EA',
-            'EBAY', 'ENPH', 'EXC', 'EXPD', 'FANG', 'FAST', 'FICO', 'FISV', 'FOX', 'FOXA',
-            'FSLR', 'FTNT', 'FUBO', 'GEHC', 'GFS', 'GILD', 'GOOG', 'GOOGL', 'GRMN', 'HON',
-            'HOOD', 'IDXX', 'ILMN', 'INCY', 'INTC', 'INTU', 'ISRG', 'JD', 'JNPR', 'KDP',
-            'KHC', 'KLAC', 'LCID', 'LIN', 'LRCX', 'LULU', 'LYFT', 'MAR', 'MCHP', 'MDLZ',
-            'MELI', 'META', 'MNST', 'MPWR', 'MRNA', 'MRVL', 'MSFT', 'MSTR', 'MU', 'NDAQ',
-            'NFLX', 'NOW', 'NTAP', 'NTES', 'NVDA', 'NXPI', 'ODFL', 'OKTA', 'ON', 'ORLY',
-            'PANW', 'PAYX', 'PCAR', 'PCTY', 'PDD', 'PEP', 'PINS', 'PLTR', 'PLUG', 'PODD',
-            'PTON', 'PYPL', 'QCOM', 'RBLX', 'REGN', 'RIVN', 'ROKU', 'ROP', 'ROST', 'SBUX',
-            'SGEN', 'SHOP', 'SIRI', 'SMCI', 'SNAP', 'SNOW', 'SNPS', 'SOFI', 'SPLK', 'SPOT',
-            'SQ', 'SWKS', 'TEAM', 'TECH', 'TMUS', 'TRI', 'TSLA', 'TTD', 'TTWO', 'TXN',
-            'UBER', 'ULTA', 'UPST', 'VRSK', 'VRTX', 'WBA', 'WBD', 'WDAY', 'WDC', 'XEL',
-            'XRAY', 'ZG', 'ZI', 'ZM', 'ZS'
-        ]
+        url = 'https://en.wikipedia.org/wiki/Nasdaq-100'
+        df = pd.read_html(url)[0]
+        tickers = df['Ticker'].tolist()
+        # return [
+        #     'AAPL', 'ABNB', 'ADBE', 'ADI', 'ADP', 'ADSK', 'AEP', 'AFRM', 'AKAM', 'ALGN',
+        #     'AMAT', 'AMD', 'AMGN', 'AMZN', 'ANET', 'ANSS', 'APP', 'ARM', 'ASML', 'AVGO',
+        #     'AXON', 'AZN', 'BIDU', 'BIIB', 'BKNG', 'BKR', 'BMRN', 'CCEP', 'CDNS', 'CDW',
+        #     'CEG', 'CHTR', 'CMCSA', 'COIN', 'COST', 'CPRT', 'CRM', 'CRWD', 'CSCO', 'CSGP',
+        #     'CSX', 'CTAS', 'CTSH', 'CTXS', 'DASH', 'DDOG', 'DLTR', 'DOCU', 'DXCM', 'EA',
+        #     'EBAY', 'ENPH', 'EXC', 'EXPD', 'FANG', 'FAST', 'FICO', 'FISV', 'FOX', 'FOXA',
+        #     'FSLR', 'FTNT', 'FUBO', 'GEHC', 'GFS', 'GILD', 'GOOG', 'GOOGL', 'GRMN', 'HON',
+        #     'HOOD', 'IDXX', 'ILMN', 'INCY', 'INTC', 'INTU', 'ISRG', 'JD', 'JNPR', 'KDP',
+        #     'KHC', 'KLAC', 'LCID', 'LIN', 'LRCX', 'LULU', 'LYFT', 'MAR', 'MCHP', 'MDLZ',
+        #     'MELI', 'META', 'MNST', 'MPWR', 'MRNA', 'MRVL', 'MSFT', 'MSTR', 'MU', 'NDAQ',
+        #     'NFLX', 'NOW', 'NTAP', 'NTES', 'NVDA', 'NXPI', 'ODFL', 'OKTA', 'ON', 'ORLY',
+        #     'PANW', 'PAYX', 'PCAR', 'PCTY', 'PDD', 'PEP', 'PINS', 'PLTR', 'PLUG', 'PODD',
+        #     'PTON', 'PYPL', 'QCOM', 'RBLX', 'REGN', 'RIVN', 'ROKU', 'ROP', 'ROST', 'SBUX',
+        #     'SGEN', 'SHOP', 'SIRI', 'SMCI', 'SNAP', 'SNOW', 'SNPS', 'SOFI', 'SPLK', 'SPOT',
+        #     'SQ', 'SWKS', 'TEAM', 'TECH', 'TMUS', 'TRI', 'TSLA', 'TTD', 'TTWO', 'TXN',
+        #     'UBER', 'ULTA', 'UPST', 'VRSK', 'VRTX', 'WBA', 'WBD', 'WDAY', 'WDC', 'XEL',
+        #     'XRAY', 'ZG', 'ZI', 'ZM', 'ZS'
+        # ]
     
     def _get_us_market_cap_from_yahoo(self, market_type='SP500', limit=None):
         """미국 시가총액 상위 종목 가져오기 (전체 리스트 + 섹터별)"""
@@ -1299,5 +1306,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
