@@ -250,7 +250,10 @@ class StockAnalyzer:
                 sp500 = self._get_sp500_symbols_full()
                 nasdaq = self._get_nasdaq_symbols_full()
                 symbols = list(set(sp500 + nasdaq))  # 중복 제거
-            elif market_type in ['AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN', 'DATACENTER_COOLING', 'BCI', 'FUTURE_LEADERS']:
+            elif market_type in ['AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN', 'DATACENTER_COOLING', 'BCI', 'FUTURE_LEADERS','DATA_CENTER_POWER', 'DATA_CENTER_ENERGY', 'HYDROGEN_ENERGY',
+                'ESS', 'DATA_CENTER_INFRASTRUCTURE', 'MEGA_CAP_LEADERS',
+                'CYBERSECURITY', 'SATELLITE_COMMUNICATIONS', 'SUBSEA_CABLES', 'OCEAN_PLASTICS'
+            ]:
                 # 섹터별 종목 가져오기
                 symbols = self._get_sector_symbols(market_type)
             else:
@@ -1446,6 +1449,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
