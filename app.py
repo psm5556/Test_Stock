@@ -1017,7 +1017,14 @@ def main():
     
     market = st.sidebar.selectbox(
         "시장/섹터 선택",
-        options=['SP500', 'NASDAQ', 'ALL', 'KOSPI', 'KOSDAQ', 'FUTURE_LEADERS', 'AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN', 'DATACENTER_COOLING', 'BCI'],
+        options=[
+            'SP500','NASDAQ','ALL','KOSPI','KOSDAQ',
+            'FUTURE_LEADERS','AEROSPACE','QUANTUM','LONGEVITY',
+            'SYNTHETIC_BIO','STABLECOIN','DATACENTER_COOLING','BCI',
+            'DATA_CENTER_POWER','DATA_CENTER_ENERGY','HYDROGEN','ESS',
+            'DATA_CENTER_INFRASTRUCTURE','MEGA_CAP_LEADERS','CYBERSECURITY',
+            'SATELLITE_COMMUNICATIONS','SUBSEA_CABLES','OCEAN_PLASTICS'
+        ],
         format_func=lambda x: {
             'SP500': 'S&P 500 (전체 500개)',
             'NASDAQ': 'NASDAQ (전체 주요 기술주)',
@@ -1031,7 +1038,17 @@ def main():
             'SYNTHETIC_BIO': '🔬 합성생물학 섹터',
             'STABLECOIN': '💰 스테이블코인/암호화폐 섹터',
             'DATACENTER_COOLING': '❄️ 데이터센터 냉각기술 섹터',
-            'BCI': '🧠 뇌-컴퓨터 인터페이스(BCI) 섹터'
+            'BCI': '🧠 뇌-컴퓨터 인터페이스(BCI) 섹터',
+            'DATA_CENTER_POWER': '⚡ 데이터센터 전력/전원공급 섹터',
+            'DATA_CENTER_ENERGY': '🔋 데이터센터 에너지 공급 섹터',
+            'HYDROGEN': '💧 수소에너지 섹터',
+            'ESS': '🔌 에너지저장시스템(ESS) 섹터',
+            'DATA_CENTER_INFRASTRUCTURE': '🏗️ 데이터센터 인프라 섹터',
+            'MEGA_CAP_LEADERS': '🏆 초우량 글로벌 빅테크 섹터',
+            'CYBERSECURITY': '🛡️ 사이버보안 섹터',
+            'SATELLITE_COMMUNICATIONS': '🛰️ 위성통신 섹터',
+            'SUBSEA_CABLES': '🌊 해저케이블 섹터',
+            'OCEAN_PLASTICS': '♻️ 해양플라스틱 섹터'
         }[x]
     )
     
@@ -1060,37 +1077,62 @@ def main():
             'ALL': '900개+'
         }
         st.sidebar.warning(f"⚠️ {market} 전체 분석 예상 시간: 5분 이내\n예상 종목 수: {expected_count[market]}")
-    elif market in [
-        'AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN',
-        'DATACENTER_COOLING', 'BCI', 'FUTURE_LEADERS',
-        'DATA_CENTER_POWER', 'DATA_CENTER_ENERGY', 'HYDROGEN_ENERGY', 'ESS',
-        'DATA_CENTER_INFRASTRUCTURE', 'MEGA_CAP_LEADERS', 'CYBERSECURITY',
-        'SATELLITE_COMMUNICATIONS', 'SUBSEA_CABLES', 'OCEAN_PLASTICS'
-    ]:
-        sector_info = {
-            'FUTURE_LEADERS': '🌟 미래 대장주 엄선 약 60개 기업 (각 섹터 최고 유망주)',
-            'AEROSPACE': '🚀 우주항공·방위산업 관련 약 35개 기업',
-            'QUANTUM': '⚛️ 양자컴퓨터 관련 약 24개 기업', 
-            'LONGEVITY': '🧬 노화역전·장수 관련 약 38개 기업',
-            'SYNTHETIC_BIO': '🧫 합성생물학 관련 약 36개 기업',
-            'STABLECOIN': '💰 스테이블코인·암호화폐 관련 약 28개 기업',
-            'DATACENTER_COOLING': '❄️ 데이터센터 냉각기술 관련 약 30개 기업',
-            'BCI': '🧠 뇌-컴퓨터 인터페이스 관련 약 35개 기업',
+    elif market in sector_symbols:
+    sector_info = {
+        'FUTURE_LEADERS': '🌟 미래 대장주 엄선 약 60개 기업 (각 섹터 최고 유망주)',
+        'AEROSPACE': '🚀 우주항공·방위산업 관련 약 35개 기업',
+        'QUANTUM': '⚛️ 양자컴퓨터 관련 약 24개 기업', 
+        'LONGEVITY': '🧬 노화역전·장수 관련 약 38개 기업',
+        'SYNTHETIC_BIO': '🔬 합성생물학 관련 약 36개 기업',
+        'STABLECOIN': '💰 스테이블코인·암호화폐 관련 약 28개 기업',
+        'DATACENTER_COOLING': '❄️ 데이터센터 냉각기술 관련 약 30개 기업',
+        'BCI': '🧠 뇌-컴퓨터 인터페이스 관련 약 35개 기업',
+
+        # 신규 섹터
+        'DATA_CENTER_POWER': '⚡ 데이터센터 전력 인프라 관련 4개 주요 기업',
+        'DATA_CENTER_ENERGY': '🔋 데이터센터 에너지 공급 관련 3개 주요 기업',
+        'HYDROGEN': '💧 수소에너지·연료전지 관련 4개 주요 기업',
+        'ESS': '🔌 에너지저장시스템(ESS) 관련 3개 주요 기업',
+        'DATA_CENTER_INFRASTRUCTURE': '🏗️ 데이터센터 인프라·리츠 관련 3개 주요 기업',
+        'MEGA_CAP_LEADERS': '🏆 초우량 글로벌 빅테크 5개 기업',
+        'CYBERSECURITY': '🛡️ 사이버보안 관련 6개 핵심 기업',
+        'SATELLITE_COMMUNICATIONS': '🛰️ 위성통신 관련 3개 주요 기업',
+        'SUBSEA_CABLES': '🌊 해저케이블 인프라 관련 1개 주요 기업',
+        'OCEAN_PLASTICS': '♻️ 해양플라스틱·ESG 관련 1개 주요 기업'
+    }
+
+    st.sidebar.info(f"ℹ️ {sector_info[market]}\n예상 분석 시간: 1분 이내")
+    # elif market in [
+    #     'AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN',
+    #     'DATACENTER_COOLING', 'BCI', 'FUTURE_LEADERS',
+    #     'DATA_CENTER_POWER', 'DATA_CENTER_ENERGY', 'HYDROGEN_ENERGY', 'ESS',
+    #     'DATA_CENTER_INFRASTRUCTURE', 'MEGA_CAP_LEADERS', 'CYBERSECURITY',
+    #     'SATELLITE_COMMUNICATIONS', 'SUBSEA_CABLES', 'OCEAN_PLASTICS'
+    # ]:
+    #     sector_info = {
+    #         'FUTURE_LEADERS': '🌟 미래 대장주 엄선 약 60개 기업 (각 섹터 최고 유망주)',
+    #         'AEROSPACE': '🚀 우주항공·방위산업 관련 약 35개 기업',
+    #         'QUANTUM': '⚛️ 양자컴퓨터 관련 약 24개 기업', 
+    #         'LONGEVITY': '🧬 노화역전·장수 관련 약 38개 기업',
+    #         'SYNTHETIC_BIO': '🧫 합성생물학 관련 약 36개 기업',
+    #         'STABLECOIN': '💰 스테이블코인·암호화폐 관련 약 28개 기업',
+    #         'DATACENTER_COOLING': '❄️ 데이터센터 냉각기술 관련 약 30개 기업',
+    #         'BCI': '🧠 뇌-컴퓨터 인터페이스 관련 약 35개 기업',
     
-            # 새 섹터 추가
-            'DATA_CENTER_POWER': '⚡ 데이터센터 전력 인프라 관련 4개 주요 기업',
-            'DATA_CENTER_ENERGY': '🔋 데이터센터 에너지 공급 관련 3개 주요 기업',
-            'HYDROGEN_ENERGY': '💧 수소에너지·연료전지 관련 4개 주요 기업',
-            'ESS': '🔌 에너지저장시스템(ESS) 관련 3개 주요 기업',
-            'DATA_CENTER_INFRASTRUCTURE': '🏗️ 데이터센터 인프라·리츠 관련 3개 주요 기업',
-            'MEGA_CAP_LEADERS': '🏆 초우량 글로벌 빅테크 5개 기업',
-            'CYBERSECURITY': '🛡️ 사이버보안 관련 4개 핵심 기업',
-            'SATELLITE_COMMUNICATIONS': '🛰️ 위성통신 관련 3개 주요 기업',
-            'SUBSEA_CABLES': '🌊 해저케이블 인프라 관련 1개 주요 기업',
-            'OCEAN_PLASTICS': '♻️ 해양플라스틱·ESG 관련 1개 주요 기업'
-        }
+    #         # 새 섹터 추가
+    #         'DATA_CENTER_POWER': '⚡ 데이터센터 전력 인프라 관련 4개 주요 기업',
+    #         'DATA_CENTER_ENERGY': '🔋 데이터센터 에너지 공급 관련 3개 주요 기업',
+    #         'HYDROGEN_ENERGY': '💧 수소에너지·연료전지 관련 4개 주요 기업',
+    #         'ESS': '🔌 에너지저장시스템(ESS) 관련 3개 주요 기업',
+    #         'DATA_CENTER_INFRASTRUCTURE': '🏗️ 데이터센터 인프라·리츠 관련 3개 주요 기업',
+    #         'MEGA_CAP_LEADERS': '🏆 초우량 글로벌 빅테크 5개 기업',
+    #         'CYBERSECURITY': '🛡️ 사이버보안 관련 4개 핵심 기업',
+    #         'SATELLITE_COMMUNICATIONS': '🛰️ 위성통신 관련 3개 주요 기업',
+    #         'SUBSEA_CABLES': '🌊 해저케이블 인프라 관련 1개 주요 기업',
+    #         'OCEAN_PLASTICS': '♻️ 해양플라스틱·ESG 관련 1개 주요 기업'
+    #     }
     
-        st.sidebar.info(f"ℹ️ {sector_info[market]}\n예상 분석 시간: 1분 이내")
+    #     st.sidebar.info(f"ℹ️ {sector_info[market]}\n예상 분석 시간: 1분 이내")
     
     # StockAnalyzer 인스턴스 생성
     if 'analyzer' not in st.session_state:
@@ -1388,6 +1430,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
