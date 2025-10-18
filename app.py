@@ -64,7 +64,7 @@ class StockAnalyzer:
             'QUANTUM': [
                 'IBM','GOOGL','MSFT','NVDA','INTC','AMD','QCOM','MRVL',
                 'IONQ','RGTI','QUBT','ARQQ','QTUM','DEFN','AMZN','CRM',
-                'ORCL','CSCO','TSM','ASML','KLAC','LRCX','AMAT','TXN'
+                'ORCL','CSCO','TSM','ASML','KLAC','LRCX','AMAT','TXN', 'LAES', 'ARQQ','BTQ'
             ],
             'LONGEVITY': [
                 'GILD','AMGN','REGN','VRTX','BIIB','MRNA','NVAX','BNTX','ILMN',
@@ -84,11 +84,10 @@ class StockAnalyzer:
                 'AFRM','UPST','LC','GBTC','ETHE','LTCN','BITO','ARKK',
                 'CME'
             ],
-            'DATACENTER_COOLING': [
-                'NVDA','AMD','INTC','QCOM','MRVL','AMAT','LRCX','KLAC',
-                'JCI','CARR','ITW','EMR','HON','DHR','TMO','WAT','XYL',
-                'VLTO','CGNX','TER','KEYS','NOVT','NDSN','HUBB',
-                'AAON','SMTC','EVTC','DLR','EQIX','AMT'
+            'DATACENTER_SEMI': [
+                'SMR','BWXT','NEE','AES','BEPC','BE','FLNC','TSLA','LEU','CEG','SO','ETR','DUK','WEC','GEV',
+                'EQIX','DLR','IRM','AMT','VRT','ETN','SBGSY','ABB','JCI','TT','NVT','LGRDY','ANET','CSCO',
+                'JNPR','CIEN','GLW','LUMN','NVDA','AMD','INTC','AVGO','MRVL','CRWV','ALAB','CLPT','ON','CRDO'
             ],
             'BCI': [
                 'NVDA','GOOGL','MSFT','META','AAPL','TSLA','NEGG','SNAP','MRNA',
@@ -97,32 +96,24 @@ class StockAnalyzer:
                 'GMED','KALA','INVA','PHVS','SENS','CRMD','KRYS','ATNF',
                 'PLTR'
             ],
-            'DATA_CENTER_POWER': [
-                'ETN','ABB','AOSL','BE'
-            ],
             'DATA_CENTER_ENERGY': [
-                'CEG','D','NEE'
-            ],
-            'HYDROGEN_ENERGY': [
-                'PLUG','APD','LIN','BE'
-            ],
-            'ESS': [
-                'TSLA','ENPH','BLDP'
+                'SMR','OKLO','BWXT','LTBR','LEU','NEE','AES','BEPC','BE','DUK','FLNC','TSLA','ENPH','STEM','CEG','VST','SO','ETR','WEC','XEL','ABB','ETN','SBGSY','SIEGY','VRT'
             ],
             'DATA_CENTER_INFRASTRUCTURE': [
-                'EQIX','DLR','AMT'
+                'EQIX','DLR','AMT','IRM','VRT', 'ETN', 'SBGSY', 'ABB', 'JCI', 'TT', 'NVT', 'LGRDY', 'ANET', 'CSCO', 'JNPR', 'CIEN', 'GLW', 'LUMN', 'AKAM', 'J',
+                'NAVI','IREN','CRWV'
             ],
             'MEGA_CAP_LEADERS': [
-                'AAPL','MSFT','GOOGL','AMZN','NVDA'
+                'AAPL','MSFT','GOOGL','AMZN','NVDA','META'
             ],
             'CYBERSECURITY': [
                 'PANW','CRWD','ZS','FTNT'
             ],
             'SATELLITE_COMMUNICATIONS': [
-                'VSAT','ORBC','IRDM'
+                'ASTS','VSAT','ORBC','IRDM'
             ],
             'SUBSEA_CABLES': [
-                'TE'
+                'TE','CIEN','GLW'
             ],
             'OCEAN_PLASTICS': [
                 # 해당 분야 상장사 적으므로 참조용으로 제한
@@ -133,15 +124,15 @@ class StockAnalyzer:
                 # 🚀 우주항공 대장주
                 'RKLB', 'SPCE', 'BA', 'LMT', 'RTX', 'NOC', 'MAXR', 'ASTS',
                 # ⚛️ 양자컴퓨터 대장주  
-                'IONQ', 'RGTI', 'QUBT', 'IBM', 'GOOGL', 'NVDA', 'MSFT',
+                'IONQ', 'RGTI', 'QUBT', 'IBM', 'GOOGL', 'NVDA', 'MSFT','LAES', 'ARQQ','BTQ',
                 # 🧬 노화역전/장수 대장주
                 'UNITY', 'CRSP', 'EDIT', 'NTLA', 'BEAM', 'VERV', 'TWST', 'GILD', 'MRNA', 'NTRA',
                 # 🔬 합성생물학 대장주
                 'DNA', 'TWST', 'AMRS', 'CRSP', 'EDIT', 'FATE', 'BLUE', 'SYN',
                 # 💰 스테이블코인/암호화폐 대장주
                 'COIN', 'MSTR', 'RIOT', 'MARA', 'CLSK', 'SQ', 'PYPL', 'HOOD',
-                # ❄️ 데이터센터 냉각 대장주
-                'NVDA', 'AMD', 'JCI', 'CARR', 'XYL', 'SMTC', 'DLR', 'EQIX',
+                # ❄️ 데이터센터 대장주
+                'NVDA', 'AMD', 'JCI', 'CARR', 'XYL', 'SMTC', 'DLR', 'EQIX','PANW','CRWD','ZS','SMR','OKLO','BWXT','LTBR','LEU','NEE','AES','BEPC','BE','DUK','FLNC','TSLA','ENPH','STEM','CEG','VST','SO','ETR','WEC','XEL','ABB','ETN','SBGSY','SIEGY','VRT',
                 # 🧠 BCI 대장주
                 'NVDA', 'TSLA', 'META', 'GOOGL', 'ISRG', 'DXCM', 'BSX', 'SYNC',
                 # 🤖 AI/로봇 대장주
@@ -252,8 +243,8 @@ class StockAnalyzer:
                 sp500 = self._get_sp500_symbols_full()
                 nasdaq = self._get_nasdaq_symbols_full()
                 symbols = list(set(sp500 + nasdaq))  # 중복 제거
-            elif market_type in ['AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN', 'DATACENTER_COOLING', 'BCI', 'FUTURE_LEADERS','DATA_CENTER_POWER', 'DATA_CENTER_ENERGY', 'HYDROGEN_ENERGY',
-                'ESS', 'DATA_CENTER_INFRASTRUCTURE', 'MEGA_CAP_LEADERS',
+            elif market_type in ['AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN', 'DATACENTER_SEMI', 'BCI', 'FUTURE_LEADERS','DATA_CENTER_ENERGY',
+                'DATA_CENTER_INFRASTRUCTURE', 'MEGA_CAP_LEADERS',
                 'CYBERSECURITY', 'SATELLITE_COMMUNICATIONS', 'SUBSEA_CABLES', 'OCEAN_PLASTICS'
             ]:
                 # 섹터별 종목 가져오기
@@ -281,10 +272,9 @@ class StockAnalyzer:
             if market in [
                 'SP500', 'NASDAQ', 'ALL',
                 'AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN',
-                'DATACENTER_COOLING', 'BCI', 'FUTURE_LEADERS',
+                'DATACENTER_SEMI', 'BCI', 'FUTURE_LEADERS',
                 # 신규 섹터 추가
-                'DATA_CENTER_POWER', 'DATA_CENTER_ENERGY', 'HYDROGEN_ENERGY',
-                'ESS', 'DATA_CENTER_INFRASTRUCTURE', 'MEGA_CAP_LEADERS',
+                'DATA_CENTER_ENERGY','DATA_CENTER_INFRASTRUCTURE', 'MEGA_CAP_LEADERS',
                 'CYBERSECURITY', 'SATELLITE_COMMUNICATIONS', 'SUBSEA_CABLES', 'OCEAN_PLASTICS'
             ]:
                 # 미국 종목은 하드코딩된 회사명 사용
@@ -1063,9 +1053,8 @@ def main():
         options=[
             'SP500','NASDAQ','ALL','KOSPI','KOSDAQ',
             'FUTURE_LEADERS','AEROSPACE','QUANTUM','LONGEVITY',
-            'SYNTHETIC_BIO','STABLECOIN','DATACENTER_COOLING','BCI',
-            'DATA_CENTER_POWER','DATA_CENTER_ENERGY','HYDROGEN','ESS',
-            'DATA_CENTER_INFRASTRUCTURE','MEGA_CAP_LEADERS','CYBERSECURITY',
+            'SYNTHETIC_BIO','STABLECOIN','DATACENTER_SEMI','BCI',
+            'DATA_CENTER_ENERGY','DATA_CENTER_INFRASTRUCTURE','MEGA_CAP_LEADERS','CYBERSECURITY',
             'SATELLITE_COMMUNICATIONS','SUBSEA_CABLES','OCEAN_PLASTICS'
         ],
         format_func=lambda x: {
@@ -1080,12 +1069,9 @@ def main():
             'LONGEVITY': '🧬 노화역전/장수 섹터',
             'SYNTHETIC_BIO': '🔬 합성생물학 섹터',
             'STABLECOIN': '💰 스테이블코인/암호화폐 섹터',
-            'DATACENTER_COOLING': '❄️ 데이터센터 냉각기술 섹터',
+            'DATACENTER_SEMI': '❄️ 데이터센터 반도기술 섹터',
             'BCI': '🧠 뇌-컴퓨터 인터페이스(BCI) 섹터',
-            'DATA_CENTER_POWER': '⚡ 데이터센터 전력/전원공급 섹터',
-            'DATA_CENTER_ENERGY': '🔋 데이터센터 에너지 공급 섹터',
-            'HYDROGEN': '💧 수소에너지 섹터',
-            'ESS': '🔌 에너지저장시스템(ESS) 섹터',
+            'DATA_CENTER_ENERGY': '🔋 데이터센터 에너지 공급(SMR,수소,전력공급), 에너지저장시스템(ESS) 섹터',
             'DATA_CENTER_INFRASTRUCTURE': '🏗️ 데이터센터 인프라 섹터',
             'MEGA_CAP_LEADERS': '🏆 초우량 글로벌 빅테크 섹터',
             'CYBERSECURITY': '🛡️ 사이버보안 섹터',
@@ -1122,8 +1108,8 @@ def main():
         st.sidebar.warning(f"⚠️ {market} 전체 분석 예상 시간: 5분 이내\n예상 종목 수: {expected_count[market]}")
     elif market in [
         'AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN',
-        'DATACENTER_COOLING', 'BCI', 'FUTURE_LEADERS',
-        'DATA_CENTER_POWER', 'DATA_CENTER_ENERGY', 'HYDROGEN_ENERGY', 'ESS',
+        'DATACENTER_SEMI', 'BCI', 'FUTURE_LEADERS',
+        'DATA_CENTER_ENERGY',
         'DATA_CENTER_INFRASTRUCTURE', 'MEGA_CAP_LEADERS', 'CYBERSECURITY',
         'SATELLITE_COMMUNICATIONS', 'SUBSEA_CABLES', 'OCEAN_PLASTICS'
     ]:
@@ -1134,14 +1120,11 @@ def main():
             'LONGEVITY': '🧬 노화역전·장수 관련 약 38개 기업',
             'SYNTHETIC_BIO': '🔬 합성생물학 관련 약 36개 기업',
             'STABLECOIN': '💰 스테이블코인·암호화폐 관련 약 28개 기업',
-            'DATACENTER_COOLING': '❄️ 데이터센터 냉각기술 관련 약 30개 기업',
+            'DATACENTER_SEMI': '❄️ 데이터센터 냉각기술 관련 약 30개 기업',
             'BCI': '🧠 뇌-컴퓨터 인터페이스 관련 약 35개 기업',
     
             # 신규 섹터
-            'DATA_CENTER_POWER': '⚡ 데이터센터 전력 인프라 관련 4개 주요 기업',
-            'DATA_CENTER_ENERGY': '🔋 데이터센터 에너지 공급 관련 3개 주요 기업',
-            'HYDROGEN': '💧 수소에너지·연료전지 관련 4개 주요 기업',
-            'ESS': '🔌 에너지저장시스템(ESS) 관련 3개 주요 기업',
+            'DATA_CENTER_ENERGY': '🔋 데이터센터 에너지 공급 관련 25개 주요 기업',
             'DATA_CENTER_INFRASTRUCTURE': '🏗️ 데이터센터 인프라·리츠 관련 3개 주요 기업',
             'MEGA_CAP_LEADERS': '🏆 초우량 글로벌 빅테크 5개 기업',
             'CYBERSECURITY': '🛡️ 사이버보안 관련 6개 핵심 기업',
@@ -1151,37 +1134,6 @@ def main():
         }
     
         st.sidebar.info(f"ℹ️ {sector_info[market]}\n예상 분석 시간: 1분 이내")
-    # elif market in [
-    #     'AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN',
-    #     'DATACENTER_COOLING', 'BCI', 'FUTURE_LEADERS',
-    #     'DATA_CENTER_POWER', 'DATA_CENTER_ENERGY', 'HYDROGEN_ENERGY', 'ESS',
-    #     'DATA_CENTER_INFRASTRUCTURE', 'MEGA_CAP_LEADERS', 'CYBERSECURITY',
-    #     'SATELLITE_COMMUNICATIONS', 'SUBSEA_CABLES', 'OCEAN_PLASTICS'
-    # ]:
-    #     sector_info = {
-    #         'FUTURE_LEADERS': '🌟 미래 대장주 엄선 약 60개 기업 (각 섹터 최고 유망주)',
-    #         'AEROSPACE': '🚀 우주항공·방위산업 관련 약 35개 기업',
-    #         'QUANTUM': '⚛️ 양자컴퓨터 관련 약 24개 기업', 
-    #         'LONGEVITY': '🧬 노화역전·장수 관련 약 38개 기업',
-    #         'SYNTHETIC_BIO': '🧫 합성생물학 관련 약 36개 기업',
-    #         'STABLECOIN': '💰 스테이블코인·암호화폐 관련 약 28개 기업',
-    #         'DATACENTER_COOLING': '❄️ 데이터센터 냉각기술 관련 약 30개 기업',
-    #         'BCI': '🧠 뇌-컴퓨터 인터페이스 관련 약 35개 기업',
-    
-    #         # 새 섹터 추가
-    #         'DATA_CENTER_POWER': '⚡ 데이터센터 전력 인프라 관련 4개 주요 기업',
-    #         'DATA_CENTER_ENERGY': '🔋 데이터센터 에너지 공급 관련 3개 주요 기업',
-    #         'HYDROGEN_ENERGY': '💧 수소에너지·연료전지 관련 4개 주요 기업',
-    #         'ESS': '🔌 에너지저장시스템(ESS) 관련 3개 주요 기업',
-    #         'DATA_CENTER_INFRASTRUCTURE': '🏗️ 데이터센터 인프라·리츠 관련 3개 주요 기업',
-    #         'MEGA_CAP_LEADERS': '🏆 초우량 글로벌 빅테크 5개 기업',
-    #         'CYBERSECURITY': '🛡️ 사이버보안 관련 4개 핵심 기업',
-    #         'SATELLITE_COMMUNICATIONS': '🛰️ 위성통신 관련 3개 주요 기업',
-    #         'SUBSEA_CABLES': '🌊 해저케이블 인프라 관련 1개 주요 기업',
-    #         'OCEAN_PLASTICS': '♻️ 해양플라스틱·ESG 관련 1개 주요 기업'
-    #     }
-    
-    #     st.sidebar.info(f"ℹ️ {sector_info[market]}\n예상 분석 시간: 1분 이내")
     
     # StockAnalyzer 인스턴스 생성
     if 'analyzer' not in st.session_state:
@@ -1479,6 +1431,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
