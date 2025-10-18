@@ -175,20 +175,23 @@ class StockAnalyzer:
     def _get_nasdaq_symbols_full(self):
         """NASDAQ 전체 주요 기업 리스트 (주요 기술주 중심 400개+)"""
         return [
-            'AAPL', 'MSFT', 'GOOGL', 'GOOG', 'AMZN', 'NVDA', 'META', 'TSLA', 'AVGO', 'ADBE',
-            'CRM', 'NFLX', 'INTC', 'AMD', 'QCOM', 'TMUS', 'AMAT', 'ISRG', 'BKNG', 'VRTX',
-            'ADP', 'SBUX', 'GILD', 'ADI', 'LRCX', 'MDLZ', 'REGN', 'PYPL', 'KLAC', 'MRVL',
-            'ORLY', 'CDNS', 'SNPS', 'NXPI', 'WDAY', 'ABNB', 'FTNT', 'DDOG', 'TEAM', 'ZM',
-            'CRWD', 'ZS', 'OKTA', 'DOCU', 'NOW', 'PANW', 'MU', 'ANET', 'LULU', 'ODFL',
-            'CPRT', 'CSCO', 'CTAS', 'FAST', 'VRSK', 'ADSK', 'EA', 'DXCM', 'GRMN', 'IDXX',
-            'NDAQ', 'ANSS', 'MNST', 'MPWR', 'CDW', 'EBAY', 'NTAP', 'BIIB', 'CHTR', 'ALGN',
-            'DLTR', 'SWKS', 'TTWO', 'SMCI', 'PODD', 'AKAM', 'FICO', 'ENPH', 'FSLR', 'JNPR',
-            'MCHP', 'WDC', 'XRAY', 'CTXS', 'ULTA', 'FISV', 'PAYX', 'WBA', 'COST', 'FOX',
-            'FOXA', 'MRNA', 'BMRN', 'TECH', 'ILMN', 'INCY', 'SIRI', 'PCTY', 'EXPD', 'MELI',
-            'KDP', 'LCID', 'ROKU', 'HOOD', 'RIVN', 'SGEN', 'NTES', 'JD', 'PDD', 'BIDU',
-            'SPLK', 'PTON', 'ZI', 'SHOP', 'SPOT', 'PLUG', 'FUBO', 'ZG',
-            'UBER', 'LYFT', 'DASH', 'SNOW', 'RBLX', 'PLTR', 'COIN', 'SOFI', 'UPST',
-            'AFRM', 'SQ', 'PINS', 'SNAP'
+            'AAPL', 'ABNB', 'ADBE', 'ADI', 'ADP', 'ADSK', 'AEP', 'AFRM', 'AKAM', 'ALGN',
+            'AMAT', 'AMD', 'AMGN', 'AMZN', 'ANET', 'ANSS', 'APP', 'ARM', 'ASML', 'AVGO',
+            'AXON', 'AZN', 'BIDU', 'BIIB', 'BKNG', 'BKR', 'BMRN', 'CCEP', 'CDNS', 'CDW',
+            'CEG', 'CHTR', 'CMCSA', 'COIN', 'COST', 'CPRT', 'CRM', 'CRWD', 'CSCO', 'CSGP',
+            'CSX', 'CTAS', 'CTSH', 'CTXS', 'DASH', 'DDOG', 'DLTR', 'DOCU', 'DXCM', 'EA',
+            'EBAY', 'ENPH', 'EXC', 'EXPD', 'FANG', 'FAST', 'FICO', 'FISV', 'FOX', 'FOXA',
+            'FSLR', 'FTNT', 'FUBO', 'GEHC', 'GFS', 'GILD', 'GOOG', 'GOOGL', 'GRMN', 'HON',
+            'HOOD', 'IDXX', 'ILMN', 'INCY', 'INTC', 'INTU', 'ISRG', 'JD', 'JNPR', 'KDP',
+            'KHC', 'KLAC', 'LCID', 'LIN', 'LRCX', 'LULU', 'LYFT', 'MAR', 'MCHP', 'MDLZ',
+            'MELI', 'META', 'MNST', 'MPWR', 'MRNA', 'MRVL', 'MSFT', 'MSTR', 'MU', 'NDAQ',
+            'NFLX', 'NOW', 'NTAP', 'NTES', 'NVDA', 'NXPI', 'ODFL', 'OKTA', 'ON', 'ORLY',
+            'PANW', 'PAYX', 'PCAR', 'PCTY', 'PDD', 'PEP', 'PINS', 'PLTR', 'PLUG', 'PODD',
+            'PTON', 'PYPL', 'QCOM', 'RBLX', 'REGN', 'RIVN', 'ROKU', 'ROP', 'ROST', 'SBUX',
+            'SGEN', 'SHOP', 'SIRI', 'SMCI', 'SNAP', 'SNOW', 'SNPS', 'SOFI', 'SPLK', 'SPOT',
+            'SQ', 'SWKS', 'TEAM', 'TECH', 'TMUS', 'TRI', 'TSLA', 'TTD', 'TTWO', 'TXN',
+            'UBER', 'ULTA', 'UPST', 'VRSK', 'VRTX', 'WBA', 'WBD', 'WDAY', 'WDC', 'XEL',
+            'XRAY', 'ZG', 'ZI', 'ZM', 'ZS'
         ]
     
     def _get_us_market_cap_from_yahoo(self, market_type='SP500', limit=None):
@@ -1296,4 +1299,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
