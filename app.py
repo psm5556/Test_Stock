@@ -273,7 +273,15 @@ class StockAnalyzer:
         try:
             companies = {}
             
-            if market in ['SP500', 'NASDAQ', 'ALL', 'AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN', 'DATACENTER_COOLING', 'BCI', 'FUTURE_LEADERS']:
+            if market in [
+                'SP500', 'NASDAQ', 'ALL',
+                'AEROSPACE', 'QUANTUM', 'LONGEVITY', 'SYNTHETIC_BIO', 'STABLECOIN',
+                'DATACENTER_COOLING', 'BCI', 'FUTURE_LEADERS',
+                # 신규 섹터 추가
+                'DATA_CENTER_POWER', 'DATA_CENTER_ENERGY', 'HYDROGEN_ENERGY',
+                'ESS', 'DATA_CENTER_INFRASTRUCTURE', 'MEGA_CAP_LEADERS',
+                'CYBERSECURITY', 'SATELLITE_COMMUNICATIONS', 'SUBSEA_CABLES', 'OCEAN_PLASTICS'
+            ]:
                 # 미국 종목은 하드코딩된 회사명 사용
                 us_symbols = self._get_us_market_cap_from_yahoo(market, limit)
                 if us_symbols:
@@ -1438,6 +1446,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
