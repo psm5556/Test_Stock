@@ -709,7 +709,7 @@ class StockAnalyzer:
     
         # 2. S&P 500 기업 목록
         url2 = "https://datahub.io/core/s-and-p-500-companies-financials/r/constituents.csv"
-        df = pd.read_csv(url2)
+        df2 = pd.read_csv(url2)
     
         # 3. 두 데이터프레임을 병합
         df = pd.concat([df1, df2], ignore_index=True)
@@ -1330,6 +1330,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
