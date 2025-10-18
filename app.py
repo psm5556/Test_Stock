@@ -711,7 +711,7 @@ class StockAnalyzer:
         url = "https://datahub.io/core/s-and-p-500-companies-financials/r/constituents.csv"
         df2 = pd.read_csv(url)
         df.append(df2)
-        return df['Security Name'].dropna().unique().tolist()
+        return df['Name'].dropna().unique().tolist()
         
         # return {
         #     # 기존 기업들
@@ -1322,6 +1322,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
