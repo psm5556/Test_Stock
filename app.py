@@ -703,43 +703,53 @@ class StockAnalyzer:
 
     def _get_us_company_names(self):
         """미국 기업명 하드코딩 (확장된 버전)"""
-        return {
-            # 기존 기업들
-            'AAPL': 'Apple Inc.', 'MSFT': 'Microsoft Corp.', 'GOOGL': 'Alphabet Inc. Class A',
-            'GOOG': 'Alphabet Inc. Class C', 'AMZN': 'Amazon.com Inc.', 'NVDA': 'NVIDIA Corp.', 
-            'META': 'Meta Platforms Inc.', 'TSLA': 'Tesla Inc.', 'BRK-B': 'Berkshire Hathaway Inc.',
-            'LLY': 'Eli Lilly and Co.', 'AVGO': 'Broadcom Inc.', 'UNH': 'UnitedHealth Group Inc.',
-            'JPM': 'JPMorgan Chase & Co.', 'XOM': 'Exxon Mobil Corp.', 'V': 'Visa Inc.',
-            'PG': 'Procter & Gamble Co.', 'JNJ': 'Johnson & Johnson', 'MA': 'Mastercard Inc.',
-            'HD': 'Home Depot Inc.', 'CVX': 'Chevron Corp.', 'ABBV': 'AbbVie Inc.',
-            'PFE': 'Pfizer Inc.', 'BAC': 'Bank of America Corp.', 'KO': 'Coca-Cola Co.',
-            'COST': 'Costco Wholesale Corp.', 'TMO': 'Thermo Fisher Scientific Inc.', 'WMT': 'Walmart Inc.',
-            'CSCO': 'Cisco Systems Inc.', 'DIS': 'Walt Disney Co.', 'ABT': 'Abbott Laboratories',
-            'DHR': 'Danaher Corp.', 'MRK': 'Merck & Co. Inc.', 'ADBE': 'Adobe Inc.',
-            'CRM': 'Salesforce Inc.', 'NFLX': 'Netflix Inc.', 'INTC': 'Intel Corp.',
-            'AMD': 'Advanced Micro Devices Inc.', 'QCOM': 'Qualcomm Inc.', 'IBM': 'International Business Machines Corp.',
-            'GE': 'General Electric Co.', 'BA': 'Boeing Co.', 'CAT': 'Caterpillar Inc.',
-            'HON': 'Honeywell International Inc.', 'RTX': 'Raytheon Technologies Corp.', 'GS': 'Goldman Sachs Group Inc.',
-            'MS': 'Morgan Stanley', 'VZ': 'Verizon Communications Inc.', 'CMCSA': 'Comcast Corp.',
-            'NKE': 'Nike Inc.', 'ORCL': 'Oracle Corp.', 'PEP': 'PepsiCo Inc.',
-            'TXN': 'Texas Instruments Inc.', 'PM': 'Philip Morris International Inc.', 'T': 'AT&T Inc.',
-            'AMGN': 'Amgen Inc.', 'COP': 'ConocoPhillips', 'UNP': 'Union Pacific Corp.',
-            'NEE': 'NextEra Energy Inc.', 'LOW': "Lowe's Companies Inc.", 'TMUS': 'T-Mobile US Inc.',
-            'AMAT': 'Applied Materials Inc.', 'ISRG': 'Intuitive Surgical Inc.', 'BKNG': 'Booking Holdings Inc.',
-            'VRTX': 'Vertex Pharmaceuticals Inc.', 'ADP': 'Automatic Data Processing Inc.', 'SBUX': 'Starbucks Corp.',
-            'GILD': 'Gilead Sciences Inc.', 'ADI': 'Analog Devices Inc.', 'LRCX': 'Lam Research Corp.',
-            'MDLZ': 'Mondelez International Inc.', 'REGN': 'Regeneron Pharmaceuticals Inc.', 'PYPL': 'PayPal Holdings Inc.',
-            'KLAC': 'KLA Corp.', 'MRVL': 'Marvell Technology Inc.', 'ORLY': "O'Reilly Automotive Inc.",
-            'CDNS': 'Cadence Design Systems Inc.', 'SNPS': 'Synopsys Inc.', 'NXPI': 'NXP Semiconductors NV',
-            'WDAY': 'Workday Inc.', 'ABNB': 'Airbnb Inc.', 'FTNT': 'Fortinet Inc.',
-            'DDOG': 'Datadog Inc.', 'TEAM': 'Atlassian Corp.', 'ZM': 'Zoom Video Communications Inc.',
-            'CRWD': 'CrowdStrike Holdings Inc.', 'ZS': 'Zscaler Inc.', 'OKTA': 'Okta Inc.',
-            'DOCU': 'DocuSign Inc.', 'NOW': 'ServiceNow Inc.', 'PANW': 'Palo Alto Networks Inc.',
-            'MU': 'Micron Technology Inc.', 'ANET': 'Arista Networks Inc.', 'LULU': 'Lululemon Athletica Inc.',
-            'ODFL': 'Old Dominion Freight Line Inc.', 'EXC': 'Exelon Corp.', 'CTAS': 'Cintas Corp.',
-            'ROST': 'Ross Stores Inc.', 'TJX': 'TJX Companies Inc.', 'MCD': "McDonald's Corp.",
-            'YUM': 'Yum! Brands Inc.', 'CMG': 'Chipotle Mexican Grill Inc.'
-        }
+        """NASDAQ100 기업 리스트 (주요 기술주 중심 100개)"""
+        """DataHub.io에서 Nasdaq 100 기업 목록 가져오기"""
+        url = "https://datahub.io/core/nasdaq-listings/r/nasdaq-listed.csv"
+        df = pd.read_csv(url)
+
+        url = "https://datahub.io/core/s-and-p-500-companies-financials/r/constituents.csv"
+        df2 = pd.read_csv(url)
+        df.append(df2)
+        return df['Security Name'].dropna().unique().tolist()
+        
+        # return {
+        #     # 기존 기업들
+        #     'AAPL': 'Apple Inc.', 'MSFT': 'Microsoft Corp.', 'GOOGL': 'Alphabet Inc. Class A',
+        #     'GOOG': 'Alphabet Inc. Class C', 'AMZN': 'Amazon.com Inc.', 'NVDA': 'NVIDIA Corp.', 
+        #     'META': 'Meta Platforms Inc.', 'TSLA': 'Tesla Inc.', 'BRK-B': 'Berkshire Hathaway Inc.',
+        #     'LLY': 'Eli Lilly and Co.', 'AVGO': 'Broadcom Inc.', 'UNH': 'UnitedHealth Group Inc.',
+        #     'JPM': 'JPMorgan Chase & Co.', 'XOM': 'Exxon Mobil Corp.', 'V': 'Visa Inc.',
+        #     'PG': 'Procter & Gamble Co.', 'JNJ': 'Johnson & Johnson', 'MA': 'Mastercard Inc.',
+        #     'HD': 'Home Depot Inc.', 'CVX': 'Chevron Corp.', 'ABBV': 'AbbVie Inc.',
+        #     'PFE': 'Pfizer Inc.', 'BAC': 'Bank of America Corp.', 'KO': 'Coca-Cola Co.',
+        #     'COST': 'Costco Wholesale Corp.', 'TMO': 'Thermo Fisher Scientific Inc.', 'WMT': 'Walmart Inc.',
+        #     'CSCO': 'Cisco Systems Inc.', 'DIS': 'Walt Disney Co.', 'ABT': 'Abbott Laboratories',
+        #     'DHR': 'Danaher Corp.', 'MRK': 'Merck & Co. Inc.', 'ADBE': 'Adobe Inc.',
+        #     'CRM': 'Salesforce Inc.', 'NFLX': 'Netflix Inc.', 'INTC': 'Intel Corp.',
+        #     'AMD': 'Advanced Micro Devices Inc.', 'QCOM': 'Qualcomm Inc.', 'IBM': 'International Business Machines Corp.',
+        #     'GE': 'General Electric Co.', 'BA': 'Boeing Co.', 'CAT': 'Caterpillar Inc.',
+        #     'HON': 'Honeywell International Inc.', 'RTX': 'Raytheon Technologies Corp.', 'GS': 'Goldman Sachs Group Inc.',
+        #     'MS': 'Morgan Stanley', 'VZ': 'Verizon Communications Inc.', 'CMCSA': 'Comcast Corp.',
+        #     'NKE': 'Nike Inc.', 'ORCL': 'Oracle Corp.', 'PEP': 'PepsiCo Inc.',
+        #     'TXN': 'Texas Instruments Inc.', 'PM': 'Philip Morris International Inc.', 'T': 'AT&T Inc.',
+        #     'AMGN': 'Amgen Inc.', 'COP': 'ConocoPhillips', 'UNP': 'Union Pacific Corp.',
+        #     'NEE': 'NextEra Energy Inc.', 'LOW': "Lowe's Companies Inc.", 'TMUS': 'T-Mobile US Inc.',
+        #     'AMAT': 'Applied Materials Inc.', 'ISRG': 'Intuitive Surgical Inc.', 'BKNG': 'Booking Holdings Inc.',
+        #     'VRTX': 'Vertex Pharmaceuticals Inc.', 'ADP': 'Automatic Data Processing Inc.', 'SBUX': 'Starbucks Corp.',
+        #     'GILD': 'Gilead Sciences Inc.', 'ADI': 'Analog Devices Inc.', 'LRCX': 'Lam Research Corp.',
+        #     'MDLZ': 'Mondelez International Inc.', 'REGN': 'Regeneron Pharmaceuticals Inc.', 'PYPL': 'PayPal Holdings Inc.',
+        #     'KLAC': 'KLA Corp.', 'MRVL': 'Marvell Technology Inc.', 'ORLY': "O'Reilly Automotive Inc.",
+        #     'CDNS': 'Cadence Design Systems Inc.', 'SNPS': 'Synopsys Inc.', 'NXPI': 'NXP Semiconductors NV',
+        #     'WDAY': 'Workday Inc.', 'ABNB': 'Airbnb Inc.', 'FTNT': 'Fortinet Inc.',
+        #     'DDOG': 'Datadog Inc.', 'TEAM': 'Atlassian Corp.', 'ZM': 'Zoom Video Communications Inc.',
+        #     'CRWD': 'CrowdStrike Holdings Inc.', 'ZS': 'Zscaler Inc.', 'OKTA': 'Okta Inc.',
+        #     'DOCU': 'DocuSign Inc.', 'NOW': 'ServiceNow Inc.', 'PANW': 'Palo Alto Networks Inc.',
+        #     'MU': 'Micron Technology Inc.', 'ANET': 'Arista Networks Inc.', 'LULU': 'Lululemon Athletica Inc.',
+        #     'ODFL': 'Old Dominion Freight Line Inc.', 'EXC': 'Exelon Corp.', 'CTAS': 'Cintas Corp.',
+        #     'ROST': 'Ross Stores Inc.', 'TJX': 'TJX Companies Inc.', 'MCD': "McDonald's Corp.",
+        #     'YUM': 'Yum! Brands Inc.', 'CMG': 'Chipotle Mexican Grill Inc.'
+        # }
 
     def _get_sector_company_names(self):
         """섹터별 기업명 매핑"""
@@ -1312,6 +1322,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
