@@ -104,7 +104,7 @@ class StockAnalyzer:
                 'NAVI','IREN','CRWV'
             ],
             'MEGA_CAP_LEADERS': [
-                'AAPL','MSFT','GOOGL','AMZN','NVDA','META'
+                'AAPL','MSFT','GOOGL','AMZN','NVDA','META','TSLA'
             ],
             'CYBERSECURITY': [
                 'PANW','CRWD','ZS','FTNT'
@@ -1431,6 +1431,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
