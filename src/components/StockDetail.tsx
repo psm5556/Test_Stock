@@ -45,14 +45,11 @@ function MetricCard({
   );
 }
 
-// MA 범례
+// MA 범례 – MA200·240·365 제외
 const MA_LEGEND = [
   { label: 'MA20',  color: '#ef4444' },
   { label: 'MA60',  color: '#22c55e' },
   { label: 'MA125', color: '#3b82f6' },
-  { label: 'MA200', color: '#8b5cf6' },
-  { label: 'MA240', color: '#f97316' },
-  { label: 'MA365', color: '#9ca3af' },
 ];
 
 export default function StockDetail({ result, onClose }: StockDetailProps) {

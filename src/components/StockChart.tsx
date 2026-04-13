@@ -7,14 +7,11 @@ interface StockChartProps {
   result: AnalysisResult;
 }
 
-// MA 설정 (원래 Streamlit 코드와 동일한 색상)
+// MA 설정 – MA200·240·365 표시 제외
 const MA_CONFIG = [
   { key: 'ma20'  as const, label: 'MA20',  color: '#ef4444', width: 1.5 },
   { key: 'ma60'  as const, label: 'MA60',  color: '#22c55e', width: 1.5 },
   { key: 'ma125' as const, label: 'MA125', color: '#3b82f6', width: 2   },
-  { key: 'ma200' as const, label: 'MA200', color: '#8b5cf6', width: 1.5 },
-  { key: 'ma240' as const, label: 'MA240', color: '#f97316', width: 1.5 },
-  { key: 'ma365' as const, label: 'MA365', color: '#9ca3af', width: 1.5 },
 ] as const;
 
 export default function StockChart({ result }: StockChartProps) {

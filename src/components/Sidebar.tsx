@@ -1,6 +1,7 @@
 'use client';
 
-import { BarChart2, Clock, Play, Info, Table2, ExternalLink } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { BarChart2, Clock, Play, Info, Table2, ExternalLink, CheckCircle2 } from 'lucide-react';
 import type { MarketKey, PeriodKey, SheetConfig } from '@/types';
 import { MARKET_LABELS, PERIOD_LABELS } from '@/types';
 
@@ -47,7 +48,6 @@ interface SidebarProps {
   onAnalyze: () => void;
 }
 
-/** Extract the sheet ID from a full Google Sheets URL or return the raw value */
 function extractSheetId(input: string): string {
   const match = input.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
   return match ? match[1] : input.trim();
@@ -63,9 +63,33 @@ export default function Sidebar({
   onSheetConfigChange,
   onAnalyze,
 }: SidebarProps) {
-  const warning = MARKET_WARNINGS[market];
   const isSheets = market === 'GOOGLE_SHEETS';
-  const canAnalyze = !isAnalyzing && (!isSheets || sheetConfig.sheetId.trim().length > 0);
+  const warning = MARKET_WARNINGS[market];
+
+  // 서버 환경변수 설정 여부 확인
+  const [envSheetId, setEnvSheetId] = useState(false);
+  const [envSheetName, setEnvSheetName] = useState('');
+
+  useEffect(() => {
+    fetch('/api/config')
+      .then((r) => r.json())
+      .then((d) => {
+        setEnvSheetId(d.hasGoogleSheetId ?? false);
+        setEnvSheetName(d.googleSheetName ?? '');
+      })
+      .catch(() => {});
+  }, []);
+
+  // 분석 가능 조건: Google Sheets 선택 시 (환경변수 있거나 직접 입력)
+  const sheetReady = sheetConfig.sheetId.trim().length > 0 || envSheetId;
+  const canAnalyze = !isAnalyzing && (!isSheets || sheetReady);
+
+  // 환경변수 설정된 경우 시트 이름 기본값 자동 적용
+  useEffect(() => {
+    if (isSheets && envSheetId && !sheetConfig.sheetId && !sheetConfig.sheetName && envSheetName) {
+      onSheetConfigChange({ sheetId: '', sheetName: envSheetName });
+    }
+  }, [isSheets, envSheetId, envSheetName, sheetConfig, onSheetConfigChange]);
 
   return (
     <aside className="w-72 shrink-0 bg-white border-r border-gray-200 flex flex-col h-full overflow-y-auto">
@@ -105,7 +129,7 @@ export default function Sidebar({
           </div>
         </div>
 
-        {/* Google Sheets Config – 선택된 경우에만 표시 */}
+        {/* Google Sheets Config */}
         {isSheets && (
           <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 space-y-3">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
@@ -113,10 +137,24 @@ export default function Sidebar({
               Google Sheets 연동
             </div>
 
-            {/* Sheet ID 입력 */}
+            {/* 환경변수 설정된 경우 배지 표시 */}
+            {envSheetId && (
+              <div className="flex items-center gap-1.5 bg-emerald-100 border border-emerald-300 rounded-lg px-2.5 py-1.5">
+                <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
+                <span className="text-xs text-emerald-700 font-medium">
+                  서버 환경변수에 Sheet ID 설정됨
+                  {envSheetName && ` (시트: ${envSheetName})`}
+                </span>
+              </div>
+            )}
+
+            {/* Sheet ID 입력 – 환경변수 있어도 직접 입력으로 덮어쓸 수 있음 */}
             <div>
               <label className="block text-xs text-emerald-700 mb-1 font-medium">
                 스프레드시트 ID 또는 URL
+                {envSheetId && (
+                  <span className="ml-1 text-emerald-500 font-normal">(비워두면 환경변수 사용)</span>
+                )}
               </label>
               <input
                 type="text"
@@ -127,12 +165,14 @@ export default function Sidebar({
                     sheetId: extractSheetId(e.target.value),
                   })
                 }
-                placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"
+                placeholder={envSheetId ? '환경변수에서 자동 로드됩니다' : '스프레드시트 ID 또는 URL 붙여넣기'}
                 className="w-full text-xs px-2.5 py-1.5 border border-emerald-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-emerald-400 placeholder-gray-400"
               />
-              <p className="text-[10px] text-emerald-600 mt-1">
-                URL 전체를 붙여넣으면 ID를 자동 추출합니다
-              </p>
+              {!envSheetId && (
+                <p className="text-[10px] text-emerald-600 mt-1">
+                  URL 전체를 붙여넣으면 ID를 자동 추출합니다
+                </p>
+              )}
             </div>
 
             {/* Sheet 탭 이름 */}
@@ -146,20 +186,17 @@ export default function Sidebar({
                 onChange={(e) =>
                   onSheetConfigChange({ ...sheetConfig, sheetName: e.target.value })
                 }
-                placeholder="Sheet1"
+                placeholder={envSheetName || 'Sheet1'}
                 className="w-full text-xs px-2.5 py-1.5 border border-emerald-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-emerald-400 placeholder-gray-400"
               />
             </div>
 
             {/* 시트 형식 안내 */}
             <div className="text-[10px] text-emerald-700 space-y-0.5 border-t border-emerald-200 pt-2">
-              <p className="font-semibold">필수 시트 형식</p>
-              <p>• <strong>티커</strong> 컬럼: 종목 심볼 (AAPL, 005930.KS 등)</p>
-              <p>• <strong>기업명</strong> 컬럼: 회사명 (선택)</p>
-              <p className="flex items-center gap-1 mt-1">
-                <span>스프레드시트 공유:</span>
-                <span className="font-semibold">링크 있는 모든 사용자</span>
-              </p>
+              <p className="font-semibold">시트 필수 컬럼</p>
+              <p>• <strong>티커</strong>: 종목 심볼 (AAPL, 005930.KS 등)</p>
+              <p>• <strong>기업명</strong>: 회사명 (선택)</p>
+              <p className="mt-1">공유 설정: <strong>링크 있는 모든 사용자 – 뷰어</strong></p>
               <a
                 href="https://docs.google.com/spreadsheets"
                 target="_blank"
@@ -206,7 +243,7 @@ export default function Sidebar({
         <button
           onClick={onAnalyze}
           disabled={!canAnalyze}
-          title={isSheets && !sheetConfig.sheetId ? '스프레드시트 ID를 입력하세요' : ''}
+          title={isSheets && !sheetReady ? '스프레드시트 ID를 입력하세요' : ''}
           className={`w-full flex items-center justify-center gap-2 font-semibold py-3 rounded-xl text-sm transition-colors shadow-sm text-white ${
             isSheets
               ? 'bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-300'
