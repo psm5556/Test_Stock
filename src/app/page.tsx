@@ -10,13 +10,14 @@ import type {
   PeriodKey,
   AnalysisResult,
   FearGreedData,
+  SheetConfig,
+  OHLCVBar,
 } from '@/types';
 import { PERIOD_DAYS } from '@/types';
 import { analyzeStock } from '@/lib/analysis';
 
-const CONCURRENCY = 8; // parallel stock fetches
+const CONCURRENCY = 8;
 
-/** Fetch with simple retry on network error */
 async function fetchWithRetry(url: string, retries = 2): Promise<Response> {
   for (let i = 0; i <= retries; i++) {
     try {
@@ -34,6 +35,7 @@ async function fetchWithRetry(url: string, retries = 2): Promise<Response> {
 export default function HomePage() {
   const [market, setMarket] = useState<MarketKey>('FUTURE_LEADERS');
   const [period, setPeriod] = useState<PeriodKey>('6mo');
+  const [sheetConfig, setSheetConfig] = useState<SheetConfig>({ sheetId: '', sheetName: '' });
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [results, setResults] = useState<AnalysisResult[]>([]);
@@ -41,6 +43,7 @@ export default function HomePage() {
   const [fearGreedLoading, setFearGreedLoading] = useState(false);
   const [selectedResult, setSelectedResult] = useState<AnalysisResult | null>(null);
   const [statusMsg, setStatusMsg] = useState('');
+  const [sheetError, setSheetError] = useState('');
   const abortRef = useRef(false);
 
   const fetchFearGreed = useCallback(async (p: PeriodKey) => {
@@ -48,10 +51,7 @@ export default function HomePage() {
     try {
       const days = PERIOD_DAYS[p];
       const res = await fetch(`/api/fear-greed?days=${days}`);
-      if (res.ok) {
-        const data: FearGreedData = await res.json();
-        setFearGreed(data);
-      }
+      if (res.ok) setFearGreed(await res.json());
     } catch (e) {
       console.error('[fearGreed]', e);
     } finally {
@@ -66,21 +66,53 @@ export default function HomePage() {
     setProgress(0);
     setResults([]);
     setSelectedResult(null);
+    setSheetError('');
     setStatusMsg('종목 목록 가져오는 중...');
 
-    // Fetch fear & greed concurrently
     fetchFearGreed(period);
 
     try {
-      // 1. Get symbol list
-      const symRes = await fetch(`/api/symbols?market=${market}`);
-      if (!symRes.ok) throw new Error('종목 목록 조회 실패');
-      const { symbols }: { symbols: string[] } = await symRes.json();
-      if (!symbols.length) throw new Error('종목 목록이 비어있습니다');
+      // ── 1. 종목 목록 + 회사명 가져오기
+      let symbols: string[] = [];
+      let sheetNames: Record<string, string> = {};
+
+      if (market === 'GOOGLE_SHEETS') {
+        // Google Sheets에서 종목 가져오기
+        const params = new URLSearchParams({ sheetId: sheetConfig.sheetId });
+        if (sheetConfig.sheetName) params.set('sheetName', sheetConfig.sheetName);
+
+        const sheetRes = await fetch(`/api/sheets?${params}`);
+        const sheetData = await sheetRes.json();
+
+        if (!sheetRes.ok || sheetData.error) {
+          const msg = sheetData.error ?? '스프레드시트 조회 실패';
+          setSheetError(msg);
+          setStatusMsg(`오류: ${msg}`);
+          return;
+        }
+
+        symbols = sheetData.symbols ?? [];
+        sheetNames = sheetData.names ?? {};
+
+        if (symbols.length === 0) {
+          setSheetError('스프레드시트에서 종목을 찾을 수 없습니다. 티커 컬럼을 확인하세요.');
+          setStatusMsg('오류: 종목 없음');
+          return;
+        }
+
+        setStatusMsg(`📊 Google Sheets에서 ${symbols.length}개 종목 로드됨`);
+      } else {
+        // 기존 시장별 종목
+        const symRes = await fetch(`/api/symbols?market=${market}`);
+        if (!symRes.ok) throw new Error('종목 목록 조회 실패');
+        const data: { symbols: string[] } = await symRes.json();
+        symbols = data.symbols;
+        if (!symbols.length) throw new Error('종목 목록이 비어있습니다');
+      }
 
       setStatusMsg(`총 ${symbols.length}개 종목 분석 시작...`);
 
-      // 2. Analyze in batches
+      // ── 2. 병렬 배치 분석
       const accumulated: AnalysisResult[] = [];
       let done = 0;
 
@@ -91,12 +123,17 @@ export default function HomePage() {
         const batchResults = await Promise.allSettled(
           batch.map(async (sym) => {
             try {
-              const res = await fetchWithRetry(`/api/stock-data?symbol=${encodeURIComponent(sym)}&period=${period}`);
+              const res = await fetchWithRetry(
+                `/api/stock-data?symbol=${encodeURIComponent(sym)}&period=${period}`,
+              );
               if (!res.ok) return null;
-              const data: { symbol: string; companyName: string; bars: import('@/types').OHLCVBar[] } =
+              const data: { symbol: string; companyName: string; bars: OHLCVBar[] } =
                 await res.json();
               if (!data.bars || data.bars.length < 20) return null;
-              return analyzeStock(sym, data.bars, period, data.companyName);
+
+              // Google Sheets의 기업명 우선, 없으면 Yahoo Finance 기업명
+              const companyName = sheetNames[sym] || data.companyName;
+              return analyzeStock(sym, data.bars, period, companyName);
             } catch {
               return null;
             }
@@ -108,24 +145,24 @@ export default function HomePage() {
         });
 
         done += batch.length;
-        const pct = Math.min(99, (done / symbols.length) * 100);
-        setProgress(pct);
-        setStatusMsg(`분석 중... ${done}/${symbols.length}`);
-
-        // Update results incrementally (sorted by score)
-        const sorted = [...accumulated].sort((a, b) => b.score - a.score);
-        setResults(sorted);
+        setProgress(Math.min(99, (done / symbols.length) * 100));
+        setStatusMsg(`분석 중... ${done}/${symbols.length} (성공: ${accumulated.length}개)`);
+        setResults([...accumulated].sort((a, b) => b.score - a.score));
       }
 
       setProgress(100);
-      setStatusMsg(`완료! 총 ${accumulated.length}개 종목 분석됨`);
+      setStatusMsg(
+        market === 'GOOGLE_SHEETS'
+          ? `📊 Google Sheets 분석 완료! ${accumulated.length}개 종목`
+          : `완료! 총 ${accumulated.length}개 종목 분석됨`,
+      );
     } catch (err) {
       console.error('[analyze]', err);
       setStatusMsg(`오류: ${String(err)}`);
     } finally {
       setIsAnalyzing(false);
     }
-  }, [isAnalyzing, market, period, fetchFearGreed]);
+  }, [isAnalyzing, market, period, sheetConfig, fetchFearGreed]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50">
@@ -133,9 +170,11 @@ export default function HomePage() {
       <Sidebar
         market={market}
         period={period}
+        sheetConfig={sheetConfig}
         isAnalyzing={isAnalyzing}
-        onMarketChange={setMarket}
+        onMarketChange={(m) => { setMarket(m); setSheetError(''); }}
         onPeriodChange={setPeriod}
+        onSheetConfigChange={setSheetConfig}
         onAnalyze={handleAnalyze}
       />
 
@@ -148,17 +187,28 @@ export default function HomePage() {
               📈 주식 기술적 분석 종목 추천
             </h1>
             <p className="text-xs text-gray-500 mt-0.5">
-              이동평균선 · 골든크로스 · 추세 분석 기반 | 미래 대장주 엄선 포함
+              이동평균선 · 골든크로스 · 추세 분석 기반 | Google Sheets 연동 포함
             </p>
           </div>
           {statusMsg && (
-            <span className="text-xs text-gray-500 bg-white border border-gray-200 rounded-lg px-3 py-1.5">
+            <span className={`text-xs border rounded-lg px-3 py-1.5 ${
+              sheetError
+                ? 'text-red-600 bg-red-50 border-red-200'
+                : 'text-gray-500 bg-white border-gray-200'
+            }`}>
               {statusMsg}
             </span>
           )}
         </header>
 
-        {/* Fear & Greed – 높이 1/2로 축소 */}
+        {/* Google Sheets 오류 배너 */}
+        {sheetError && (
+          <div className="shrink-0 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
+            <strong>스프레드시트 오류:</strong> {sheetError}
+          </div>
+        )}
+
+        {/* Fear & Greed */}
         <div className="shrink-0">
           <FearGreedWidget data={fearGreed} loading={fearGreedLoading} />
         </div>
@@ -166,7 +216,6 @@ export default function HomePage() {
         {/* Results + Detail split view */}
         {selectedResult ? (
           <div className="flex flex-col lg:flex-row gap-3 flex-1 min-h-0 overflow-hidden">
-            {/* Left: compact table */}
             <div className="lg:w-80 lg:shrink-0 flex flex-col min-h-[200px] lg:min-h-0 overflow-hidden">
               <ResultsTable
                 results={results}
@@ -176,7 +225,6 @@ export default function HomePage() {
                 isAnalyzing={isAnalyzing}
               />
             </div>
-            {/* Right: stock detail – 차트 충분한 높이 확보 */}
             <div className="flex-1 min-h-0 overflow-hidden">
               <StockDetail
                 result={selectedResult}
@@ -196,9 +244,8 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Footer */}
-        <footer className="text-center text-xs text-gray-400 pb-2">
-          📈 주식 기술적 분석 종목 추천 시스템 · 미래 대장주 엄선 포함 ·{' '}
+        <footer className="text-center text-xs text-gray-400 pb-1 shrink-0">
+          📈 주식 기술적 분석 종목 추천 시스템 ·{' '}
           <span className="text-gray-500">⚠️ 투자 결정은 본인의 판단과 책임 하에 하시기 바랍니다.</span>
         </footer>
       </main>

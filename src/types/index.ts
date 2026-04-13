@@ -44,7 +44,13 @@ export interface FearGreedData {
   history: FearGreedPoint[];
 }
 
+export interface SheetConfig {
+  sheetId: string;
+  sheetName: string;
+}
+
 export type MarketKey =
+  | 'GOOGLE_SHEETS'
   | 'SP500' | 'NASDAQ' | 'ALL' | 'KOSPI' | 'KOSDAQ'
   | 'FUTURE_LEADERS' | 'AEROSPACE' | 'QUANTUM' | 'LONGEVITY'
   | 'SYNTHETIC_BIO' | 'STABLECOIN' | 'DATACENTER_SEMI' | 'BCI'
@@ -55,6 +61,7 @@ export type MarketKey =
 export type PeriodKey = '1mo' | '3mo' | '6mo' | '1y' | '2y' | '5y';
 
 export const MARKET_LABELS: Record<MarketKey, string> = {
+  GOOGLE_SHEETS: '📊 Google Sheets 종목',
   SP500: 'S&P 500 (전체 500개)',
   NASDAQ: 'NASDAQ (전체 주요 기술주)',
   ALL: '미국 전체 (S&P500 + NASDAQ)',
