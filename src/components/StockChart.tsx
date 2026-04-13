@@ -28,6 +28,8 @@ export default function StockChart({ result }: StockChartProps) {
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       type Time = any;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      type LineSeries = any;
 
       const chart = createChart(container, {
         width: container.clientWidth,
@@ -77,6 +79,9 @@ export default function StockChart({ result }: StockChartProps) {
       );
 
       // ── 이동평균선
+      // MA20 시리즈 참조를 별도로 저장 (골든크로스 마커 부착용)
+      let ma20Series: LineSeries = null;
+
       for (const ma of MA_CONFIG) {
         const maData = result.maLines[ma.key];
         const points: { time: Time; value: number }[] = [];
@@ -94,18 +99,23 @@ export default function StockChart({ result }: StockChartProps) {
           lastValueVisible: true,
         });
         lineSeries.setData(points);
+
+        if (ma.key === 'ma20') ma20Series = lineSeries;
       }
 
       // ── 골든크로스 마커
-      if (result.goldenCross && result.crossDate) {
-        candleSeries.setMarkers([
+      // MA20 라인 시리즈에 position: 'inBar' 로 붙여서
+      // 마커가 MA20 값(≈ 교차점 가격)에 정확히 위치하도록 함.
+      // candleSeries 에 붙이면 캔들 저가 아래(belowBar)에 표시되어 위치가 틀림.
+      if (result.goldenCross && result.crossDate && ma20Series) {
+        ma20Series.setMarkers([
           {
             time:     result.crossDate as Time,
-            position: 'belowBar',
+            position: 'inBar',   // 라인 시리즈의 해당 값 위치(= MA20값 = 교차점)
             color:    '#f59e0b',
-            shape:    'arrowUp',
+            shape:    'circle',  // 교차점을 원으로 강조
             text:     '🌟 골든크로스',
-            size:     2,
+            size:     1.5,
           },
         ]);
       }
