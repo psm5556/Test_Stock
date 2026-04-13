@@ -5,23 +5,42 @@ import { TrendingUp, Filter, ChevronUp, ChevronDown } from 'lucide-react';
 import type { AnalysisResult } from '@/types';
 
 type FilterKey = 'all' | 'high' | 'medium' | 'golden' | 'trend';
-type SortKey = 'score' | 'symbol' | 'price';
+type SortKey = 'score' | 'symbol' | 'price' | 'goldenCross' | 'aboveMALines' | 'ma125Support' | 'trendStable';
 
 interface ResultsTableProps {
   results: AnalysisResult[];
   selectedSymbol: string | null;
   onSelect: (result: AnalysisResult) => void;
-  progress?: number; // 0-100
+  progress?: number;
   isAnalyzing: boolean;
 }
 
 const FILTER_OPTIONS: { key: FilterKey; label: string }[] = [
   { key: 'all', label: '전체' },
-  { key: 'high', label: '🔥 고득점 75+' },
-  { key: 'medium', label: '👍 50점 이상' },
+  { key: 'high', label: '🔥 75+' },
+  { key: 'medium', label: '👍 50+' },
   { key: 'golden', label: '🌟 골든크로스' },
   { key: 'trend', label: '📈 추세 안정' },
 ];
+
+interface ColDef {
+  key: SortKey;
+  label: string;
+  title: string;
+  align: 'left' | 'right' | 'center';
+}
+
+const COLUMNS: ColDef[] = [
+  { key: 'symbol',       label: '종목',  title: '종목명',           align: 'left'   },
+  { key: 'price',        label: '가격',  title: '현재가',           align: 'right'  },
+  { key: 'goldenCross',  label: 'GC',    title: '골든크로스',       align: 'center' },
+  { key: 'aboveMALines', label: 'MA',    title: '이평선 위',        align: 'center' },
+  { key: 'ma125Support', label: '125',   title: '125일선 지지',     align: 'center' },
+  { key: 'trendStable',  label: '추세',  title: '추세 안정',        align: 'center' },
+  { key: 'score',        label: '점수',  title: '종합 점수',        align: 'right'  },
+];
+
+function boolVal(v: boolean) { return v ? 1 : 0; }
 
 export default function ResultsTable({
   results,
@@ -36,17 +55,24 @@ export default function ResultsTable({
 
   const filtered = useMemo(() => {
     let arr = [...results];
-    if (filter === 'high') arr = arr.filter((r) => r.score >= 75);
-    else if (filter === 'medium') arr = arr.filter((r) => r.score >= 50);
-    else if (filter === 'golden') arr = arr.filter((r) => r.goldenCross);
-    else if (filter === 'trend') arr = arr.filter((r) => r.trendStable);
+    if (filter === 'high')   arr = arr.filter((r) => r.score >= 75);
+    if (filter === 'medium') arr = arr.filter((r) => r.score >= 50);
+    if (filter === 'golden') arr = arr.filter((r) => r.goldenCross);
+    if (filter === 'trend')  arr = arr.filter((r) => r.trendStable);
 
     arr.sort((a, b) => {
-      let av = 0, bv = 0;
-      if (sort === 'score') { av = a.score; bv = b.score; }
-      else if (sort === 'symbol') { av = 0; bv = 0; return sortDir === 'asc' ? a.symbol.localeCompare(b.symbol) : b.symbol.localeCompare(a.symbol); }
-      else if (sort === 'price') { av = a.currentPrice; bv = b.currentPrice; }
-      return sortDir === 'asc' ? av - bv : bv - av;
+      let diff = 0;
+      switch (sort) {
+        case 'symbol':       diff = a.symbol.localeCompare(b.symbol); break;
+        case 'price':        diff = a.currentPrice - b.currentPrice; break;
+        case 'goldenCross':  diff = boolVal(a.goldenCross)  - boolVal(b.goldenCross);  break;
+        case 'aboveMALines': diff = boolVal(a.aboveMALines) - boolVal(b.aboveMALines); break;
+        case 'ma125Support': diff = boolVal(a.ma125Support) - boolVal(b.ma125Support); break;
+        case 'trendStable':  diff = boolVal(a.trendStable)  - boolVal(b.trendStable);  break;
+        case 'score':
+        default:             diff = a.score - b.score; break;
+      }
+      return sortDir === 'asc' ? diff : -diff;
     });
 
     return arr;
@@ -58,11 +84,15 @@ export default function ResultsTable({
   };
 
   const SortIcon = ({ k }: { k: SortKey }) =>
-    sort === k ? (sortDir === 'desc' ? <ChevronDown size={12} /> : <ChevronUp size={12} />) : null;
+    sort === k
+      ? sortDir === 'desc'
+        ? <ChevronDown size={11} className="inline ml-0.5" />
+        : <ChevronUp   size={11} className="inline ml-0.5" />
+      : <span className="inline-block w-3" />;
 
   const stats = {
-    total: results.length,
-    high: results.filter((r) => r.score >= 75).length,
+    total:  results.length,
+    high:   results.filter((r) => r.score >= 75).length,
     medium: results.filter((r) => r.score >= 50 && r.score < 75).length,
     golden: results.filter((r) => r.goldenCross).length,
   };
@@ -78,16 +108,15 @@ export default function ResultsTable({
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 flex flex-col">
+    <div className="bg-white rounded-2xl border border-gray-200 flex flex-col h-full">
       {/* Header */}
-      <div className="p-4 border-b border-gray-100">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-gray-800 flex items-center gap-2">
-            <TrendingUp size={16} className="text-blue-600" />
-            분석 결과
+      <div className="p-4 border-b border-gray-100 shrink-0">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-semibold text-gray-800 flex items-center gap-2 text-sm">
+            <TrendingUp size={15} className="text-blue-600" /> 분석 결과
           </h3>
           {results.length > 0 && (
-            <div className="flex gap-3 text-xs text-gray-500">
+            <div className="flex gap-2 text-xs text-gray-500">
               <span>총 <strong className="text-gray-700">{stats.total}</strong></span>
               <span>🔥 <strong className="text-red-600">{stats.high}</strong></span>
               <span>👍 <strong className="text-orange-500">{stats.medium}</strong></span>
@@ -98,14 +127,14 @@ export default function ResultsTable({
 
         {/* Progress bar */}
         {isAnalyzing && (
-          <div className="mb-3">
+          <div className="mb-2">
             <div className="flex justify-between text-xs text-gray-500 mb-1">
               <span>분석 진행 중...</span>
               <span>{progress.toFixed(0)}%</span>
             </div>
-            <div className="w-full bg-gray-100 rounded-full h-2">
+            <div className="w-full bg-gray-100 rounded-full h-1.5">
               <div
-                className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                className="bg-blue-500 h-1.5 rounded-full transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -113,22 +142,20 @@ export default function ResultsTable({
         )}
 
         {/* Filters */}
-        <div className="flex gap-1 flex-wrap">
+        <div className="flex gap-1 flex-wrap items-center">
           {FILTER_OPTIONS.map((f) => (
             <button
               key={f.key}
               onClick={() => setFilter(f.key)}
-              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
-                filter === f.key
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              className={`px-2 py-0.5 rounded-lg text-xs font-medium transition-colors ${
+                filter === f.key ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
               {f.label}
             </button>
           ))}
-          <span className="ml-auto text-xs text-gray-400 self-center">
-            <Filter size={10} className="inline mr-1" />{filtered.length}개
+          <span className="ml-auto text-xs text-gray-400 flex items-center gap-1">
+            <Filter size={10} />{filtered.length}개
           </span>
         </div>
       </div>
@@ -136,27 +163,20 @@ export default function ResultsTable({
       {/* Table */}
       <div className="overflow-auto flex-1">
         <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
-              <th
-                className="text-left py-2.5 px-3 cursor-pointer hover:text-gray-700 whitespace-nowrap"
-                onClick={() => toggleSort('symbol')}
-              >
-                종목 <SortIcon k="symbol" />
-              </th>
-              <th className="text-right py-2.5 px-3 cursor-pointer hover:text-gray-700" onClick={() => toggleSort('price')}>
-                가격 <SortIcon k="price" />
-              </th>
-              <th className="text-center py-2.5 px-1">GC</th>
-              <th className="text-center py-2.5 px-1">MA</th>
-              <th className="text-center py-2.5 px-1">125</th>
-              <th className="text-center py-2.5 px-1">추세</th>
-              <th
-                className="text-right py-2.5 px-3 cursor-pointer hover:text-gray-700"
-                onClick={() => toggleSort('score')}
-              >
-                점수 <SortIcon k="score" />
-              </th>
+          <thead className="sticky top-0 z-10">
+            <tr className="bg-gray-50 text-xs text-gray-500 border-b border-gray-100">
+              {COLUMNS.map((col) => (
+                <th
+                  key={col.key}
+                  title={col.title}
+                  onClick={() => toggleSort(col.key)}
+                  className={`py-2 px-2 cursor-pointer hover:text-gray-800 hover:bg-gray-100 select-none whitespace-nowrap uppercase tracking-wide ${
+                    col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'
+                  } ${sort === col.key ? 'text-blue-600 bg-blue-50' : ''}`}
+                >
+                  {col.label}<SortIcon k={col.key} />
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
@@ -172,25 +192,21 @@ export default function ResultsTable({
                   key={r.symbol}
                   onClick={() => onSelect(r)}
                   className={`cursor-pointer transition-colors ${
-                    isSelected
-                      ? 'bg-blue-50 border-l-2 border-blue-500'
-                      : 'hover:bg-gray-50'
+                    isSelected ? 'bg-blue-50 border-l-2 border-blue-500' : 'hover:bg-gray-50'
                   }`}
                 >
-                  <td className="py-2.5 px-3">
-                    <div className="font-semibold text-gray-800">{r.symbol}</div>
-                    <div className="text-xs text-gray-400 truncate max-w-[120px]">{r.companyName}</div>
+                  <td className="py-2 px-2">
+                    <div className="font-semibold text-gray-800 text-xs">{r.symbol}</div>
+                    <div className="text-gray-400 truncate max-w-[100px] text-[10px]">{r.companyName}</div>
                   </td>
-                  <td className="py-2.5 px-3 text-right text-gray-700 tabular-nums">
-                    {r.currentPrice < 10
-                      ? r.currentPrice.toFixed(3)
-                      : r.currentPrice.toFixed(2)}
+                  <td className="py-2 px-2 text-right text-gray-700 tabular-nums text-xs">
+                    {r.currentPrice < 10 ? r.currentPrice.toFixed(3) : r.currentPrice.toFixed(2)}
                   </td>
-                  <td className="py-2.5 px-1 text-center">{r.goldenCross ? '✅' : '❌'}</td>
-                  <td className="py-2.5 px-1 text-center">{r.aboveMALines ? '✅' : '❌'}</td>
-                  <td className="py-2.5 px-1 text-center">{r.ma125Support ? '✅' : '❌'}</td>
-                  <td className="py-2.5 px-1 text-center">{r.trendStable ? '✅' : '❌'}</td>
-                  <td className={`py-2.5 px-3 text-right tabular-nums ${scoreColor}`}>{r.score}</td>
+                  <td className="py-2 px-2 text-center text-sm">{r.goldenCross  ? '✅' : '❌'}</td>
+                  <td className="py-2 px-2 text-center text-sm">{r.aboveMALines ? '✅' : '❌'}</td>
+                  <td className="py-2 px-2 text-center text-sm">{r.ma125Support ? '✅' : '❌'}</td>
+                  <td className="py-2 px-2 text-center text-sm">{r.trendStable  ? '✅' : '❌'}</td>
+                  <td className={`py-2 px-2 text-right tabular-nums text-xs ${scoreColor}`}>{r.score}</td>
                 </tr>
               );
             })}

@@ -140,11 +140,11 @@ export default function HomePage() {
       />
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto flex flex-col gap-4 p-5">
+      <main className="flex-1 overflow-hidden flex flex-col gap-3 p-4">
         {/* Top bar */}
-        <header className="flex items-center justify-between">
+        <header className="flex items-center justify-between shrink-0">
           <div>
-            <h1 className="text-xl font-bold text-gray-900 leading-tight">
+            <h1 className="text-lg font-bold text-gray-900 leading-tight">
               📈 주식 기술적 분석 종목 추천
             </h1>
             <p className="text-xs text-gray-500 mt-0.5">
@@ -158,14 +158,16 @@ export default function HomePage() {
           )}
         </header>
 
-        {/* Fear & Greed */}
-        <FearGreedWidget data={fearGreed} loading={fearGreedLoading} />
+        {/* Fear & Greed – 높이 1/2로 축소 */}
+        <div className="shrink-0">
+          <FearGreedWidget data={fearGreed} loading={fearGreedLoading} />
+        </div>
 
         {/* Results + Detail split view */}
         {selectedResult ? (
-          <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
+          <div className="flex flex-col lg:flex-row gap-3 flex-1 min-h-0 overflow-hidden">
             {/* Left: compact table */}
-            <div className="lg:w-96 lg:shrink-0 flex flex-col min-h-[300px] lg:min-h-0">
+            <div className="lg:w-80 lg:shrink-0 flex flex-col min-h-[200px] lg:min-h-0 overflow-hidden">
               <ResultsTable
                 results={results}
                 selectedSymbol={selectedResult.symbol}
@@ -174,8 +176,8 @@ export default function HomePage() {
                 isAnalyzing={isAnalyzing}
               />
             </div>
-            {/* Right: stock detail */}
-            <div className="flex-1 min-h-0">
+            {/* Right: stock detail – 차트 충분한 높이 확보 */}
+            <div className="flex-1 min-h-0 overflow-hidden">
               <StockDetail
                 result={selectedResult}
                 onClose={() => setSelectedResult(null)}
@@ -183,7 +185,7 @@ export default function HomePage() {
             </div>
           </div>
         ) : (
-          <div className="flex-1 min-h-0">
+          <div className="flex-1 min-h-0 overflow-hidden">
             <ResultsTable
               results={results}
               selectedSymbol={null}

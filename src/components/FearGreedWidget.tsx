@@ -33,7 +33,7 @@ function MiniLineChart({ data }: { data: { date: string; value: number }[] }) {
 
     const w = rect.width;
     const h = rect.height;
-    const pad = { top: 12, bottom: 20, left: 8, right: 8 };
+    const pad = { top: 8, bottom: 16, left: 6, right: 6 };
 
     ctx.clearRect(0, 0, w, h);
 
@@ -89,7 +89,7 @@ function MiniLineChart({ data }: { data: { date: string; value: number }[] }) {
     ctx.moveTo(toX(0), toY(values[0]));
     for (let i = 1; i < data.length; i++) ctx.lineTo(toX(i), toY(values[i]));
     ctx.strokeStyle = '#6366f1';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1.5;
     ctx.lineJoin = 'round';
     ctx.setLineDash([]);
     ctx.stroke();
@@ -99,20 +99,20 @@ function MiniLineChart({ data }: { data: { date: string; value: number }[] }) {
     const lastY = toY(values[values.length - 1]);
     const c = getColor(values[values.length - 1]);
     ctx.beginPath();
-    ctx.arc(lastX, lastY, 5, 0, Math.PI * 2);
+    ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
     ctx.fillStyle = c.hex;
     ctx.fill();
     ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1.5;
     ctx.stroke();
 
     // Date labels
     ctx.fillStyle = 'rgba(0,0,0,0.4)';
-    ctx.font = '9px system-ui, sans-serif';
+    ctx.font = '8px system-ui, sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText(data[0].date.slice(0, 7), pad.left, h - 4);
+    ctx.fillText(data[0].date.slice(0, 7), pad.left, h - 2);
     ctx.textAlign = 'right';
-    ctx.fillText(data[data.length - 1].date.slice(0, 7), w - pad.right, h - 4);
+    ctx.fillText(data[data.length - 1].date.slice(0, 7), w - pad.right, h - 2);
   }, [data]);
 
   return <canvas ref={canvasRef} className="w-full h-full" />;
@@ -121,15 +121,15 @@ function MiniLineChart({ data }: { data: { date: string; value: number }[] }) {
 export default function FearGreedWidget({ data, loading }: FearGreedWidgetProps) {
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-200 p-5 flex items-center justify-center h-40">
-        <div className="text-sm text-gray-400 animate-pulse">공포 탐욕 지수 로딩 중...</div>
+      <div className="bg-white rounded-2xl border border-gray-200 px-4 py-3 flex items-center justify-center h-20">
+        <div className="text-xs text-gray-400 animate-pulse">공포 탐욕 지수 로딩 중...</div>
       </div>
     );
   }
 
   if (!data) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-200 p-5 flex items-center justify-center h-40 text-sm text-gray-400">
+      <div className="bg-white rounded-2xl border border-gray-200 px-4 py-3 flex items-center justify-center h-20 text-xs text-gray-400">
         분석을 시작하면 공포 탐욕 지수가 표시됩니다.
       </div>
     );
@@ -138,33 +138,26 @@ export default function FearGreedWidget({ data, loading }: FearGreedWidgetProps)
   const c = getColor(data.current);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-5">
-      <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
-        😨 CNN 공포 &amp; 탐욕 지수
-      </h3>
-      <div className="flex items-stretch gap-5">
+    <div className="bg-white rounded-2xl border border-gray-200 px-4 py-3">
+      <div className="flex items-center gap-1 mb-2">
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">😨 CNN 공포 &amp; 탐욕 지수</span>
+      </div>
+      <div className="flex items-stretch gap-4" style={{ height: '72px' }}>
         {/* Score card */}
-        <div className={`shrink-0 flex flex-col items-center justify-center border-2 ${c.border} rounded-xl px-6 py-4 min-w-[110px]`}>
-          <span className={`text-5xl font-black ${c.text}`}>{data.current.toFixed(0)}</span>
-          <span className={`text-sm font-bold mt-1 ${c.text}`}>{c.label}</span>
-          <span className="text-xs text-gray-400 mt-1">{data.label}</span>
-          {/* Mini gauge bar */}
-          <div className="w-full bg-gray-100 rounded-full h-2 mt-3">
-            <div
-              className={`${c.bg} h-2 rounded-full transition-all`}
-              style={{ width: `${data.current}%` }}
-            />
+        <div className={`shrink-0 flex flex-col items-center justify-center border-2 ${c.border} rounded-xl px-4 py-1.5 min-w-[88px]`}>
+          <span className={`text-3xl font-black leading-none ${c.text}`}>{data.current.toFixed(0)}</span>
+          <span className={`text-xs font-bold mt-0.5 ${c.text}`}>{c.label}</span>
+          <div className="w-full bg-gray-100 rounded-full h-1.5 mt-1.5">
+            <div className={`${c.bg} h-1.5 rounded-full transition-all`} style={{ width: `${data.current}%` }} />
           </div>
         </div>
 
         {/* History chart */}
-        <div className="flex-1 min-h-[120px]">
+        <div className="flex-1 min-h-0">
           {data.history.length > 0 ? (
             <MiniLineChart data={data.history} />
           ) : (
-            <div className="flex items-center justify-center h-full text-xs text-gray-400">
-              히스토리 데이터 없음
-            </div>
+            <div className="flex items-center justify-center h-full text-xs text-gray-400">히스토리 데이터 없음</div>
           )}
         </div>
       </div>
