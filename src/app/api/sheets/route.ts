@@ -36,9 +36,10 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
 
   // sheetId: from query param or env var
-  const sheetId = searchParams.get('sheetId') ?? process.env.GOOGLE_SHEET_ID ?? '';
+  // || 사용: 빈 문자열('')도 환경변수로 폴백되도록 (??는 null/undefined만 처리)
+  const sheetId = searchParams.get('sheetId')?.trim() || process.env.GOOGLE_SHEET_ID || '';
   // sheetName: from query param or env var (default: Sheet1)
-  const sheetName = searchParams.get('sheetName') ?? process.env.GOOGLE_SHEET_NAME ?? '';
+  const sheetName = searchParams.get('sheetName')?.trim() || process.env.GOOGLE_SHEET_NAME || '';
 
   if (!sheetId) {
     return NextResponse.json({ error: 'sheetId가 필요합니다.' }, { status: 400 });

@@ -78,8 +78,10 @@ export default function HomePage() {
 
       if (market === 'GOOGLE_SHEETS') {
         // Google Sheets에서 종목 가져오기
-        const params = new URLSearchParams({ sheetId: sheetConfig.sheetId });
-        if (sheetConfig.sheetName) params.set('sheetName', sheetConfig.sheetName);
+        // sheetId가 비어있으면 파라미터 자체를 생략 → 서버가 환경변수 사용
+        const params = new URLSearchParams();
+        if (sheetConfig.sheetId.trim()) params.set('sheetId', sheetConfig.sheetId.trim());
+        if (sheetConfig.sheetName.trim()) params.set('sheetName', sheetConfig.sheetName.trim());
 
         const sheetRes = await fetch(`/api/sheets?${params}`);
         const sheetData = await sheetRes.json();
