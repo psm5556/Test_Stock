@@ -247,7 +247,7 @@ export default function HomePage() {
               </div>
 
               {/* 차트 – 고정 픽셀 높이로 항상 렌더링 보장 */}
-              <div className="flex-1" style={{ height: '520px', minWidth: 0 }}>
+              <div className="flex-1" style={{ height: '1040px', minWidth: 0 }}>
                 <StockDetail
                   result={selectedResult}
                   onClose={() => setSelectedResult(null)}
