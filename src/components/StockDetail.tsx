@@ -60,7 +60,7 @@ export default function StockDetail({ result, onClose }: StockDetailProps) {
     : result.currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 flex flex-col h-full">
+    <div className="bg-white rounded-2xl border border-gray-200 flex flex-col" style={{ height: '100%' }}>
       {/* ── 헤더 */}
       <div className="flex items-start justify-between px-5 py-3 border-b border-gray-100 shrink-0">
         <div className="flex items-center gap-3 flex-wrap">
