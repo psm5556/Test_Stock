@@ -173,7 +173,7 @@ export default function HomePage() {
   }, [isAnalyzing, market, period, sheetConfig, fetchFearGreed]);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
+    <div className="flex overflow-hidden bg-slate-50" style={{ height: '100dvh' }}>
       {/* ── Sidebar (토글 가능) */}
       <div
         className={`shrink-0 overflow-hidden transition-all duration-300 ease-in-out ${

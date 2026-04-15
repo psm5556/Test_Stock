@@ -32,8 +32,8 @@ export default function StockChart({ result }: StockChartProps) {
       type LineSeries = any;
 
       const chart = createChart(container, {
-        width: container.clientWidth,
-        height: container.clientHeight,
+        width: container.clientWidth || 300,
+        height: container.clientHeight || 300,
         layout: {
           background: { type: ColorType.Solid, color: '#ffffff' },
           textColor: '#374151',
@@ -147,5 +147,5 @@ export default function StockChart({ result }: StockChartProps) {
     return () => cleanupFn();
   }, [result]);
 
-  return <div ref={containerRef} className="w-full h-full" />;
+  return <div ref={containerRef} className="w-full h-full" style={{ minHeight: '200px' }} />;
 }
