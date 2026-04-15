@@ -32,8 +32,7 @@ export default function StockChart({ result }: StockChartProps) {
       type LineSeries = any;
 
       const chart = createChart(container, {
-        width: container.clientWidth || 300,
-        height: container.clientHeight || 300,
+        autoSize: true,
         layout: {
           background: { type: ColorType.Solid, color: '#ffffff' },
           textColor: '#374151',
@@ -132,14 +131,7 @@ export default function StockChart({ result }: StockChartProps) {
         });
       }
 
-      // ── ResizeObserver
-      const ro = new ResizeObserver(() => {
-        if (container) chart.resize(container.clientWidth, container.clientHeight);
-      });
-      ro.observe(container);
-
       cleanupFn = () => {
-        ro.disconnect();
         chart.remove();
       };
     });
@@ -147,5 +139,5 @@ export default function StockChart({ result }: StockChartProps) {
     return () => cleanupFn();
   }, [result]);
 
-  return <div ref={containerRef} className="w-full h-full" style={{ minHeight: '200px' }} />;
+  return <div ref={containerRef} className="w-full h-full" style={{ minHeight: '200px', position: 'relative' }} />;
 }
